@@ -1,2 +1,2 @@
 # diobook
-an unlimited audobook app
+an unlimited audiobook app
