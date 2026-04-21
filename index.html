@@ -24,6 +24,28 @@
     --accent-dim: rgba(139, 92, 246, 0.15);
     --border: rgba(255, 255, 255, 0.08);
     --danger: #FF453A;
+    --mini-bg: rgba(28, 28, 30, 0.92);
+    --shadow-cover: 0 4px 20px rgba(0,0,0,0.4);
+    --shadow-cover-big: 0 20px 60px rgba(0,0,0,0.6);
+    --shadow-toast: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  :root[data-theme="light"] {
+    --bg: #FFFFFF;
+    --surface: #F2F2F7;
+    --surface-2: #E5E5EA;
+    --surface-3: #D1D1D6;
+    --text: #000000;
+    --text-dim: #636366;
+    --text-dim-2: #8E8E93;
+    --accent: #7C3AED;
+    --accent-hover: #6D28D9;
+    --accent-dim: rgba(124, 58, 237, 0.12);
+    --border: rgba(0, 0, 0, 0.08);
+    --danger: #FF3B30;
+    --mini-bg: rgba(242, 242, 247, 0.92);
+    --shadow-cover: 0 4px 16px rgba(0,0,0,0.12);
+    --shadow-cover-big: 0 16px 48px rgba(0,0,0,0.18);
+    --shadow-toast: 0 8px 24px rgba(0,0,0,0.15);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
   html, body {
@@ -135,7 +157,7 @@
     background: var(--surface);
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-cover);
     position: relative;
   }
   .book-cover img {
@@ -249,7 +271,7 @@
   /* Mini player */
   .mini-player {
     position: fixed; left: 12px; right: 12px; bottom: 12px;
-    background: rgba(28, 28, 30, 0.92);
+    background: var(--mini-bg);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -327,7 +349,7 @@
     margin: 0 auto 28px;
     border-radius: 14px; overflow: hidden;
     background: var(--surface);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    box-shadow: var(--shadow-cover-big);
   }
   .full-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .full-meta {
@@ -516,6 +538,25 @@
     padding: 12px 14px; border-radius: 10px;
     margin-bottom: 12px; line-height: 1.5;
   }
+  .engine-toggle {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .engine-opt {
+    background: var(--surface-2); border: 1px solid transparent; color: var(--text);
+    padding: 14px 12px; border-radius: 12px; cursor: pointer;
+    text-align: left; transition: all 0.15s;
+  }
+  .engine-opt.active {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .engine-opt-title {
+    font-size: 14px; font-weight: 600; margin-bottom: 2px;
+  }
+  .engine-opt-sub {
+    font-size: 11px; color: var(--text-dim); line-height: 1.3;
+  }
 
   .toast {
     position: fixed; bottom: 140px; left: 50%;
@@ -523,7 +564,7 @@
     background: var(--surface-2); color: var(--text);
     padding: 10px 18px; border-radius: 20px;
     font-size: 13px; z-index: 200; font-weight: 500;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-toast);
   }
 
   .menu-btn {
@@ -539,6 +580,7 @@
   <div id="libraryPage">
     <div class="topbar">
       <h1>Library</h1>
+      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
       <button class="icon-btn" id="settingsBtn">⚙</button>
       <button class="icon-btn primary" id="addBtn">+</button>
     </div>
@@ -553,6 +595,7 @@
     <div class="topbar">
       <button class="icon-btn" id="backToLibrary">←</button>
       <div class="page-title" style="flex:1; text-align:center;">Book</div>
+      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
       <button class="icon-btn" id="settingsBtn2">⚙</button>
     </div>
     <main>
@@ -579,6 +622,7 @@
         <div class="page-title" id="readerChTitle"></div>
         <div style="font-size:12px; color:var(--text-dim); margin-top:2px;" id="readerBookTitle"></div>
       </div>
+      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
       <button class="icon-btn" id="openPlayerBtn">♪</button>
     </div>
     <main>
@@ -690,6 +734,8 @@
   </div>
 </div>
 
+<audio id="cloudAudio" preload="auto" playsinline></audio>
+
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script>
@@ -700,6 +746,7 @@
   const LIBRARY_KEY = 'bookvoice.library.v2';
   const SETTINGS_KEY = 'bookvoice.settings.v2';
   const MAX_CHUNK = 180;
+  const CLOUD_TTS_URL = 'https://wandering-base-ecaf.meldatelkok.workers.dev';
 
   const el = id => document.getElementById(id);
 
@@ -721,11 +768,40 @@
   function loadSettings() {
     try {
       return Object.assign({
-        voiceURI: null, rate: 1, pitch: 1
+        voiceURI: null, rate: 1, pitch: 1, theme: null,
+        engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural'
       }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
-    } catch { return { voiceURI: null, rate: 1, pitch: 1 }; }
+    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural' }; }
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+
+  function resolvedTheme() {
+    if (settings.theme === 'light' || settings.theme === 'dark') return settings.theme;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  function applyTheme() {
+    const t = resolvedTheme();
+    document.documentElement.setAttribute('data-theme', t);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', t === 'light' ? '#FFFFFF' : '#000000');
+    document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = t === 'light' ? '☀' : '🌙');
+  }
+  function toggleTheme() {
+    const cur = resolvedTheme();
+    settings.theme = cur === 'light' ? 'dark' : 'light';
+    saveSettings();
+    applyTheme();
+  }
+  applyTheme();
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.theme-toggle');
+    if (btn) toggleTheme();
+  });
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (!settings.theme) applyTheme();
+    });
+  }
 
   function loadLibrary() {
     try {
@@ -788,6 +864,22 @@
     });
   }
 
+  // Cloud voices
+  let cloudVoices = [];
+  let cloudVoicesLoaded = false;
+  async function loadCloudVoices() {
+    if (cloudVoicesLoaded) return cloudVoices;
+    try {
+      const resp = await fetch(CLOUD_TTS_URL + '/voices');
+      if (!resp.ok) throw new Error('Status ' + resp.status);
+      cloudVoices = await resp.json();
+      cloudVoicesLoaded = true;
+    } catch (e) {
+      console.error('Failed to load cloud voices', e);
+    }
+    return cloudVoices;
+  }
+
   // Voices
   let voices = [];
   let voicesReady = false;
@@ -826,8 +918,13 @@
   refreshVoices();
 
   function updateVoiceLabel() {
-    const v = voices.find(x => x.voiceURI === settings.voiceURI);
-    el('fpVoiceLabel').textContent = v ? v.name : 'Default';
+    if (settings.engine === 'cloud') {
+      const cv = cloudVoices.find(v => v.id === settings.cloudVoice);
+      el('fpVoiceLabel').textContent = cv ? cv.name : settings.cloudVoice.replace(/^.+?-.+?-(.+?)(?:Multilingual)?Neural$/, '$1');
+    } else {
+      const v = voices.find(x => x.voiceURI === settings.voiceURI);
+      el('fpVoiceLabel').textContent = v ? v.name : 'Default';
+    }
   }
 
   // Navigation
@@ -1123,6 +1220,74 @@
 
   // TTS
   let currentUtterance = null;
+  const cloudAudio = el('cloudAudio');
+  const prefetchCache = new Map(); // sentenceIdx -> Promise<Blob>
+
+  async function fetchCloudAudio(sentenceIdx) {
+    if (prefetchCache.has(sentenceIdx)) return prefetchCache.get(sentenceIdx);
+    const text = state.sentences[sentenceIdx];
+    if (!text) return null;
+    const promise = (async () => {
+      const resp = await fetch(CLOUD_TTS_URL + '/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          voice: settings.cloudVoice,
+          rate: settings.rate,
+          pitch: settings.pitch
+        })
+      });
+      if (!resp.ok) throw new Error('Cloud TTS failed: ' + resp.status);
+      return await resp.blob();
+    })();
+    prefetchCache.set(sentenceIdx, promise);
+    // Keep cache small
+    if (prefetchCache.size > 6) {
+      const firstKey = prefetchCache.keys().next().value;
+      prefetchCache.delete(firstKey);
+    }
+    return promise;
+  }
+
+  function invalidatePrefetch() {
+    prefetchCache.clear();
+  }
+
+  async function speakCloudCurrent() {
+    const idx = state.currentSentence;
+    const text = state.sentences[idx];
+    if (!text) { advance(); return; }
+    highlightSentence(idx);
+    try {
+      const blob = await fetchCloudAudio(idx);
+      if (state.currentSentence !== idx || !state.playing) return; // paused or moved on
+      const url = URL.createObjectURL(blob);
+      cloudAudio.src = url;
+      cloudAudio._lastUrl = url;
+      cloudAudio.playbackRate = 1; // rate already baked in SSML
+      try { await cloudAudio.play(); } catch (e) { showToast('Tap play to start'); state.playing = false; updatePlayButtons(); return; }
+      // Start prefetching next sentence
+      if (idx + 1 < state.sentences.length) fetchCloudAudio(idx + 1).catch(() => {});
+    } catch (e) {
+      showToast('Cloud TTS error: ' + e.message);
+      state.playing = false;
+      updatePlayButtons();
+    }
+  }
+
+  cloudAudio.addEventListener('ended', () => {
+    if (cloudAudio._lastUrl) { URL.revokeObjectURL(cloudAudio._lastUrl); cloudAudio._lastUrl = null; }
+    if (settings.engine === 'cloud' && state.playing) advance();
+  });
+  cloudAudio.addEventListener('error', () => {
+    if (settings.engine === 'cloud' && state.playing) {
+      showToast('Audio playback error');
+      state.playing = false;
+      updatePlayButtons();
+    }
+  });
+
   function speakCurrent() {
     if (state.currentSentence >= state.sentences.length) {
       state.playing = false;
@@ -1133,6 +1298,10 @@
       } else {
         showToast('End of book');
       }
+      return;
+    }
+    if (settings.engine === 'cloud') {
+      speakCloudCurrent();
       return;
     }
     const text = state.sentences[state.currentSentence];
@@ -1164,6 +1333,7 @@
     state.playing = true;
     updatePlayButtons();
     window.speechSynthesis.cancel();
+    try { cloudAudio.pause(); } catch {}
     speakCurrent();
   }
 
@@ -1171,12 +1341,15 @@
     state.playing = false;
     updatePlayButtons();
     window.speechSynthesis.cancel();
+    try { cloudAudio.pause(); } catch {}
   }
 
   function stopSpeaking() {
     state.playing = false;
     updatePlayButtons();
     window.speechSynthesis.cancel();
+    try { cloudAudio.pause(); cloudAudio.currentTime = 0; } catch {}
+    invalidatePrefetch();
   }
 
   function updatePlayButtons() {
@@ -1272,11 +1445,15 @@
   el('closePlayerBtn').addEventListener('click', closeFullPlayer);
 
   // Voice sheet
-  function openVoiceSheet() {
+  async function openVoiceSheet() {
     refreshVoices();
-    renderVoiceList();
     el('voiceBackdrop').classList.add('open');
     el('voiceSheet').classList.add('open');
+    renderVoiceList();
+    if (!cloudVoicesLoaded) {
+      await loadCloudVoices();
+      renderVoiceList();
+    }
   }
   function closeVoiceSheet() {
     el('voiceBackdrop').classList.remove('open');
@@ -1290,55 +1467,127 @@
   function renderVoiceList() {
     const list = el('voiceList');
     const search = (el('voiceSearch').value || '').toLowerCase();
-    const filtered = voices.filter(v => {
-      if (!search) return true;
-      const q = voiceQuality(v).label.toLowerCase();
-      return (`${v.name} ${v.lang} ${q}`).toLowerCase().includes(search);
-    });
-    const sorted = [...filtered].sort((a, b) => {
-      const aEn = a.lang.startsWith('en') ? 0 : 1;
-      const bEn = b.lang.startsWith('en') ? 0 : 1;
-      if (aEn !== bEn) return aEn - bEn;
-      const qd = voiceQuality(b).tier - voiceQuality(a).tier;
-      if (qd !== 0) return qd;
-      if (a.lang !== b.lang) return a.lang.localeCompare(b.lang);
-      return a.name.localeCompare(b.name);
-    });
-    const enVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-    const hasPremium = enVoices.some(v => voiceQuality(v).tier >= 3);
+
+    // Engine toggle at top
+    const toggleHtml = `
+      <div class="engine-toggle">
+        <button class="engine-opt ${settings.engine === 'cloud' ? 'active' : ''}" data-engine="cloud">
+          <div class="engine-opt-title">☁ Cloud voices</div>
+          <div class="engine-opt-sub">ElevenLabs-like quality · Unlimited</div>
+        </button>
+        <button class="engine-opt ${settings.engine === 'device' ? 'active' : ''}" data-engine="device">
+          <div class="engine-opt-title">📱 Device voices</div>
+          <div class="engine-opt-sub">Works offline · Lower quality</div>
+        </button>
+      </div>`;
+
     const hint = el('voiceHint');
-    if (!hasPremium && enVoices.length > 0) {
-      hint.classList.remove('hidden');
-      hint.innerHTML = '<b>⚠ Higher-quality voices available.</b> On iPhone: Settings → Accessibility → Spoken Content → Voices → English, download <b>Ava (Premium)</b> or <b>Zoe (Premium)</b>. Then pull down to refresh this list.';
-    } else { hint.classList.add('hidden'); }
+    hint.classList.add('hidden');
 
     list.innerHTML = '';
-    sorted.forEach(v => {
-      const q = voiceQuality(v);
-      const li = document.createElement('li');
-      li.className = 'voice-row' + (v.voiceURI === settings.voiceURI ? ' selected' : '');
-      const badge = q.tier >= 3 ? `<span class="voice-badge">${q.label}</span>` :
-                    (q.tier === 1 ? `<span class="voice-badge dim">${q.label}</span>` : '');
-      li.innerHTML = `
-        <div class="voice-check">${v.voiceURI === settings.voiceURI ? '✓' : ''}</div>
-        <div class="voice-info">
-          <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
-          <div class="voice-meta">${v.lang}${v.localService ? '' : ' · Online'}</div>
-        </div>
-        <button class="voice-test-btn" data-uri="${v.voiceURI}">🔊</button>
-      `;
-      li.addEventListener('click', (e) => {
-        if (e.target.classList.contains('voice-test-btn')) {
-          e.stopPropagation();
-          testVoice(v);
-          return;
-        }
-        settings.voiceURI = v.voiceURI;
+
+    if (settings.engine === 'cloud') {
+      if (!cloudVoicesLoaded) {
+        list.innerHTML = toggleHtml + '<div style="padding:40px 0; text-align:center; color: var(--text-dim);">Loading voices…</div>';
+      } else if (cloudVoices.length === 0) {
+        list.innerHTML = toggleHtml + '<div style="padding:20px; text-align:center; color: var(--danger);">Could not reach cloud voices. Check internet or Worker status.</div>';
+      } else {
+        const filtered = cloudVoices.filter(v => {
+          if (!search) return true;
+          return (`${v.name} ${v.lang} ${v.gender} ${v.style}`).toLowerCase().includes(search);
+        });
+        list.innerHTML = toggleHtml;
+        filtered.forEach(v => {
+          const li = document.createElement('li');
+          li.className = 'voice-row' + (v.id === settings.cloudVoice ? ' selected' : '');
+          const isMulti = v.style.includes('Multilingual');
+          const badge = isMulti ? `<span class="voice-badge">★ Top</span>` : '';
+          li.innerHTML = `
+            <div class="voice-check">${v.id === settings.cloudVoice ? '✓' : ''}</div>
+            <div class="voice-info">
+              <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
+              <div class="voice-meta">${v.lang} · ${v.gender} · ${escapeHtml(v.style)}</div>
+            </div>
+            <button class="voice-test-btn" data-cloud-id="${v.id}">🔊</button>
+          `;
+          li.addEventListener('click', (e) => {
+            if (e.target.classList.contains('voice-test-btn')) {
+              e.stopPropagation();
+              testCloudVoice(v.id);
+              return;
+            }
+            settings.cloudVoice = v.id;
+            saveSettings();
+            updateVoiceLabel();
+            renderVoiceList();
+          });
+          list.appendChild(li);
+        });
+      }
+    } else {
+      // Device voices
+      const filtered = voices.filter(v => {
+        if (!search) return true;
+        const q = voiceQuality(v).label.toLowerCase();
+        return (`${v.name} ${v.lang} ${q}`).toLowerCase().includes(search);
+      });
+      const sorted = [...filtered].sort((a, b) => {
+        const aEn = a.lang.startsWith('en') ? 0 : 1;
+        const bEn = b.lang.startsWith('en') ? 0 : 1;
+        if (aEn !== bEn) return aEn - bEn;
+        const qd = voiceQuality(b).tier - voiceQuality(a).tier;
+        if (qd !== 0) return qd;
+        if (a.lang !== b.lang) return a.lang.localeCompare(b.lang);
+        return a.name.localeCompare(b.name);
+      });
+      const enVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+      const hasPremium = enVoices.some(v => voiceQuality(v).tier >= 3);
+      if (!hasPremium && enVoices.length > 0) {
+        hint.classList.remove('hidden');
+        hint.innerHTML = '<b>⚠ iPhone hides Premium voices from web apps.</b> For best quality use <b>☁ Cloud voices</b> above — same ElevenLabs-like quality, unlimited, free.';
+      }
+      list.innerHTML = toggleHtml;
+      sorted.forEach(v => {
+        const q = voiceQuality(v);
+        const li = document.createElement('li');
+        li.className = 'voice-row' + (v.voiceURI === settings.voiceURI ? ' selected' : '');
+        const badge = q.tier >= 3 ? `<span class="voice-badge">${q.label}</span>` :
+                      (q.tier === 1 ? `<span class="voice-badge dim">${q.label}</span>` : '');
+        li.innerHTML = `
+          <div class="voice-check">${v.voiceURI === settings.voiceURI ? '✓' : ''}</div>
+          <div class="voice-info">
+            <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
+            <div class="voice-meta">${v.lang}${v.localService ? '' : ' · Online'}</div>
+          </div>
+          <button class="voice-test-btn" data-uri="${v.voiceURI}">🔊</button>
+        `;
+        li.addEventListener('click', (e) => {
+          if (e.target.classList.contains('voice-test-btn')) {
+            e.stopPropagation();
+            testVoice(v);
+            return;
+          }
+          settings.voiceURI = v.voiceURI;
+          saveSettings();
+          updateVoiceLabel();
+          renderVoiceList();
+        });
+        list.appendChild(li);
+      });
+    }
+
+    // Attach engine toggle handlers
+    list.querySelectorAll('.engine-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.engine = btn.dataset.engine;
         saveSettings();
         updateVoiceLabel();
+        stopSpeaking();
+        if (settings.engine === 'cloud' && !cloudVoicesLoaded) {
+          loadCloudVoices().then(renderVoiceList);
+        }
         renderVoiceList();
       });
-      list.appendChild(li);
     });
   }
 
@@ -1347,6 +1596,29 @@
     const u = new SpeechSynthesisUtterance("Hello, this is a test of this voice. The quick brown fox jumps over the lazy dog.");
     u.voice = v; u.lang = v.lang; u.rate = settings.rate; u.pitch = settings.pitch;
     window.speechSynthesis.speak(u);
+  }
+
+  async function testCloudVoice(voiceId) {
+    try {
+      cloudAudio.pause();
+      const resp = await fetch(CLOUD_TTS_URL + '/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: 'Hello, this is a test of this voice. The quick brown fox jumps over the lazy dog.',
+          voice: voiceId,
+          rate: settings.rate,
+          pitch: settings.pitch
+        })
+      });
+      if (!resp.ok) throw new Error('Status ' + resp.status);
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      cloudAudio.src = url;
+      await cloudAudio.play();
+    } catch (e) {
+      showToast('Test failed: ' + e.message);
+    }
   }
 
   // Speed sheet
