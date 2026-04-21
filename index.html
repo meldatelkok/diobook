@@ -905,16 +905,102 @@
   </div>
   <div class="sheet-body">
     <div class="sleep-options">
+      <button class="sleep-option" id="chatBtn"><span>Ask about this book</span><span style="color:var(--text-dim); font-size:12px;">AI chat</span></button>
       <button class="sleep-option" id="summarizeNowBtn"><span>Summarize current chapter</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="recommendBtn"><span>Recommend similar books</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="ambientBtn"><span>Ambient sounds</span><span id="ambientState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
+      <button class="sleep-option" id="urlImportBtn"><span>Import from URL</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
       <button class="sleep-option" id="toggleAutoSummary"><span>Auto chapter summary</span><span id="autoSummaryState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
-      <button class="sleep-option" id="toggleSummaryLang"><span>Summary language</span><span id="summaryLangState" style="color:var(--text-dim); font-size:12px;">English</span></button>
+      <button class="sleep-option" id="toggleSummaryLang"><span>Summary / chat language</span><span id="summaryLangState" style="color:var(--text-dim); font-size:12px;">English</span></button>
       <button class="sleep-option" id="exportBtn"><span>Backup library</span><span style="color:var(--text-dim); font-size:12px;">Save to file</span></button>
       <button class="sleep-option" id="importBtn"><span>Restore from backup</span><span style="color:var(--text-dim); font-size:12px;">Load JSON file</span></button>
       <button class="sleep-option" id="statsBtn"><span>Reading stats</span><span id="statsSummary" style="color:var(--text-dim); font-size:12px;">—</span></button>
+      <div id="streakDisplay" style="text-align:center; font-size:13px; color:var(--text-dim); padding:10px;"></div>
     </div>
   </div>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+
+<!-- Word definition popup -->
+<div class="sheet-backdrop" id="defineBackdrop"></div>
+<div class="sheet" id="defineSheet" style="max-height: 60vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="defineWord">Word</h3>
+    <button class="close" id="defineSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <div id="defineContent" style="font-size:15px; line-height:1.6; padding: 8px 0;">Loading…</div>
+  </div>
+</div>
+
+<!-- Chat sheet -->
+<div class="sheet-backdrop" id="chatBackdrop"></div>
+<div class="sheet" id="chatSheet" style="max-height: 92vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Ask about this book</h3>
+    <button class="close" id="chatSheetClose">Done</button>
+  </div>
+  <div class="sheet-body" style="display:flex; flex-direction:column; padding:0;">
+    <div id="chatMessages" style="flex:1; overflow-y:auto; padding: 12px 20px; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding: 10px 16px 16px; border-top:1px solid var(--border); display:flex; gap:8px;">
+      <input type="text" id="chatInput" placeholder="Ask a question…" style="flex:1; padding:12px 14px; background:var(--surface-2); color:var(--text); border:none; border-radius:22px; font-size:15px;">
+      <button id="chatSend" class="icon-btn primary" aria-label="Send" style="width:44px; height:44px; border-radius:22px;">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- URL import sheet -->
+<div class="sheet-backdrop" id="urlBackdrop"></div>
+<div class="sheet" id="urlSheet" style="max-height: 60vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Import from URL</h3>
+    <button class="close" id="urlSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:12px;">Paste a direct link to an EPUB file. The URL must end with .epub or return EPUB content.</p>
+    <input type="url" id="urlInput" placeholder="https://example.com/book.epub" style="width:100%; padding:12px 14px; background:var(--surface-2); color:var(--text); border:none; border-radius:10px; font-size:15px; margin-bottom:12px;">
+    <button id="urlGoBtn" class="primary-btn wide">Import</button>
+    <div id="urlStatus" style="margin-top:12px; font-size:13px; color:var(--text-dim);"></div>
+  </div>
+</div>
+
+<!-- Recommendations sheet -->
+<div class="sheet-backdrop" id="recBackdrop"></div>
+<div class="sheet" id="recSheet" style="max-height: 80vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="recTitle">Recommendations</h3>
+    <button class="close" id="recSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <div id="recContent">Loading…</div>
+  </div>
+</div>
+
+<!-- Ambient sheet -->
+<div class="sheet-backdrop" id="ambientBackdrop"></div>
+<div class="sheet" id="ambientSheet" style="max-height: 70vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Ambient sounds</h3>
+    <button class="close" id="ambientSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <div class="sleep-options" id="ambientOptions"></div>
+    <div style="margin-top:16px;">
+      <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Volume</div>
+      <div class="slider-row">
+        <input type="range" id="ambientVolume" min="0" max="1" step="0.05" value="0.3">
+        <span class="slider-value" id="ambientVolumeValue">30%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="ambientAudio" loop preload="none" playsinline></audio>
 
 <!-- Summary sheet -->
 <div class="sheet-backdrop" id="summaryBackdrop"></div>
@@ -1760,6 +1846,7 @@
     if (!state.sentences.length) return;
     state.playing = true;
     updatePlayButtons();
+    try { markListened(); } catch {}
     window.speechSynthesis.cancel();
     try { cloudAudio.pause(); } catch {}
     speakCurrent();
@@ -2387,6 +2474,7 @@
   function openMenuSheet() {
     updateStatsSummary();
     updateMenuStates();
+    updateStreakDisplay();
     el('menuBackdrop').classList.add('open');
     el('menuSheet').classList.add('open');
   }
@@ -2571,6 +2659,319 @@
     saveSettings();
     updateMenuStates();
   });
+
+  // === Reading streak ===
+  const STREAK_KEY = 'bookvoice.streak.v1';
+  function loadStreak() {
+    try { return JSON.parse(localStorage.getItem(STREAK_KEY) || '{}'); } catch { return {}; }
+  }
+  function saveStreakData(d) { localStorage.setItem(STREAK_KEY, JSON.stringify(d)); }
+  function markListened() {
+    const d = loadStreak();
+    const today = new Date().toISOString().slice(0, 10);
+    if (d.lastDate === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    d.streak = (d.lastDate === yesterday) ? (d.streak || 0) + 1 : 1;
+    d.lastDate = today;
+    d.totalDays = (d.totalDays || 0) + 1;
+    saveStreakData(d);
+    updateStreakDisplay();
+  }
+  function updateStreakDisplay() {
+    const d = loadStreak();
+    const disp = el('streakDisplay');
+    if (!disp) return;
+    if (d.streak) disp.textContent = `🔥 ${d.streak} day streak · ${d.totalDays} days total`;
+    else disp.textContent = '';
+  }
+
+  // === Chat ===
+  const chatHistory = [];
+  async function openChatSheet() {
+    if (!state.currentBook) { showToast('Open a book first'); return; }
+    el('chatBackdrop').classList.add('open');
+    el('chatSheet').classList.add('open');
+    if (!el('chatMessages').children.length) {
+      const intro = document.createElement('div');
+      intro.style.cssText = 'color:var(--text-dim); font-size:13px; text-align:center; padding:20px 0;';
+      intro.textContent = 'Ask about characters, plot, or the current chapter.';
+      el('chatMessages').appendChild(intro);
+    }
+    setTimeout(() => el('chatInput').focus(), 300);
+  }
+  function closeChatSheet() {
+    el('chatBackdrop').classList.remove('open');
+    el('chatSheet').classList.remove('open');
+  }
+  function appendChatMsg(role, text) {
+    const div = document.createElement('div');
+    const isUser = role === 'user';
+    div.style.cssText = `max-width:85%; padding:10px 14px; border-radius:16px; font-size:14px; line-height:1.45; white-space:pre-wrap; align-self:${isUser ? 'flex-end' : 'flex-start'}; background:${isUser ? 'var(--accent)' : 'var(--surface-2)'}; color:${isUser ? 'white' : 'var(--text)'};`;
+    div.textContent = text;
+    el('chatMessages').appendChild(div);
+    el('chatMessages').scrollTop = el('chatMessages').scrollHeight;
+    return div;
+  }
+  async function getCurrentChapterText() {
+    if (state.currentChapterIdx < 0) return '';
+    const ch = state.chapters[state.currentChapterIdx];
+    try {
+      const section = state.bookInstance.spine.get(ch.href);
+      const contents = await section.load(state.bookInstance.load.bind(state.bookInstance));
+      const text = extractText(contents);
+      section.unload && section.unload();
+      return text;
+    } catch { return ''; }
+  }
+  async function sendChatMessage() {
+    const input = el('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    appendChatMsg('user', msg);
+    chatHistory.push({ role: 'user', content: msg });
+    const thinking = appendChatMsg('assistant', 'Thinking…');
+    try {
+      const context = await getCurrentChapterText();
+      const ch = state.chapters[state.currentChapterIdx];
+      const resp = await fetch(CLOUD_TTS_URL + '/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookTitle: state.currentBook.title,
+          author: state.currentBook.author || '',
+          chapterLabel: ch ? ch.label : '',
+          context,
+          history: chatHistory.slice(0, -1),
+          message: msg,
+          language: settings.summaryLang || 'English'
+        })
+      });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      const reply = data.reply || '(no reply)';
+      thinking.textContent = reply;
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (e) {
+      thinking.textContent = 'Error: ' + e.message;
+      chatHistory.pop();
+    }
+  }
+  el('chatSheetClose').addEventListener('click', closeChatSheet);
+  el('chatBackdrop').addEventListener('click', closeChatSheet);
+  el('chatSend').addEventListener('click', sendChatMessage);
+  el('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
+  el('chatBtn').addEventListener('click', () => { closeMenuSheet(); openChatSheet(); });
+
+  // === Word definition (double-tap/long-press word) ===
+  async function defineWord(word, context) {
+    el('defineWord').textContent = word;
+    el('defineContent').textContent = 'Looking up…';
+    el('defineBackdrop').classList.add('open');
+    el('defineSheet').classList.add('open');
+    try {
+      const resp = await fetch(CLOUD_TTS_URL + '/define', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word, context, targetLang: settings.summaryLang === 'Turkish' ? 'Turkish' : 'Turkish' })
+      });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      el('defineContent').innerHTML = `
+        ${data.translation ? `<div style="margin-bottom:12px;"><span style="font-size:13px; color:var(--text-dim); text-transform:uppercase;">Translation</span><div style="font-size:18px; font-weight:600; margin-top:4px;">${escapeHtml(data.translation)}</div></div>` : ''}
+        ${data.definition ? `<div style="margin-bottom:12px;"><span style="font-size:13px; color:var(--text-dim); text-transform:uppercase;">Definition</span><div style="margin-top:4px;">${escapeHtml(data.definition)}</div></div>` : ''}
+        ${data.example ? `<div><span style="font-size:13px; color:var(--text-dim); text-transform:uppercase;">Example</span><div style="margin-top:4px; font-style:italic;">${escapeHtml(data.example)}</div></div>` : ''}
+      `;
+    } catch (e) {
+      el('defineContent').textContent = 'Lookup failed: ' + e.message;
+    }
+  }
+  function closeDefineSheet() {
+    el('defineBackdrop').classList.remove('open');
+    el('defineSheet').classList.remove('open');
+  }
+  el('defineSheetClose').addEventListener('click', closeDefineSheet);
+  el('defineBackdrop').addEventListener('click', closeDefineSheet);
+
+  // Long-press / double-tap detection on reader words
+  let pressTimer = null;
+  el('readerView').addEventListener('touchstart', (e) => {
+    const target = e.target;
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      const selection = getWordAtPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (selection) {
+        navigator.vibrate && navigator.vibrate(30);
+        const ctx = selection.sentence || '';
+        defineWord(selection.word, ctx);
+      }
+    }, 550);
+  }, { passive: true });
+  el('readerView').addEventListener('touchend', () => clearTimeout(pressTimer), { passive: true });
+  el('readerView').addEventListener('touchmove', () => clearTimeout(pressTimer), { passive: true });
+  el('readerView').addEventListener('dblclick', (e) => {
+    const w = getWordAtPoint(e.clientX, e.clientY);
+    if (w) defineWord(w.word, w.sentence);
+  });
+
+  function getWordAtPoint(x, y) {
+    let range, textNode, offset;
+    if (document.caretPositionFromPoint) {
+      const pos = document.caretPositionFromPoint(x, y);
+      if (!pos) return null;
+      textNode = pos.offsetNode; offset = pos.offset;
+    } else if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(x, y);
+      if (!range) return null;
+      textNode = range.startContainer; offset = range.startOffset;
+    } else return null;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return null;
+    const text = textNode.textContent;
+    let start = offset, end = offset;
+    while (start > 0 && /[A-Za-zÀ-ÿ\u00c0-\u024f\u1e00-\u1eff']/.test(text[start - 1])) start--;
+    while (end < text.length && /[A-Za-zÀ-ÿ\u00c0-\u024f\u1e00-\u1eff']/.test(text[end])) end++;
+    const word = text.slice(start, end).trim();
+    if (!word || word.length > 40) return null;
+    const span = textNode.parentElement && textNode.parentElement.closest('[data-sentence]');
+    const sentence = span ? span.textContent.trim() : '';
+    return { word, sentence };
+  }
+
+  // === Recommendations ===
+  async function showRecommendations() {
+    if (!state.currentBook) { showToast('Open a book first'); return; }
+    el('recTitle').textContent = `More like "${state.currentBook.title}"`;
+    el('recContent').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-dim);">Finding recommendations…</div>';
+    el('recBackdrop').classList.add('open');
+    el('recSheet').classList.add('open');
+    try {
+      const resp = await fetch(CLOUD_TTS_URL + '/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: state.currentBook.title,
+          author: state.currentBook.author || '',
+          language: settings.summaryLang || 'English'
+        })
+      });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      const recs = data.recommendations || [];
+      if (!recs.length) { el('recContent').textContent = 'No recommendations.'; return; }
+      el('recContent').innerHTML = recs.map(r => `
+        <div style="padding: 14px; background: var(--surface-2); border-radius: 12px; margin-bottom: 10px;">
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 3px;">${escapeHtml(r.title || '')}</div>
+          <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 6px;">${escapeHtml(r.author || '')}</div>
+          <div style="font-size: 13px; line-height: 1.4;">${escapeHtml(r.why || '')}</div>
+        </div>
+      `).join('');
+    } catch (e) {
+      el('recContent').textContent = 'Failed: ' + e.message;
+    }
+  }
+  function closeRecSheet() {
+    el('recBackdrop').classList.remove('open');
+    el('recSheet').classList.remove('open');
+  }
+  el('recSheetClose').addEventListener('click', closeRecSheet);
+  el('recBackdrop').addEventListener('click', closeRecSheet);
+  el('recommendBtn').addEventListener('click', () => { closeMenuSheet(); showRecommendations(); });
+
+  // === URL import ===
+  function openUrlSheet() {
+    el('urlInput').value = '';
+    el('urlStatus').textContent = '';
+    el('urlBackdrop').classList.add('open');
+    el('urlSheet').classList.add('open');
+  }
+  function closeUrlSheet() {
+    el('urlBackdrop').classList.remove('open');
+    el('urlSheet').classList.remove('open');
+  }
+  el('urlSheetClose').addEventListener('click', closeUrlSheet);
+  el('urlBackdrop').addEventListener('click', closeUrlSheet);
+  el('urlImportBtn').addEventListener('click', () => { closeMenuSheet(); openUrlSheet(); });
+  el('urlGoBtn').addEventListener('click', async () => {
+    const url = el('urlInput').value.trim();
+    if (!url) return;
+    el('urlStatus').textContent = 'Downloading…';
+    try {
+      const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(url));
+      if (!resp.ok) throw new Error('Upstream ' + resp.status);
+      const blob = await resp.blob();
+      if (blob.size < 1000) throw new Error('File too small');
+      const filename = url.split('/').pop().split('?')[0] || 'book.epub';
+      const file = new File([blob], filename, { type: 'application/epub+zip' });
+      el('urlStatus').textContent = 'Adding to library…';
+      await addBook(file);
+      closeUrlSheet();
+    } catch (e) {
+      el('urlStatus').textContent = 'Failed: ' + e.message;
+    }
+  });
+
+  // === Ambient sounds ===
+  const ambientAudio = el('ambientAudio');
+  const AMBIENT_OPTIONS = [
+    { id: 'off', label: 'Off', url: null },
+    { id: 'rain', label: 'Rain', url: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg' },
+    { id: 'fire', label: 'Fireplace', url: 'https://actions.google.com/sounds/v1/ambiences/crackling_fireplace_loop.ogg' },
+    { id: 'cafe', label: 'Coffee shop', url: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg' },
+    { id: 'ocean', label: 'Ocean waves', url: 'https://actions.google.com/sounds/v1/water/waves_crashing.ogg' },
+    { id: 'forest', label: 'Forest', url: 'https://actions.google.com/sounds/v1/ambiences/forest_with_birds.ogg' },
+    { id: 'wind', label: 'Wind', url: 'https://actions.google.com/sounds/v1/weather/wind_ambient.ogg' },
+    { id: 'whitenoise', label: 'White noise', url: 'https://actions.google.com/sounds/v1/ambiences/white_noise.ogg' }
+  ];
+  let currentAmbient = 'off';
+
+  function openAmbientSheet() {
+    const container = el('ambientOptions');
+    container.innerHTML = '';
+    AMBIENT_OPTIONS.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'sleep-option' + (currentAmbient === opt.id ? ' active' : '');
+      btn.innerHTML = `<span>${opt.label}</span>${currentAmbient === opt.id ? '<span class="check">✓</span>' : ''}`;
+      btn.addEventListener('click', () => {
+        playAmbient(opt);
+      });
+      container.appendChild(btn);
+    });
+    el('ambientVolume').value = ambientAudio.volume;
+    el('ambientVolumeValue').textContent = Math.round(ambientAudio.volume * 100) + '%';
+    el('ambientBackdrop').classList.add('open');
+    el('ambientSheet').classList.add('open');
+  }
+  function closeAmbientSheet() {
+    el('ambientBackdrop').classList.remove('open');
+    el('ambientSheet').classList.remove('open');
+  }
+  function playAmbient(opt) {
+    currentAmbient = opt.id;
+    if (!opt.url) {
+      ambientAudio.pause();
+      ambientAudio.src = '';
+      el('ambientState').textContent = 'Off';
+      openAmbientSheet();
+      return;
+    }
+    ambientAudio.src = opt.url;
+    ambientAudio.loop = true;
+    ambientAudio.play().then(() => {
+      el('ambientState').textContent = opt.label;
+      openAmbientSheet();
+    }).catch(e => {
+      showToast('Ambient failed: ' + e.message);
+    });
+  }
+  el('ambientVolume').addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    ambientAudio.volume = v;
+    el('ambientVolumeValue').textContent = Math.round(v * 100) + '%';
+  });
+  ambientAudio.volume = 0.3;
+  el('ambientSheetClose').addEventListener('click', closeAmbientSheet);
+  el('ambientBackdrop').addEventListener('click', closeAmbientSheet);
+  el('ambientBtn').addEventListener('click', () => { closeMenuSheet(); openAmbientSheet(); });
 
   // Service worker
   if ('serviceWorker' in navigator) {
