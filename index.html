@@ -694,9 +694,9 @@
   <div id="libraryPage">
     <div class="topbar">
       <h1>Library</h1>
-      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
-      <button class="icon-btn" id="settingsBtn">⚙</button>
-      <button class="icon-btn primary" id="addBtn">+</button>
+      <button class="icon-btn theme-toggle" data-role="theme" aria-label="Theme"></button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings" data-icon="settings"></button>
+      <button class="icon-btn primary" id="addBtn" aria-label="Add book" data-icon="plus"></button>
     </div>
     <main>
       <div id="libraryContent" class="library"></div>
@@ -707,10 +707,10 @@
   <!-- Book detail -->
   <div id="bookPage" class="hidden">
     <div class="topbar">
-      <button class="icon-btn" id="backToLibrary">←</button>
+      <button class="icon-btn" id="backToLibrary" aria-label="Back" data-icon="arrowLeft"></button>
       <div class="page-title" style="flex:1; text-align:center;">Book</div>
-      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
-      <button class="icon-btn" id="settingsBtn2">⚙</button>
+      <button class="icon-btn theme-toggle" data-role="theme" aria-label="Theme"></button>
+      <button class="icon-btn" id="settingsBtn2" aria-label="Settings" data-icon="settings"></button>
     </div>
     <main>
       <div class="book-detail">
@@ -719,7 +719,7 @@
           <h2 id="bookPageTitle"></h2>
           <div class="author" id="bookPageAuthor"></div>
           <div class="actions">
-            <button class="primary-btn wide" id="playBookBtn">▶ Play from start</button>
+            <button class="primary-btn wide" id="playBookBtn">Play from start</button>
           </div>
         </div>
         <div class="section-header">Chapters</div>
@@ -731,14 +731,14 @@
   <!-- Reader -->
   <div id="readerPage" class="hidden">
     <div class="topbar">
-      <button class="icon-btn" id="backToBook">←</button>
+      <button class="icon-btn" id="backToBook" aria-label="Back" data-icon="arrowLeft"></button>
       <div style="flex:1; text-align:center;">
         <div class="page-title" id="readerChTitle"></div>
         <div style="font-size:12px; color:var(--text-dim); margin-top:2px;" id="readerBookTitle"></div>
       </div>
-      <button class="icon-btn" id="fontSizeBtn" title="Font size">Aa</button>
-      <button class="icon-btn bookmark-btn" id="addBookmarkBtn" title="Add bookmark">☆</button>
-      <button class="icon-btn" id="openPlayerBtn">♪</button>
+      <button class="icon-btn" id="fontSizeBtn" title="Text size" style="font-weight:700; font-size:15px;">Aa</button>
+      <button class="icon-btn bookmark-btn" id="addBookmarkBtn" title="Bookmark"></button>
+      <button class="icon-btn" id="openPlayerBtn" aria-label="Open player" data-icon="headphones"></button>
     </div>
     <main>
       <div class="reader-view" id="readerView"></div>
@@ -753,7 +753,7 @@
     <div class="mini-title" id="miniTitle"></div>
     <div class="mini-chapter" id="miniChapter"></div>
   </div>
-  <button class="mini-play" id="miniPlayBtn">▶</button>
+  <button class="mini-play" id="miniPlayBtn" aria-label="Play"></button>
 </div>
 
 <!-- Full player -->
@@ -762,13 +762,13 @@
   <div class="full-player-content">
     <div class="full-player-handle"></div>
     <div class="full-player-topbar">
-      <button class="icon-btn" id="closePlayerBtn">⌄</button>
+      <button class="icon-btn" id="closePlayerBtn" aria-label="Close" data-icon="chevronDown"></button>
       <div style="flex:1; text-align:center;">
         <h2 id="fpBookTitle">Book</h2>
         <div class="subtitle" id="fpChapterInfo">Chapter 1 of 10</div>
       </div>
-      <button class="icon-btn" id="sleepBtn" title="Sleep timer">⏲</button>
-      <button class="icon-btn" id="fpBookmarksBtn" title="Bookmarks">☰</button>
+      <button class="icon-btn" id="sleepBtn" title="Sleep timer" aria-label="Sleep timer"></button>
+      <button class="icon-btn" id="fpBookmarksBtn" title="Bookmarks" aria-label="Bookmarks" data-icon="list"></button>
     </div>
     <div class="full-cover" id="fpCover"></div>
     <div class="full-meta">
@@ -785,11 +785,11 @@
       </div>
     </div>
     <div class="controls">
-      <button class="control-btn" id="fpPrevChapter" title="Previous chapter">⏮</button>
-      <button class="control-btn skip" id="fpBack15">−15</button>
-      <button class="big-play" id="fpPlayBtn">▶</button>
-      <button class="control-btn skip" id="fpFwd15">+15</button>
-      <button class="control-btn" id="fpNextChapter" title="Next chapter">⏭</button>
+      <button class="control-btn" id="fpPrevChapter" title="Previous chapter" aria-label="Previous" data-icon="prev"></button>
+      <button class="control-btn skip" id="fpBack15" aria-label="Back 15 sentences" data-icon="back15"></button>
+      <button class="big-play" id="fpPlayBtn" aria-label="Play"></button>
+      <button class="control-btn skip" id="fpFwd15" aria-label="Forward 15 sentences" data-icon="fwd15"></button>
+      <button class="control-btn" id="fpNextChapter" title="Next chapter" aria-label="Next" data-icon="next"></button>
     </div>
     <div class="bottom-controls">
       <button class="chip-btn" id="fpVoiceBtn">
@@ -850,7 +850,7 @@
   </div>
 </div>
 
-<button id="backToCurrentBtn" class="back-to-current">↑ Okuduğu yere dön</button>
+<button id="backToCurrentBtn" class="back-to-current">↑ Back to playing</button>
 
 <!-- Sleep timer sheet -->
 <div class="sheet-backdrop" id="sleepBackdrop"></div>
@@ -876,7 +876,7 @@
   <div class="sheet-body">
     <ul class="bookmark-list" id="bookmarkList"></ul>
     <div id="bookmarksEmpty" class="empty-state" style="padding: 40px 20px;">
-      <p style="color: var(--text-dim); font-size: 14px;">No bookmarks yet. Tap ☆ in the reader to save your place.</p>
+      <p style="color: var(--text-dim); font-size: 14px;">No bookmarks yet. Tap the bookmark icon in the reader to save your place.</p>
     </div>
   </div>
 </div>
@@ -909,6 +909,36 @@
   const CLOUD_TTS_URL = 'https://wandering-base-ecaf.meldatelkok.workers.dev';
 
   const el = id => document.getElementById(id);
+
+  // SVG icon set (outline, Feather-style)
+  const Icons = {
+    play: '<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11.44-6.86a1 1 0 0 0 0-1.72L9.52 4.27A1 1 0 0 0 8 5.14z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>',
+    prev: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><rect x="6" y="5" width="2" height="14" rx="1"/><path d="M19.5 5.14v13.72a1 1 0 0 1-1.54.84l-8.6-6.86a1 1 0 0 1 0-1.68l8.6-6.86a1 1 0 0 1 1.54.84z"/></svg>',
+    next: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><rect x="16" y="5" width="2" height="14" rx="1"/><path d="M4.5 5.14v13.72a1 1 0 0 0 1.54.84l8.6-6.86a1 1 0 0 0 0-1.68l-8.6-6.86a1 1 0 0 0-1.54.84z"/></svg>',
+    back15: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M3 5v5h5"/><path d="M3.5 10A9 9 0 1 1 3 14"/><text x="12" y="16" font-size="7" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>',
+    fwd15: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M21 5v5h-5"/><path d="M20.5 10A9 9 0 1 0 21 14"/><text x="12" y="16" font-size="7" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="20" height="20" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>',
+    arrowLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+    bookmarkFilled: '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>',
+    headphones: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
+    volume: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+    sort: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h13"/><path d="M3 12h9"/><path d="M3 18h5"/><path d="M17 8l3-3 3 3"/><path d="M20 5v14"/></svg>',
+    cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M17 18a5 5 0 0 0 0-10 7 7 0 0 0-13 3 4 4 0 0 0 2 7h11z"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+    checkSmall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>',
+    bookEmpty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="44" height="44" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+  };
 
   const state = {
     library: [],
@@ -952,7 +982,7 @@
     document.documentElement.setAttribute('data-theme', t);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', t === 'light' ? '#FFFFFF' : '#000000');
-    document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = t === 'light' ? '☀' : '🌙');
+    document.querySelectorAll('.theme-toggle').forEach(b => b.innerHTML = t === 'light' ? Icons.sun : Icons.moon);
   }
   function toggleTheme() {
     const cur = resolvedTheme();
@@ -1130,7 +1160,7 @@
     if (!state.library.length) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">📖</div>
+          <div class="empty-icon" style="color: var(--accent);">${Icons.bookEmpty}</div>
           <h2>Your library is empty</h2>
           <p>Add an EPUB file and listen to it with the best voices.</p>
           <button class="primary-btn" id="emptyAddBtn">+ Add book</button>
@@ -1168,14 +1198,14 @@
             <div class="continue-chapter">${escapeHtml(chapterLabel)} · ${progPct}%</div>
             <div class="continue-progress"><div class="continue-progress-fill" style="width:${progPct}%"></div></div>
           </div>
-          <button class="continue-play" data-key="${continueBook.key}">▶</button>
+          <button class="continue-play" data-key="${continueBook.key}" aria-label="Play">${Icons.play}</button>
         </div>`;
     }
 
     container.innerHTML = `
       <div class="lib-controls">
         <input type="text" class="lib-search" id="librarySearch" placeholder="Search library" value="${escapeHtml(librarySearch)}">
-        <button class="sort-btn" id="sortBtn">↕ ${sortLabel}</button>
+        <button class="sort-btn" id="sortBtn">${Icons.sort}<span style="margin-left:6px;">${sortLabel}</span></button>
       </div>
       ${continueHtml}
       <div class="library-title">All books</div>
@@ -1191,7 +1221,7 @@
     if (continueBook) {
       el('libraryContent').querySelector('.continue-card').addEventListener('click', (e) => {
         const key = e.currentTarget.dataset.key || continueBook.key;
-        if (e.target.classList.contains('continue-play')) {
+        if (e.target.closest('.continue-play')) {
           e.stopPropagation();
           openBook(key).then(() => {
             const prog = loadProgress(key);
@@ -1251,13 +1281,14 @@
       card.innerHTML = `
         <div class="book-cover">${coverHtml}
           ${prog ? `<div class="book-progress-ring">${progPct}%</div>` : ''}
-          <button class="book-delete" data-key="${bk.key}">✕</button>
+          <button class="book-delete" data-key="${bk.key}" aria-label="Delete">${Icons.close}</button>
         </div>
         <div class="book-title">${escapeHtml(bk.title)}</div>
         <div class="book-author">${escapeHtml(bk.author || '')}</div>
       `;
       card.addEventListener('click', (e) => {
-        if (e.target.classList.contains('book-delete')) {
+        const deleteBtn = e.target.closest('.book-delete');
+        if (deleteBtn) {
           e.stopPropagation();
           if (confirm(`Remove "${bk.title}"?`)) deleteBook(bk.key);
           return;
@@ -1402,10 +1433,10 @@
     const prog = loadProgress(bk.key);
     const btn = el('playBookBtn');
     if (prog && prog.chapterIdx >= 0) {
-      btn.textContent = `▶ Resume chapter ${prog.chapterIdx + 1}`;
+      btn.textContent = `Resume chapter ${prog.chapterIdx + 1}`;
       btn.onclick = () => openChapter(prog.chapterIdx, prog.sentence || 0);
     } else {
-      btn.textContent = '▶ Play from start';
+      btn.textContent = 'Play from start';
       btn.onclick = () => openChapter(0, 0);
     }
   }
@@ -1694,9 +1725,9 @@
   }
 
   function updatePlayButtons() {
-    const icon = state.playing ? '⏸' : '▶';
-    el('miniPlayBtn').textContent = icon;
-    el('fpPlayBtn').textContent = icon;
+    const ico = state.playing ? Icons.pause : Icons.play;
+    el('miniPlayBtn').innerHTML = ico;
+    el('fpPlayBtn').innerHTML = ico;
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = state.playing ? 'playing' : 'paused';
     }
@@ -1846,11 +1877,11 @@
     const toggleHtml = `
       <div class="engine-toggle">
         <button class="engine-opt ${settings.engine === 'cloud' ? 'active' : ''}" data-engine="cloud">
-          <div class="engine-opt-title">☁ Cloud voices</div>
-          <div class="engine-opt-sub">ElevenLabs-like quality · Unlimited</div>
+          <div class="engine-opt-title" style="display:flex; align-items:center; gap:6px;">${Icons.cloud} Cloud voices</div>
+          <div class="engine-opt-sub">Studio quality · Unlimited</div>
         </button>
         <button class="engine-opt ${settings.engine === 'device' ? 'active' : ''}" data-engine="device">
-          <div class="engine-opt-title">📱 Device voices</div>
+          <div class="engine-opt-title" style="display:flex; align-items:center; gap:6px;">${Icons.phone} Device voices</div>
           <div class="engine-opt-sub">Works offline · Lower quality</div>
         </button>
       </div>`;
@@ -1881,10 +1912,11 @@
               <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
               <div class="voice-meta">${v.lang} · ${v.gender} · ${escapeHtml(v.style)}</div>
             </div>
-            <button class="voice-test-btn" data-cloud-id="${v.id}">🔊</button>
+            <button class="voice-test-btn" data-cloud-id="${v.id}" aria-label="Test">${Icons.volume}</button>
           `;
           li.addEventListener('click', (e) => {
-            if (e.target.classList.contains('voice-test-btn')) {
+            const testBtn = e.target.closest('.voice-test-btn');
+            if (testBtn) {
               e.stopPropagation();
               testCloudVoice(v.id);
               return;
@@ -1917,7 +1949,7 @@
       const hasPremium = enVoices.some(v => voiceQuality(v).tier >= 3);
       if (!hasPremium && enVoices.length > 0) {
         hint.classList.remove('hidden');
-        hint.innerHTML = '<b>⚠ iPhone hides Premium voices from web apps.</b> For best quality use <b>☁ Cloud voices</b> above — same ElevenLabs-like quality, unlimited, free.';
+        hint.innerHTML = '<b>Note:</b> iPhone hides Premium voices from web apps. For best quality switch to <b>Cloud voices</b> above — studio quality, unlimited, free.';
       }
       list.innerHTML = toggleHtml;
       sorted.forEach(v => {
@@ -1932,10 +1964,11 @@
             <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
             <div class="voice-meta">${v.lang}${v.localService ? '' : ' · Online'}</div>
           </div>
-          <button class="voice-test-btn" data-uri="${v.voiceURI}">🔊</button>
+          <button class="voice-test-btn" data-uri="${v.voiceURI}" aria-label="Test">${Icons.volume}</button>
         `;
         li.addEventListener('click', (e) => {
-          if (e.target.classList.contains('voice-test-btn')) {
+          const testBtn = e.target.closest('.voice-test-btn');
+          if (testBtn) {
             e.stopPropagation();
             testVoice(v);
             return;
@@ -2094,16 +2127,16 @@
   function updateSleepBadge() {
     const btn = el('sleepBtn');
     if (sleepEndOfChapter) {
-      btn.textContent = '⏲⏹';
+      btn.innerHTML = Icons.clock;
       btn.style.color = 'var(--accent)';
     } else if (sleepTargetAt) {
       const remain = Math.max(0, Math.ceil((sleepTargetAt - Date.now()) / 60000));
       btn.textContent = remain + 'm';
       btn.style.color = 'var(--accent)';
-      btn.style.fontSize = '11px';
+      btn.style.fontSize = '12px';
       btn.style.fontWeight = '700';
     } else {
-      btn.textContent = '⏲';
+      btn.innerHTML = Icons.clock;
       btn.style.color = '';
       btn.style.fontSize = '';
       btn.style.fontWeight = '';
@@ -2188,7 +2221,7 @@
     if (!state.currentBookKey) return;
     const list = loadBookmarks(state.currentBookKey);
     const hasCurrent = list.some(b => b.chapterIdx === state.currentChapterIdx && b.sentence === state.currentSentence);
-    el('addBookmarkBtn').textContent = hasCurrent ? '★' : '☆';
+    el('addBookmarkBtn').innerHTML = hasCurrent ? Icons.bookmarkFilled : Icons.bookmark;
     el('addBookmarkBtn').classList.toggle('active', hasCurrent);
   }
   function openBookmarksSheet() {
@@ -2209,12 +2242,13 @@
             "${escapeHtml(bk.text)}"
             <div class="bookmark-meta">${escapeHtml(bk.chapterLabel)}</div>
           </div>
-          <button class="bookmark-delete" data-idx="${i}">🗑</button>
+          <button class="bookmark-delete" data-idx="${i}" aria-label="Delete">${Icons.trash}</button>
         `;
         li.addEventListener('click', (e) => {
-          if (e.target.classList.contains('bookmark-delete')) {
+          const delBtn = e.target.closest('.bookmark-delete');
+          if (delBtn) {
             e.stopPropagation();
-            const idx = parseInt(e.target.dataset.idx, 10);
+            const idx = parseInt(delBtn.dataset.idx, 10);
             const cur = loadBookmarks(state.currentBookKey);
             cur.splice(idx, 1);
             saveBookmarks(state.currentBookKey, cur);
@@ -2281,6 +2315,17 @@
   el('fontSheetClose').addEventListener('click', closeFontSheet);
   el('fontBackdrop').addEventListener('click', closeFontSheet);
   applyFontSize();
+
+  // Inject SVG icons into buttons that have data-icon attribute
+  function injectIcons() {
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      const key = el.dataset.icon;
+      if (Icons[key]) el.innerHTML = Icons[key];
+    });
+  }
+  injectIcons();
+  updateSleepBadge();
+  updatePlayButtons();
 
   // Init
   loadLibrary();
