@@ -9,7 +9,8 @@
 <meta name="theme-color" content="#000000">
 <title>DioBook</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
   :root {
     --bg: #000000;
@@ -1148,6 +1149,7 @@
       showPage('reader');
       updateMiniPlayer();
       updateFullPlayer();
+      updateMediaSession();
       saveProgress();
       section.unload && section.unload();
     } catch (err) {
@@ -1265,7 +1267,8 @@
       const url = URL.createObjectURL(blob);
       cloudAudio.src = url;
       cloudAudio._lastUrl = url;
-      cloudAudio.playbackRate = 1; // rate already baked in SSML
+      cloudAudio.playbackRate = settings.rate;
+      cloudAudio.preservesPitch = true;
       try { await cloudAudio.play(); } catch (e) { showToast('Tap play to start'); state.playing = false; updatePlayButtons(); return; }
       // Start prefetching next sentence
       if (idx + 1 < state.sentences.length) fetchCloudAudio(idx + 1).catch(() => {});
@@ -1356,6 +1359,39 @@
     const icon = state.playing ? '⏸' : '▶';
     el('miniPlayBtn').textContent = icon;
     el('fpPlayBtn').textContent = icon;
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = state.playing ? 'playing' : 'paused';
+    }
+  }
+
+  function updateMediaSession() {
+    if (!('mediaSession' in navigator) || !state.currentBook) return;
+    const ch = state.chapters[state.currentChapterIdx];
+    const artwork = [];
+    if (state.currentBook.cover) {
+      artwork.push({ src: state.currentBook.cover, sizes: '512x512', type: 'image/png' });
+    }
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: ch ? ch.label : state.currentBook.title,
+        artist: state.currentBook.author || 'DioBook',
+        album: state.currentBook.title,
+        artwork
+      });
+    } catch (e) { console.warn('MediaMetadata failed', e); }
+  }
+
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => { if (!state.playing) startSpeaking(); });
+    navigator.mediaSession.setActionHandler('pause', () => { if (state.playing) pauseSpeaking(); });
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      if (state.currentChapterIdx > 0) openChapter(state.currentChapterIdx - 1).then(() => { if (state.playing) startSpeaking(); });
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      if (state.currentChapterIdx < state.chapters.length - 1) openChapter(state.currentChapterIdx + 1).then(() => { if (state.playing) startSpeaking(); });
+    });
+    try { navigator.mediaSession.setActionHandler('seekbackward', () => skipSentences(-3)); } catch {}
+    try { navigator.mediaSession.setActionHandler('seekforward', () => skipSentences(3)); } catch {}
   }
 
   el('miniPlayBtn').addEventListener('click', (e) => {
@@ -1653,6 +1689,7 @@
         el('rateSlider').value = r;
         el('rateValue').textContent = r.toFixed(2) + '×';
         el('fpSpeedLabel').textContent = r.toFixed(2) + '×';
+        if (settings.engine === 'cloud' && cloudAudio) cloudAudio.playbackRate = r;
       });
       container.appendChild(btn);
     });
@@ -1664,6 +1701,7 @@
     el('fpSpeedLabel').textContent = settings.rate.toFixed(2) + '×';
     saveSettings();
     renderSpeedOptions();
+    if (settings.engine === 'cloud' && cloudAudio) cloudAudio.playbackRate = settings.rate;
   });
   el('pitchSlider').addEventListener('input', e => {
     settings.pitch = parseFloat(e.target.value);
