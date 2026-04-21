@@ -255,7 +255,7 @@
 
   /* Reader */
   .reader-view {
-    font-size: 18px; line-height: 1.75;
+    font-size: var(--reader-font-size, 18px); line-height: 1.75;
     padding: 8px 20px 40px;
     font-family: "New York", Georgia, "Times New Roman", serif;
   }
@@ -568,6 +568,119 @@
     box-shadow: var(--shadow-toast);
   }
 
+  .back-to-current {
+    position: fixed; bottom: 100px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--accent); color: white;
+    padding: 10px 18px; border-radius: 22px;
+    font-size: 14px; font-weight: 600;
+    z-index: 55; cursor: pointer;
+    border: none; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .back-to-current.visible {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .back-to-current:active { background: var(--accent-hover); }
+
+  /* Library search + sort */
+  .lib-controls {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .lib-search {
+    flex: 1; background: var(--surface); color: var(--text);
+    border: none; border-radius: 12px; padding: 11px 14px;
+    font-size: 15px;
+  }
+  .sort-btn {
+    background: var(--surface); color: var(--text); border: none;
+    border-radius: 12px; padding: 0 14px; font-size: 14px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+  }
+
+  /* Continue reading section */
+  .continue-card {
+    background: var(--surface); border-radius: 16px;
+    padding: 14px; margin-bottom: 20px;
+    display: flex; gap: 14px; align-items: center;
+    cursor: pointer;
+  }
+  .continue-card:active { background: var(--surface-2); }
+  .continue-card .cover-wrap {
+    width: 64px; aspect-ratio: 2/3; border-radius: 8px;
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: var(--shadow-cover);
+  }
+  .continue-card .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .continue-info { flex: 1; min-width: 0; }
+  .continue-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+  .continue-title { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px; }
+  .continue-chapter { font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
+  .continue-progress { height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+  .continue-progress-fill { height: 100%; background: var(--accent); }
+  .continue-play {
+    width: 44px; height: 44px; border-radius: 22px;
+    background: var(--accent); color: white; border: none;
+    font-size: 18px; flex-shrink: 0; cursor: pointer;
+  }
+
+  /* Sleep timer */
+  .sleep-chip {
+    position: absolute; top: 14px; right: 60px;
+    background: var(--surface); color: var(--text);
+    border: none; border-radius: 16px; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    display: none; align-items: center; gap: 4px;
+  }
+  .sleep-chip.active {
+    display: flex;
+    background: var(--accent); color: white;
+  }
+  .sleep-options { display: flex; flex-direction: column; gap: 4px; }
+  .sleep-option {
+    padding: 14px 16px; background: var(--surface-2); border: none;
+    color: var(--text); border-radius: 10px; font-size: 15px; font-weight: 500;
+    cursor: pointer; text-align: left;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sleep-option.active { background: var(--accent-dim); color: var(--accent); }
+  .sleep-option .check { font-size: 16px; }
+
+  /* Bookmarks */
+  .bookmark-btn {
+    background: transparent; border: none; color: var(--text);
+    font-size: 22px; cursor: pointer;
+  }
+  .bookmark-btn.active { color: var(--accent); }
+  .bookmark-list { list-style: none; }
+  .bookmark-item {
+    padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .bookmark-item:active { background: var(--surface-2); }
+  .bookmark-text { flex: 1; font-size: 14px; line-height: 1.4; }
+  .bookmark-meta { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .bookmark-delete {
+    background: transparent; border: none; color: var(--danger);
+    font-size: 18px; cursor: pointer; padding: 0 4px;
+  }
+
+  /* Font size controls in reader */
+  .font-controls {
+    position: absolute; top: 14px; right: 60px;
+    display: flex; gap: 4px;
+  }
+  .font-btn {
+    background: var(--surface); border: none; color: var(--text);
+    width: 30px; height: 30px; border-radius: 15px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+
+  .chapter-time { font-size: 11px; color: var(--text-dim); margin-left: auto; }
+
   .menu-btn {
     background: none; border: none; color: var(--text-dim);
     font-size: 22px; cursor: pointer; padding: 4px;
@@ -623,7 +736,8 @@
         <div class="page-title" id="readerChTitle"></div>
         <div style="font-size:12px; color:var(--text-dim); margin-top:2px;" id="readerBookTitle"></div>
       </div>
-      <button class="icon-btn theme-toggle" data-role="theme">🌙</button>
+      <button class="icon-btn" id="fontSizeBtn" title="Font size">Aa</button>
+      <button class="icon-btn bookmark-btn" id="addBookmarkBtn" title="Add bookmark">☆</button>
       <button class="icon-btn" id="openPlayerBtn">♪</button>
     </div>
     <main>
@@ -653,7 +767,8 @@
         <h2 id="fpBookTitle">Book</h2>
         <div class="subtitle" id="fpChapterInfo">Chapter 1 of 10</div>
       </div>
-      <button class="icon-btn" id="fpMenuBtn">⋯</button>
+      <button class="icon-btn" id="sleepBtn" title="Sleep timer">⏲</button>
+      <button class="icon-btn" id="fpBookmarksBtn" title="Bookmarks">☰</button>
     </div>
     <div class="full-cover" id="fpCover"></div>
     <div class="full-meta">
@@ -735,6 +850,50 @@
   </div>
 </div>
 
+<button id="backToCurrentBtn" class="back-to-current">↑ Okuduğu yere dön</button>
+
+<!-- Sleep timer sheet -->
+<div class="sheet-backdrop" id="sleepBackdrop"></div>
+<div class="sheet" id="sleepSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Sleep timer</h3>
+    <button class="close" id="sleepSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <div class="sleep-options" id="sleepOptions"></div>
+  </div>
+</div>
+
+<!-- Bookmarks sheet -->
+<div class="sheet-backdrop" id="bookmarksBackdrop"></div>
+<div class="sheet" id="bookmarksSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Bookmarks</h3>
+    <button class="close" id="bookmarksSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <ul class="bookmark-list" id="bookmarkList"></ul>
+    <div id="bookmarksEmpty" class="empty-state" style="padding: 40px 20px;">
+      <p style="color: var(--text-dim); font-size: 14px;">No bookmarks yet. Tap ☆ in the reader to save your place.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Font size sheet -->
+<div class="sheet-backdrop" id="fontBackdrop"></div>
+<div class="sheet" id="fontSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3>Text size</h3>
+    <button class="close" id="fontSheetClose">Done</button>
+  </div>
+  <div class="sheet-body">
+    <div class="sleep-options" id="fontOptions"></div>
+  </div>
+</div>
+
 <audio id="cloudAudio" preload="auto" playsinline></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -770,11 +929,19 @@
     try {
       return Object.assign({
         voiceURI: null, rate: 1, pitch: 1, theme: null,
-        engine: 'cloud', cloudVoice: 'asteria-en'
+        engine: 'cloud', cloudVoice: 'asteria-en',
+        fontSize: 'medium', librarySort: 'recent'
       }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
-    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'asteria-en' }; }
+    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'asteria-en', fontSize: 'medium', librarySort: 'recent' }; }
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+
+  // Font size
+  function applyFontSize() {
+    const map = { small: '15px', medium: '18px', large: '22px', xlarge: '26px' };
+    const size = map[settings.fontSize] || '18px';
+    document.documentElement.style.setProperty('--reader-font-size', size);
+  }
 
   function resolvedTheme() {
     if (settings.theme === 'light' || settings.theme === 'dark') return settings.theme;
@@ -935,6 +1102,8 @@
     el('bookPage').classList.toggle('hidden', name !== 'book');
     el('readerPage').classList.toggle('hidden', name !== 'reader');
     el('miniPlayer').classList.toggle('hidden', !state.currentBookKey || state.currentChapterIdx < 0);
+    if (name !== 'reader') hideBackToCurrent();
+    if (name === 'reader') setTimeout(checkBackToCurrent, 100);
   }
 
   el('settingsBtn').addEventListener('click', () => openVoiceSheet());
@@ -955,6 +1124,7 @@
   });
 
   // Library rendering
+  let librarySearch = '';
   function renderLibrary() {
     const container = el('libraryContent');
     if (!state.library.length) {
@@ -962,15 +1132,115 @@
         <div class="empty-state">
           <div class="empty-icon">📖</div>
           <h2>Your library is empty</h2>
-          <p>Add an EPUB file and listen to it with iPhone's best voices.</p>
+          <p>Add an EPUB file and listen to it with the best voices.</p>
           <button class="primary-btn" id="emptyAddBtn">+ Add book</button>
         </div>`;
       el('emptyAddBtn').addEventListener('click', () => el('fileInput').click());
       return;
     }
-    container.innerHTML = `<div class="library-title">All books</div><div class="book-grid" id="bookGrid"></div>`;
+
+    const sortLabel = {
+      recent: 'Recent',
+      title: 'Title',
+      author: 'Author',
+      progress: 'Progress'
+    }[settings.librarySort] || 'Recent';
+
+    // Find continue reading book (most recently played)
+    const continueBook = [...state.library]
+      .filter(b => b.lastPlayedAt)
+      .sort((a, b) => b.lastPlayedAt - a.lastPlayedAt)[0];
+
+    let continueHtml = '';
+    if (continueBook && !librarySearch) {
+      const prog = loadProgress(continueBook.key);
+      const progPct = prog && prog.total ? Math.round((prog.sentence / prog.total) * 100) : 0;
+      const chapterLabel = prog && prog.chapterIdx >= 0 ? `Chapter ${prog.chapterIdx + 1}` : '';
+      const coverInner = continueBook.cover
+        ? `<img src="${continueBook.cover}" alt="">`
+        : `<div class="book-cover-fallback">${escapeHtml(continueBook.title)}</div>`;
+      continueHtml = `
+        <div class="continue-card" data-key="${continueBook.key}">
+          <div class="cover-wrap">${coverInner}</div>
+          <div class="continue-info">
+            <div class="continue-label">Continue reading</div>
+            <div class="continue-title">${escapeHtml(continueBook.title)}</div>
+            <div class="continue-chapter">${escapeHtml(chapterLabel)} · ${progPct}%</div>
+            <div class="continue-progress"><div class="continue-progress-fill" style="width:${progPct}%"></div></div>
+          </div>
+          <button class="continue-play" data-key="${continueBook.key}">▶</button>
+        </div>`;
+    }
+
+    container.innerHTML = `
+      <div class="lib-controls">
+        <input type="text" class="lib-search" id="librarySearch" placeholder="Search library" value="${escapeHtml(librarySearch)}">
+        <button class="sort-btn" id="sortBtn">↕ ${sortLabel}</button>
+      </div>
+      ${continueHtml}
+      <div class="library-title">All books</div>
+      <div class="book-grid" id="bookGrid"></div>`;
+
+    const searchInput = el('librarySearch');
+    searchInput.addEventListener('input', (e) => {
+      librarySearch = e.target.value;
+      renderLibraryGrid();
+    });
+    el('sortBtn').addEventListener('click', cycleSortOrder);
+
+    if (continueBook) {
+      el('libraryContent').querySelector('.continue-card').addEventListener('click', (e) => {
+        const key = e.currentTarget.dataset.key || continueBook.key;
+        if (e.target.classList.contains('continue-play')) {
+          e.stopPropagation();
+          openBook(key).then(() => {
+            const prog = loadProgress(key);
+            if (prog && prog.chapterIdx >= 0) {
+              openChapter(prog.chapterIdx, prog.sentence || 0).then(() => startSpeaking());
+            } else {
+              openChapter(0, 0).then(() => startSpeaking());
+            }
+          });
+        } else {
+          openBook(key);
+        }
+      });
+    }
+
+    renderLibraryGrid();
+  }
+
+  function renderLibraryGrid() {
     const grid = el('bookGrid');
-    state.library.forEach(bk => {
+    if (!grid) return;
+    const filtered = state.library.filter(bk => {
+      if (!librarySearch) return true;
+      const q = librarySearch.toLowerCase();
+      return (bk.title || '').toLowerCase().includes(q) || (bk.author || '').toLowerCase().includes(q);
+    });
+    const sorted = [...filtered].sort((a, b) => {
+      switch (settings.librarySort) {
+        case 'title': return (a.title || '').localeCompare(b.title || '');
+        case 'author': return (a.author || '').localeCompare(b.author || '');
+        case 'progress': {
+          const pa = loadProgress(a.key); const pb = loadProgress(b.key);
+          const va = pa && pa.total ? pa.sentence / pa.total : 0;
+          const vb = pb && pb.total ? pb.sentence / pb.total : 0;
+          return vb - va;
+        }
+        case 'recent':
+        default:
+          return (b.lastPlayedAt || b.addedAt || 0) - (a.lastPlayedAt || a.addedAt || 0);
+      }
+    });
+
+    grid.innerHTML = '';
+    if (!sorted.length) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: var(--text-dim);">No matches</div>';
+      return;
+    }
+
+    sorted.forEach(bk => {
       const card = document.createElement('div');
       card.className = 'book-card';
       const prog = loadProgress(bk.key);
@@ -996,6 +1266,14 @@
       });
       grid.appendChild(card);
     });
+  }
+
+  function cycleSortOrder() {
+    const order = ['recent', 'title', 'author', 'progress'];
+    const idx = order.indexOf(settings.librarySort);
+    settings.librarySort = order[(idx + 1) % order.length];
+    saveSettings();
+    renderLibrary();
   }
 
   function escapeHtml(s) {
@@ -1150,6 +1428,13 @@
       updateMiniPlayer();
       updateFullPlayer();
       updateMediaSession();
+      updateBookmarkButtonState();
+      // Track last played
+      const libEntry = state.library.find(b => b.key === state.currentBookKey);
+      if (libEntry) {
+        libEntry.lastPlayedAt = Date.now();
+        saveLibrary();
+      }
       saveProgress();
       section.unload && section.unload();
     } catch (err) {
@@ -1204,13 +1489,57 @@
     const cur = view.querySelector(`[data-sentence="${i}"]`);
     if (cur) { cur.classList.add('current-sentence'); scrollToCurrent(); }
     updateProgress();
+    updateBookmarkButtonState();
   }
 
   function scrollToCurrent() {
     if (state.page !== 'reader') return;
     const cur = el('readerView').querySelector('.current-sentence');
     if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    hideBackToCurrent();
   }
+
+  function isCurrentSentenceVisible() {
+    const cur = el('readerView').querySelector('.current-sentence');
+    if (!cur) return true;
+    const rect = cur.getBoundingClientRect();
+    const topBarH = 70;
+    const bottomReserved = 180;
+    return rect.bottom > topBarH && rect.top < window.innerHeight - bottomReserved;
+  }
+
+  function showBackToCurrent() {
+    el('backToCurrentBtn').classList.add('visible');
+  }
+  function hideBackToCurrent() {
+    el('backToCurrentBtn').classList.remove('visible');
+  }
+
+  function checkBackToCurrent() {
+    if (state.page !== 'reader' || state.currentChapterIdx < 0) {
+      hideBackToCurrent();
+      return;
+    }
+    if (isCurrentSentenceVisible()) hideBackToCurrent();
+    else showBackToCurrent();
+  }
+
+  el('backToCurrentBtn').addEventListener('click', () => {
+    scrollToCurrent();
+  });
+
+  // Attach scroll listener to reader's main container
+  let scrollDebounce;
+  function setupReaderScrollListener() {
+    const readerMain = el('readerPage').querySelector('main');
+    if (!readerMain || readerMain._scrollBound) return;
+    readerMain._scrollBound = true;
+    readerMain.addEventListener('scroll', () => {
+      clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(checkBackToCurrent, 80);
+    }, { passive: true });
+  }
+  setupReaderScrollListener();
 
   function updateProgress() {
     const total = state.sentences.length || 1;
@@ -1293,12 +1622,21 @@
 
   function speakCurrent() {
     if (state.currentSentence >= state.sentences.length) {
-      state.playing = false;
-      updatePlayButtons();
+      if (sleepEndOfChapter) {
+        pauseSpeaking();
+        cancelSleep();
+        showToast('End of chapter — paused');
+        return;
+      }
       if (state.currentChapterIdx < state.chapters.length - 1) {
-        showToast('Next chapter...');
-        setTimeout(() => openChapter(state.currentChapterIdx + 1).then(() => startSpeaking()), 600);
+        showToast('Next chapter…', 1500);
+        const wasPlaying = state.playing;
+        openChapter(state.currentChapterIdx + 1).then(() => {
+          if (wasPlaying) speakCurrent();
+        });
       } else {
+        state.playing = false;
+        updatePlayButtons();
         showToast('End of book');
       }
       return;
@@ -1719,6 +2057,230 @@
     document.body.appendChild(t);
     setTimeout(() => t.remove(), duration);
   }
+
+  // === Sleep Timer ===
+  let sleepTimerId = null;
+  let sleepTargetAt = 0;
+  let sleepEndOfChapter = false;
+
+  function cancelSleep() {
+    if (sleepTimerId) { clearInterval(sleepTimerId); sleepTimerId = null; }
+    sleepTargetAt = 0;
+    sleepEndOfChapter = false;
+    updateSleepBadge();
+  }
+
+  function startSleep(minutes) {
+    cancelSleep();
+    if (minutes === 'chapter') {
+      sleepEndOfChapter = true;
+      updateSleepBadge();
+      return;
+    }
+    sleepTargetAt = Date.now() + minutes * 60 * 1000;
+    sleepTimerId = setInterval(() => {
+      const remain = sleepTargetAt - Date.now();
+      if (remain <= 0) {
+        pauseSpeaking();
+        cancelSleep();
+        showToast('Sleep timer ended');
+      } else {
+        updateSleepBadge();
+      }
+    }, 1000);
+    updateSleepBadge();
+  }
+
+  function updateSleepBadge() {
+    const btn = el('sleepBtn');
+    if (sleepEndOfChapter) {
+      btn.textContent = '⏲⏹';
+      btn.style.color = 'var(--accent)';
+    } else if (sleepTargetAt) {
+      const remain = Math.max(0, Math.ceil((sleepTargetAt - Date.now()) / 60000));
+      btn.textContent = remain + 'm';
+      btn.style.color = 'var(--accent)';
+      btn.style.fontSize = '11px';
+      btn.style.fontWeight = '700';
+    } else {
+      btn.textContent = '⏲';
+      btn.style.color = '';
+      btn.style.fontSize = '';
+      btn.style.fontWeight = '';
+    }
+  }
+
+  function openSleepSheet() {
+    const options = [
+      { label: 'Off', value: 0 },
+      { label: '5 minutes', value: 5 },
+      { label: '10 minutes', value: 10 },
+      { label: '15 minutes', value: 15 },
+      { label: '30 minutes', value: 30 },
+      { label: '45 minutes', value: 45 },
+      { label: '1 hour', value: 60 },
+      { label: 'End of chapter', value: 'chapter' }
+    ];
+    const container = el('sleepOptions');
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'sleep-option';
+      const isActive =
+        (opt.value === 0 && !sleepTargetAt && !sleepEndOfChapter) ||
+        (opt.value === 'chapter' && sleepEndOfChapter);
+      if (isActive) btn.classList.add('active');
+      btn.innerHTML = `<span>${opt.label}</span>${isActive ? '<span class="check">✓</span>' : ''}`;
+      btn.addEventListener('click', () => {
+        if (opt.value === 0) cancelSleep();
+        else startSleep(opt.value);
+        closeSleepSheet();
+      });
+      container.appendChild(btn);
+    });
+    el('sleepBackdrop').classList.add('open');
+    el('sleepSheet').classList.add('open');
+  }
+  function closeSleepSheet() {
+    el('sleepBackdrop').classList.remove('open');
+    el('sleepSheet').classList.remove('open');
+  }
+  el('sleepBtn').addEventListener('click', openSleepSheet);
+  el('sleepSheetClose').addEventListener('click', closeSleepSheet);
+  el('sleepBackdrop').addEventListener('click', closeSleepSheet);
+
+  // === Bookmarks ===
+  const BOOKMARKS_KEY = 'bookvoice.bookmarks.v1';
+  function loadBookmarks(bookKey) {
+    try {
+      const all = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '{}');
+      return all[bookKey] || [];
+    } catch { return []; }
+  }
+  function saveBookmarks(bookKey, list) {
+    const all = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '{}');
+    all[bookKey] = list;
+    localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(all));
+  }
+  function addBookmark() {
+    if (!state.currentBookKey || state.currentSentence < 0 || !state.sentences.length) return;
+    const list = loadBookmarks(state.currentBookKey);
+    const existing = list.findIndex(b => b.chapterIdx === state.currentChapterIdx && b.sentence === state.currentSentence);
+    if (existing !== -1) {
+      list.splice(existing, 1);
+      showToast('Bookmark removed');
+    } else {
+      const text = state.sentences[state.currentSentence] || '';
+      const ch = state.chapters[state.currentChapterIdx];
+      list.push({
+        chapterIdx: state.currentChapterIdx,
+        sentence: state.currentSentence,
+        text: text.slice(0, 140),
+        chapterLabel: ch ? ch.label : `Chapter ${state.currentChapterIdx + 1}`,
+        createdAt: Date.now()
+      });
+      showToast('Bookmark added');
+    }
+    saveBookmarks(state.currentBookKey, list);
+    updateBookmarkButtonState();
+  }
+  function updateBookmarkButtonState() {
+    if (!state.currentBookKey) return;
+    const list = loadBookmarks(state.currentBookKey);
+    const hasCurrent = list.some(b => b.chapterIdx === state.currentChapterIdx && b.sentence === state.currentSentence);
+    el('addBookmarkBtn').textContent = hasCurrent ? '★' : '☆';
+    el('addBookmarkBtn').classList.toggle('active', hasCurrent);
+  }
+  function openBookmarksSheet() {
+    const list = state.currentBookKey ? loadBookmarks(state.currentBookKey) : [];
+    const listEl = el('bookmarkList');
+    const emptyEl = el('bookmarksEmpty');
+    listEl.innerHTML = '';
+    if (!list.length) {
+      emptyEl.style.display = 'block';
+    } else {
+      emptyEl.style.display = 'none';
+      list.sort((a, b) => a.chapterIdx - b.chapterIdx || a.sentence - b.sentence);
+      list.forEach((bk, i) => {
+        const li = document.createElement('li');
+        li.className = 'bookmark-item';
+        li.innerHTML = `
+          <div class="bookmark-text">
+            "${escapeHtml(bk.text)}"
+            <div class="bookmark-meta">${escapeHtml(bk.chapterLabel)}</div>
+          </div>
+          <button class="bookmark-delete" data-idx="${i}">🗑</button>
+        `;
+        li.addEventListener('click', (e) => {
+          if (e.target.classList.contains('bookmark-delete')) {
+            e.stopPropagation();
+            const idx = parseInt(e.target.dataset.idx, 10);
+            const cur = loadBookmarks(state.currentBookKey);
+            cur.splice(idx, 1);
+            saveBookmarks(state.currentBookKey, cur);
+            openBookmarksSheet();
+            updateBookmarkButtonState();
+            return;
+          }
+          closeBookmarksSheet();
+          closeFullPlayer();
+          if (bk.chapterIdx === state.currentChapterIdx) {
+            state.currentSentence = bk.sentence;
+            highlightSentence(bk.sentence);
+            saveProgress();
+            updateBookmarkButtonState();
+          } else {
+            openChapter(bk.chapterIdx, bk.sentence).then(() => updateBookmarkButtonState());
+          }
+        });
+        listEl.appendChild(li);
+      });
+    }
+    el('bookmarksBackdrop').classList.add('open');
+    el('bookmarksSheet').classList.add('open');
+  }
+  function closeBookmarksSheet() {
+    el('bookmarksBackdrop').classList.remove('open');
+    el('bookmarksSheet').classList.remove('open');
+  }
+  el('addBookmarkBtn').addEventListener('click', addBookmark);
+  el('fpBookmarksBtn').addEventListener('click', openBookmarksSheet);
+  el('bookmarksSheetClose').addEventListener('click', closeBookmarksSheet);
+  el('bookmarksBackdrop').addEventListener('click', closeBookmarksSheet);
+
+  // === Font size ===
+  function openFontSheet() {
+    const options = [
+      { label: 'Small', value: 'small' },
+      { label: 'Medium', value: 'medium' },
+      { label: 'Large', value: 'large' },
+      { label: 'Extra large', value: 'xlarge' }
+    ];
+    const container = el('fontOptions');
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'sleep-option' + (settings.fontSize === opt.value ? ' active' : '');
+      btn.innerHTML = `<span>${opt.label}</span>${settings.fontSize === opt.value ? '<span class="check">✓</span>' : ''}`;
+      btn.addEventListener('click', () => {
+        settings.fontSize = opt.value;
+        saveSettings();
+        applyFontSize();
+        closeFontSheet();
+      });
+      container.appendChild(btn);
+    });
+    el('fontBackdrop').classList.add('open');
+    el('fontSheet').classList.add('open');
+  }
+  function closeFontSheet() {
+    el('fontBackdrop').classList.remove('open');
+    el('fontSheet').classList.remove('open');
+  }
+  el('fontSizeBtn').addEventListener('click', openFontSheet);
+  el('fontSheetClose').addEventListener('click', closeFontSheet);
+  el('fontBackdrop').addEventListener('click', closeFontSheet);
+  applyFontSize();
 
   // Init
   loadLibrary();
