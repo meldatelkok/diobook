@@ -1,19 +1,42 @@
 {
   "name": "DioBook",
   "short_name": "DioBook",
-  "description": "Listen to EPUB books with cloud TTS voices.",
+  "description": "EPUB audiobook reader with cloud TTS voices, chapter summaries, and reading companion AI.",
   "start_url": "./index.html",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#000000",
   "theme_color": "#000000",
-  "orientation": "portrait",
+  "orientation": "any",
   "categories": ["books", "education", "entertainment"],
+  "lang": "en",
+  "scope": "./",
   "icons": [
     {
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Continue reading",
+      "short_name": "Continue",
+      "url": "./index.html?action=continue",
+      "description": "Resume your most recent book"
+    },
+    {
+      "name": "Add book",
+      "short_name": "Add",
+      "url": "./index.html?action=add",
+      "description": "Add a new EPUB to your library"
     }
   ]
 }
