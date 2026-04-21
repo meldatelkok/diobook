@@ -769,9 +769,9 @@
     try {
       return Object.assign({
         voiceURI: null, rate: 1, pitch: 1, theme: null,
-        engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural'
+        engine: 'cloud', cloudVoice: 'en'
       }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
-    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural' }; }
+    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'en' }; }
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
 
@@ -920,7 +920,7 @@
   function updateVoiceLabel() {
     if (settings.engine === 'cloud') {
       const cv = cloudVoices.find(v => v.id === settings.cloudVoice);
-      el('fpVoiceLabel').textContent = cv ? cv.name : settings.cloudVoice.replace(/^.+?-.+?-(.+?)(?:Multilingual)?Neural$/, '$1');
+      el('fpVoiceLabel').textContent = cv ? cv.name : settings.cloudVoice;
     } else {
       const v = voices.find(x => x.voiceURI === settings.voiceURI);
       el('fpVoiceLabel').textContent = v ? v.name : 'Default';
@@ -1500,8 +1500,7 @@
         filtered.forEach(v => {
           const li = document.createElement('li');
           li.className = 'voice-row' + (v.id === settings.cloudVoice ? ' selected' : '');
-          const isMulti = v.style.includes('Multilingual');
-          const badge = isMulti ? `<span class="voice-badge">★ Top</span>` : '';
+          const badge = '';
           li.innerHTML = `
             <div class="voice-check">${v.id === settings.cloudVoice ? '✓' : ''}</div>
             <div class="voice-info">
