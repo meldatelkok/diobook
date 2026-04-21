@@ -769,9 +769,9 @@
     try {
       return Object.assign({
         voiceURI: null, rate: 1, pitch: 1, theme: null,
-        engine: 'cloud', cloudVoice: 'en'
+        engine: 'cloud', cloudVoice: 'asteria-en'
       }, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
-    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'en' }; }
+    } catch { return { voiceURI: null, rate: 1, pitch: 1, theme: null, engine: 'cloud', cloudVoice: 'asteria-en' }; }
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
 
