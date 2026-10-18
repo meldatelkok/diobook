@@ -1,5 +1,5 @@
 // DioBook Service Worker
-const CACHE_VERSION = 'diobook-v4';
+const CACHE_VERSION = 'diobook-v5';
 const APP_SHELL = [
   './',
   './index.html',
@@ -34,8 +34,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
 
   // Never cache TTS requests
-  if (url.pathname.startsWith('/tts') || url.pathname.startsWith('/voices')) return;
-  if (url.hostname.endsWith('.workers.dev') || url.hostname.endsWith('.deno.net')) return;
+  if (url.pathname.startsWith('/tts') || url.pathname.startsWith('/voices') || url.pathname.startsWith('/gradio_api')) return;
+  if (url.hostname.endsWith('.workers.dev') || url.hostname.endsWith('.deno.net') || url.hostname.endsWith('.hf.space')) return;
 
   // Stale-while-revalidate for app shell
   event.respondWith(
