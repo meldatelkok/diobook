@@ -581,6 +581,19 @@
   .engine-opt-sub {
     font-size: 11px; color: var(--text-dim); line-height: 1.3;
   }
+  .voice-filter-bar {
+    display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .voice-filter-bar::-webkit-scrollbar { display: none; }
+  .voice-filter-pill {
+    background: var(--surface-2); border: 1px solid transparent; color: var(--text-dim);
+    padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 600;
+    white-space: nowrap; cursor: pointer; transition: all 0.15s;
+  }
+  .voice-filter-pill.active {
+    background: var(--accent-dim); color: var(--accent); border-color: var(--accent);
+  }
 
   .toast {
     position: fixed; bottom: 140px; left: 50%;
@@ -1228,18 +1241,78 @@
     });
   }
 
-  // Cloud voices
-  let cloudVoices = [];
+  // Cloud voices (33 Free Voices: Turkish, Multilingual Expressive, Deepgram Aura-2, Aura-1)
+  const BUILTIN_CLOUD_VOICES = [
+    // Turkish & Multilingual Emotional Voices (Edge Neural v2)
+    { id: 'tr-TR-EmelNeural', name: 'Emel (Türkçe)', lang: 'tr-TR', gender: 'Female', style: 'Duygusal, sıcak ve akıcı hikâye anlatımı', badge: 'Türkçe · Duygusal', category: 'tr' },
+    { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Türkçe)', lang: 'tr-TR', gender: 'Male', style: 'Derin, etkileyici ve doğal roman anlatımı', badge: 'Türkçe · Duygusal', category: 'tr' },
+    { id: 'en-US-AvaMultilingualNeural', name: 'Ava Multilingual (TR/EN)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Yüksek duygusal tonlama, Türkçe & İngilizce kitaplar', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew Multilingual (TR/EN)', lang: 'tr-TR / en-US', gender: 'Male', style: 'Sıcak, sinematik hikâye anlatıcısı (TR & EN)', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma Multilingual (TR/EN)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Yumuşak, empatik ve samimi anlatım (TR & EN)', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+    { id: 'en-US-BrianMultilingualNeural', name: 'Brian Multilingual (TR/EN)', lang: 'tr-TR / en-US', gender: 'Male', style: 'Sakin, akıcı ve doğal anlatım (TR & EN)', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+    { id: 'fr-FR-VivienneMultilingualNeural', name: 'Vivienne Multilingual (TR/EN/FR)', lang: 'Çok Dilli', gender: 'Female', style: 'Zarif, melodik ve duygusal anlatıcı', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+    { id: 'de-DE-SeraphinaMultilingualNeural', name: 'Seraphina Multilingual (TR/EN/DE)', lang: 'Çok Dilli', gender: 'Female', style: 'Berrak, duygusal çok dilli anlatıcı', badge: 'Çok Dilli · Duygusal', category: 'tr' },
+
+    // English Expressive Neural Voices
+    { id: 'en-US-AriaNeural', name: 'Aria (Expressive)', lang: 'en-US', gender: 'Female', style: 'Expressive, lively & emotional fiction narrator', badge: 'Duygusal', category: 'expressive' },
+    { id: 'en-US-GuyNeural', name: 'Guy (Expressive)', lang: 'en-US', gender: 'Male', style: 'Passionate, dramatic & dynamic storyteller', badge: 'Duygusal', category: 'expressive' },
+    { id: 'en-US-JennyNeural', name: 'Jenny (Expressive)', lang: 'en-US', gender: 'Female', style: 'Warm, conversational & empathetic voice', badge: 'Duygusal', category: 'expressive' },
+    { id: 'en-GB-SoniaNeural', name: 'Sonia (British Expressive)', lang: 'en-GB', gender: 'Female', style: 'Refined, expressive British novel narrator', badge: 'Duygusal', category: 'expressive' },
+    { id: 'en-GB-RyanNeural', name: 'Ryan (British Expressive)', lang: 'en-GB', gender: 'Male', style: 'Rich, dramatic British storyteller', badge: 'Duygusal', category: 'expressive' },
+
+    // Deepgram Aura-2 Expressive Voices
+    { id: 'aura-2-thalia-en', name: 'Thalia (Aura 2)', lang: 'en-US', gender: 'Female', style: 'Warm, expressive next-gen audiobook narrator', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-aurora-en', name: 'Aurora (Aura 2)', lang: 'en-US', gender: 'Female', style: 'Melodic, emotional & rich storytelling', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-apollo-en', name: 'Apollo (Aura 2)', lang: 'en-US', gender: 'Male', style: 'Charismatic, resonant & expressive', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-draco-en', name: 'Draco (Aura 2)', lang: 'en-GB', gender: 'Male', style: 'Dramatic, cinematic British narration', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-helena-en', name: 'Helena (Aura 2)', lang: 'en-US', gender: 'Female', style: 'Natural, caring & deeply expressive', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-orpheus-en', name: 'Orpheus (Aura 2)', lang: 'en-US', gender: 'Male', style: 'Deep, emotional & intimate fiction voice', badge: 'Aura 2 · Duygusal', category: 'expressive' },
+    { id: 'aura-2-callista-en', name: 'Callista (Aura 2)', lang: 'en-US', gender: 'Female', style: 'Energetic, vivid & engaging narrator', badge: 'Aura 2', category: 'expressive' },
+    { id: 'aura-2-minerva-en', name: 'Minerva (Aura 2)', lang: 'en-US', gender: 'Female', style: 'Poised, literary & thoughtful', badge: 'Aura 2', category: 'expressive' },
+
+    // Classic Deepgram Aura-1 Studio Voices
+    { id: 'asteria-en', name: 'Asteria', lang: 'en-US', gender: 'Female', style: 'Warm, expressive — great for fiction', category: 'studio' },
+    { id: 'luna-en', name: 'Luna', lang: 'en-US', gender: 'Female', style: 'Soft, calm — bedtime reading', category: 'studio' },
+    { id: 'stella-en', name: 'Stella', lang: 'en-US', gender: 'Female', style: 'Clear, upbeat — non-fiction', category: 'studio' },
+    { id: 'athena-en', name: 'Athena', lang: 'en-GB', gender: 'Female', style: 'British, composed — classics', category: 'studio' },
+    { id: 'hera-en', name: 'Hera', lang: 'en-US', gender: 'Female', style: 'Smooth, authoritative', category: 'studio' },
+    { id: 'orion-en', name: 'Orion', lang: 'en-US', gender: 'Male', style: 'Deep, narrative — storytelling', category: 'studio' },
+    { id: 'arcas-en', name: 'Arcas', lang: 'en-US', gender: 'Male', style: 'Natural, conversational', category: 'studio' },
+    { id: 'perseus-en', name: 'Perseus', lang: 'en-US', gender: 'Male', style: 'Confident, energetic', category: 'studio' },
+    { id: 'angus-en', name: 'Angus', lang: 'en-IE', gender: 'Male', style: 'Irish, warm — literary', category: 'studio' },
+    { id: 'orpheus-en', name: 'Orpheus', lang: 'en-US', gender: 'Male', style: 'Rich, intimate — fiction', category: 'studio' },
+    { id: 'helios-en', name: 'Helios', lang: 'en-GB', gender: 'Male', style: 'British, crisp — non-fiction', category: 'studio' },
+    { id: 'zeus-en', name: 'Zeus', lang: 'en-US', gender: 'Male', style: 'Deep, commanding — epic', category: 'studio' }
+  ];
+
+  let cloudVoices = [...BUILTIN_CLOUD_VOICES];
   let cloudVoicesLoaded = false;
+  let workerSupportsEdge = false;
+  let activeVoiceFilter = 'all';
+
   async function loadCloudVoices() {
     if (cloudVoicesLoaded) return cloudVoices;
     try {
       const resp = await fetch(CLOUD_TTS_URL + '/voices');
       if (!resp.ok) throw new Error('Status ' + resp.status);
-      cloudVoices = await resp.json();
+      const remote = await resp.json();
+      if (Array.isArray(remote) && remote.length > 0) {
+        workerSupportsEdge = remote.some(v => v.id === 'tr-TR-EmelNeural');
+        const byId = new Map(BUILTIN_CLOUD_VOICES.map(v => [v.id, v]));
+        remote.forEach(rv => {
+          if (!byId.has(rv.id)) {
+            byId.set(rv.id, { ...rv, category: rv.category || 'studio' });
+          } else {
+            byId.set(rv.id, { ...byId.get(rv.id), ...rv, badge: byId.get(rv.id).badge || rv.badge, category: byId.get(rv.id).category || rv.category });
+          }
+        });
+        cloudVoices = Array.from(byId.values());
+      }
       cloudVoicesLoaded = true;
     } catch (e) {
-      console.error('Failed to load cloud voices', e);
+      console.error('Failed to load cloud voices, using built-in catalog', e);
+      cloudVoices = [...BUILTIN_CLOUD_VOICES];
+      cloudVoicesLoaded = true;
     }
     return cloudVoices;
   }
@@ -1251,6 +1324,7 @@
   function voiceQuality(v) {
     const uri = (v.voiceURI || '').toLowerCase();
     const name = (v.name || '').toLowerCase();
+    if (uri.includes('natural') || name.includes('natural')) return { tier: 4, label: 'Natural Neural' };
     if (uri.includes('premium') || name.includes('premium')) return { tier: 4, label: 'Premium' };
     if (uri.includes('enhanced') || name.includes('enhanced')) return { tier: 3, label: 'Enhanced' };
     if (uri.includes('siri')) return { tier: 3, label: 'Siri' };
@@ -1263,10 +1337,10 @@
 
   function autoSelectBestVoice() {
     if (settings.voiceURI && voices.some(v => v.voiceURI === settings.voiceURI)) return;
-    const english = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-    if (!english.length) return;
-    english.sort((a, b) => voiceQuality(b).tier - voiceQuality(a).tier);
-    settings.voiceURI = english[0].voiceURI;
+    const preferred = voices.filter(v => v.lang && (v.lang.toLowerCase().startsWith('tr') || v.lang.toLowerCase().startsWith('en')));
+    if (!preferred.length) return;
+    preferred.sort((a, b) => voiceQuality(b).tier - voiceQuality(a).tier);
+    settings.voiceURI = preferred[0].voiceURI;
     saveSettings();
   }
 
@@ -1772,9 +1846,10 @@
     if (!paraText) return [];
     const maxLen = 240;
     let raw = [];
+    const isTurkishText = /[çğıöşüÇĞİÖŞÜ]/.test(paraText);
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
       try {
-        const seg = new Intl.Segmenter('en', { granularity: 'sentence' });
+        const seg = new Intl.Segmenter(isTurkishText ? 'tr' : 'en', { granularity: 'sentence' });
         for (const item of seg.segment(paraText)) {
           if (item.segment) raw.push(item.segment);
         }
@@ -1785,7 +1860,8 @@
     }
 
     const merged = [];
-    const abbrevRe = /\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|No|vs|etc|Fig|Vol|Ch)\.\s*$/i;
+    const abbrevRe = /\b(?:Mr|Mrs|Ms|Dr|Prof|Doç|Alb|Av|Bşk|Cad|Sok|Mah|Apt|Sr|Jr|St|No|vs|vb|bkz|çev|Haz|Yay|etc|Fig|Vol|Ch)\.\s*$/i;
+    const dialogTagRe = /^(?:diye\b|dedi\b|sordu\b|fısıldadı\b|bağırdı\b|mırıldandı\b|ekledi\b|yanıtladı\b|cevapladı\b|haykırdı\b|said\b|asked\b|whispered\b|shouted\b|murmured\b|replied\b|cried\b)/i;
     for (let i = 0; i < raw.length; i++) {
       const s = raw[i].replace(/\s+/g, ' ').trim();
       if (!s) continue;
@@ -1795,7 +1871,10 @@
         }
         continue;
       }
-      if (merged.length > 0 && abbrevRe.test(merged[merged.length - 1])) {
+      const prev = merged.length > 0 ? merged[merged.length - 1] : '';
+      if (prev && abbrevRe.test(prev)) {
+        merged[merged.length - 1] += ' ' + s;
+      } else if (prev && s.length < 65 && (dialogTagRe.test(s) || (/["”’»]$/.test(prev) && /^[a-zçğıöşü]/.test(s))) && (prev.length + s.length + 1 <= maxLen)) {
         merged[merged.length - 1] += ' ' + s;
       } else {
         merged.push(s);
@@ -1959,7 +2038,42 @@
     return `${settings.cloudVoice}:${sentenceIdx}`;
   }
 
+  const LEGACY_VOICE_FALLBACK = {
+    'en-US-AriaNeural': 'asteria-en',
+    'en-US-GuyNeural': 'orpheus-en',
+    'en-US-JennyNeural': 'luna-en',
+    'en-GB-SoniaNeural': 'athena-en',
+    'en-GB-RyanNeural': 'helios-en',
+    'aura-2-thalia-en': 'asteria-en',
+    'aura-2-aurora-en': 'luna-en',
+    'aura-2-apollo-en': 'arcas-en',
+    'aura-2-draco-en': 'helios-en',
+    'aura-2-helena-en': 'stella-en',
+    'aura-2-orpheus-en': 'orpheus-en',
+    'aura-2-callista-en': 'hera-en',
+    'aura-2-minerva-en': 'athena-en'
+  };
+
   async function fetchCloudAudioWithRetry(text, voice) {
+    if (!cloudVoicesLoaded) {
+      try { await loadCloudVoices(); } catch {}
+    }
+    const isTrVoice = voice.startsWith('tr-');
+    const isMultiTr = (voice.includes('Multilingual') || isTrVoice) && /[çğıöşüÇĞİÖŞÜ]/.test(text);
+
+    // If Worker hasn't been updated to v2 yet, route Turkish via the Worker's /fetch proxy so it speaks real Turkish instead of English fallback
+    if (!workerSupportsEdge && (isTrVoice || isMultiTr)) {
+      const ttsTarget = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=tr&client=tw-ob&q=' + encodeURIComponent(text.slice(0, 200));
+      const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(ttsTarget));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const blob = await resp.blob();
+      if (!blob || blob.size < 300) return { blob: null, empty: true };
+      return { blob, empty: false };
+    }
+
+    const effectiveVoice = (!workerSupportsEdge && LEGACY_VOICE_FALLBACK[voice]) ? LEGACY_VOICE_FALLBACK[voice] : voice;
+    const minValidBytes = effectiveVoice.endsWith('Neural') ? 400 : 1350;
+
     let lastErr = null;
     for (let attempt = 0; attempt < 3; attempt++) {
       const controller = new AbortController();
@@ -1970,7 +2084,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text,
-            voice,
+            voice: effectiveVoice,
             rate: 1,
             pitch: settings.pitch
           }),
@@ -1979,8 +2093,7 @@
         clearTimeout(timeoutId);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const blob = await resp.blob();
-        // Deepgram returns a 1296-byte silent LAME frame when text has no speakable phonemes
-        if (!blob || blob.size <= 1350) {
+        if (!blob || blob.size <= minValidBytes) {
           return { blob: null, empty: true };
         }
         return { blob, empty: false };
@@ -2440,13 +2553,21 @@
       <div class="engine-toggle">
         <button class="engine-opt ${settings.engine === 'cloud' ? 'active' : ''}" data-engine="cloud">
           <div class="engine-opt-title" style="display:flex; align-items:center; gap:6px;">${Icons.cloud} Cloud voices</div>
-          <div class="engine-opt-sub">Studio quality · Unlimited</div>
+          <div class="engine-opt-sub">Duygusal &amp; Türkçe · Ücretsiz</div>
         </button>
         <button class="engine-opt ${settings.engine === 'device' ? 'active' : ''}" data-engine="device">
           <div class="engine-opt-title" style="display:flex; align-items:center; gap:6px;">${Icons.phone} Device voices</div>
-          <div class="engine-opt-sub">Works offline · Lower quality</div>
+          <div class="engine-opt-sub">Çevrimdışı · Cihaz sesleri</div>
         </button>
       </div>`;
+
+    const filterHtml = settings.engine === 'cloud' ? `
+      <div class="voice-filter-bar">
+        <button class="voice-filter-pill ${activeVoiceFilter === 'all' ? 'active' : ''}" data-filter="all">Tümü (${cloudVoices.length})</button>
+        <button class="voice-filter-pill ${activeVoiceFilter === 'tr' ? 'active' : ''}" data-filter="tr">🇹🇷 Türkçe &amp; Çok Dilli</button>
+        <button class="voice-filter-pill ${activeVoiceFilter === 'expressive' ? 'active' : ''}" data-filter="expressive">✨ Duygusal &amp; Aura 2</button>
+        <button class="voice-filter-pill ${activeVoiceFilter === 'studio' ? 'active' : ''}" data-filter="studio">🎧 Studio</button>
+      </div>` : '';
 
     const hint = el('voiceHint');
     hint.classList.add('hidden');
@@ -2454,25 +2575,26 @@
     list.innerHTML = '';
 
     if (settings.engine === 'cloud') {
-      if (!cloudVoicesLoaded) {
+      if (!cloudVoicesLoaded && cloudVoices.length === 0) {
         list.innerHTML = toggleHtml + '<div style="padding:40px 0; text-align:center; color: var(--text-dim);">Loading voices…</div>';
       } else if (cloudVoices.length === 0) {
         list.innerHTML = toggleHtml + '<div style="padding:20px; text-align:center; color: var(--danger);">Could not reach cloud voices. Check internet or Worker status.</div>';
       } else {
         const filtered = cloudVoices.filter(v => {
+          if (activeVoiceFilter !== 'all' && v.category !== activeVoiceFilter) return false;
           if (!search) return true;
-          return (`${v.name} ${v.lang} ${v.gender} ${v.style}`).toLowerCase().includes(search);
+          return (`${v.name} ${v.lang} ${v.gender} ${v.style} ${v.badge || ''}`).toLowerCase().includes(search);
         });
-        list.innerHTML = toggleHtml;
+        list.innerHTML = toggleHtml + filterHtml;
         filtered.forEach(v => {
           const li = document.createElement('li');
           li.className = 'voice-row' + (v.id === settings.cloudVoice ? ' selected' : '');
-          const badge = '';
+          const badge = v.badge ? `<span class="voice-badge">${escapeHtml(v.badge)}</span>` : '';
           li.innerHTML = `
             <div class="voice-check">${v.id === settings.cloudVoice ? '✓' : ''}</div>
             <div class="voice-info">
               <div class="voice-name">${badge}${escapeHtml(v.name)}</div>
-              <div class="voice-meta">${v.lang} · ${v.gender} · ${escapeHtml(v.style)}</div>
+              <div class="voice-meta">${escapeHtml(v.lang)} · ${escapeHtml(v.gender)} · ${escapeHtml(v.style)}</div>
             </div>
             <button class="voice-test-btn" data-cloud-id="${v.id}" aria-label="Test">${Icons.volume}</button>
           `;
@@ -2504,9 +2626,11 @@
         return (`${v.name} ${v.lang} ${q}`).toLowerCase().includes(search);
       });
       const sorted = [...filtered].sort((a, b) => {
-        const aEn = a.lang.startsWith('en') ? 0 : 1;
-        const bEn = b.lang.startsWith('en') ? 0 : 1;
-        if (aEn !== bEn) return aEn - bEn;
+        const aLang = (a.lang || '').toLowerCase();
+        const bLang = (b.lang || '').toLowerCase();
+        const aPri = aLang.startsWith('tr') ? 0 : (aLang.startsWith('en') ? 1 : 2);
+        const bPri = bLang.startsWith('tr') ? 0 : (bLang.startsWith('en') ? 1 : 2);
+        if (aPri !== bPri) return aPri - bPri;
         const qd = voiceQuality(b).tier - voiceQuality(a).tier;
         if (qd !== 0) return qd;
         if (a.lang !== b.lang) return a.lang.localeCompare(b.lang);
@@ -2516,7 +2640,7 @@
       const hasPremium = enVoices.some(v => voiceQuality(v).tier >= 3);
       if (!hasPremium && enVoices.length > 0) {
         hint.classList.remove('hidden');
-        hint.innerHTML = '<b>Note:</b> iPhone hides Premium voices from web apps. For best quality switch to <b>Cloud voices</b> above — studio quality, unlimited, free.';
+        hint.innerHTML = '<b>Not:</b> En duygusal ve doğal Türkçe/İngilizce okuma için yukarıdan <b>Cloud voices</b> sekmesini seçebilirsiniz — tamamen ücretsiz ve sınırsızdır.';
       }
       list.innerHTML = toggleHtml;
       sorted.forEach(v => {
@@ -2566,6 +2690,15 @@
         renderVoiceList();
       });
     });
+
+    // Attach category filter pill handlers
+    list.querySelectorAll('.voice-filter-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeVoiceFilter = pill.dataset.filter || 'all';
+        renderVoiceList();
+      });
+    });
   }
 
   const testAudio = new Audio();
@@ -2573,7 +2706,11 @@
     if (state.playing) pauseSpeaking();
     try { testAudio.pause(); } catch {}
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance("Hello, this is a test of this voice. The quick brown fox jumps over the lazy dog.");
+    const isTr = v.lang && v.lang.toLowerCase().startsWith('tr');
+    const sample = isTr
+      ? 'Merhaba! Bu sesin kitap okuma önizlemesidir. Duyguları ve vurguları nasıl aktardığını dinliyorsunuz.'
+      : 'Wait! she whispered into the shadows... Do you really think we can make it before sunrise?';
+    const u = new SpeechSynthesisUtterance(sample);
     u.voice = v; u.lang = v.lang; u.rate = settings.rate; u.pitch = settings.pitch;
     window.speechSynthesis.speak(u);
   }
@@ -2582,20 +2719,16 @@
     try {
       if (state.playing) pauseSpeaking();
       try { testAudio.pause(); } catch {}
-      const resp = await fetch(CLOUD_TTS_URL + '/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: 'Hello, this is a test of this voice. The quick brown fox jumps over the lazy dog.',
-          voice: voiceId,
-          rate: 1,
-          pitch: settings.pitch
-        })
-      });
-      if (!resp.ok) throw new Error('Status ' + resp.status);
-      const blob = await resp.blob();
+      const vObj = cloudVoices.find(v => v.id === voiceId);
+      const isTrOrMulti = voiceId.startsWith('tr-') || (vObj && vObj.category === 'tr');
+      const sampleText = isTrOrMulti
+        ? 'Merhaba! Bu seslendirmede duyguları, heyecanı ve vurguları çok daha doğal duyacaksınız. Kitap dinlemek artık çok daha keyifli!'
+        : '"Wait!" she whispered into the shadows... "Do you really think we can make it before sunrise?"';
+      showToast('Ses önizlemesi yükleniyor…', 1400);
+      const res = await fetchCloudAudioWithRetry(sampleText, voiceId);
+      if (!res || !res.blob) throw new Error('Empty audio');
       if (testAudio._lastUrl) URL.revokeObjectURL(testAudio._lastUrl);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(res.blob);
       testAudio._lastUrl = url;
       testAudio.src = url;
       testAudio.playbackRate = settings.rate;
