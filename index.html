@@ -278,6 +278,9 @@
     padding: 8px 20px 40px;
     font-family: "New York", Georgia, "Times New Roman", serif;
   }
+  .reader-view .reader-para {
+    margin-bottom: 0.95em;
+  }
   .reader-view [data-sentence] {
     transition: background 0.2s;
     border-radius: 4px;
@@ -388,12 +391,13 @@
     margin-bottom: 24px;
   }
   .scrubber-track {
-    height: 4px; background: var(--surface-2); border-radius: 2px;
-    overflow: hidden; cursor: pointer;
+    height: 6px; background: var(--surface-2); border-radius: 3px;
+    overflow: hidden; cursor: pointer; touch-action: none;
+    position: relative;
   }
   .scrubber-fill {
     height: 100%; background: var(--accent);
-    transition: width 0.2s;
+    transition: width 0.15s;
   }
   .scrubber-labels {
     display: flex; justify-content: space-between;
@@ -1492,7 +1496,7 @@
         if (coverHref) {
           const resp = await fetch(coverHref);
           const blob = await resp.blob();
-          coverUrl = await blobToDataUrl(blob);
+          coverUrl = await compressCoverBlob(blob);
         }
       } catch {}
 
@@ -1527,6 +1531,38 @@
       r.onload = () => resolve(r.result);
       r.onerror = reject;
       r.readAsDataURL(blob);
+    });
+  }
+
+  function compressCoverBlob(blob) {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const maxW = 320, maxH = 480;
+          let w = img.naturalWidth || maxW;
+          let h = img.naturalHeight || maxH;
+          const scale = Math.min(1, maxW / w, maxH / h);
+          w = Math.max(1, Math.round(w * scale));
+          h = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        } catch {
+          URL.revokeObjectURL(url);
+          blobToDataUrl(blob).then(resolve).catch(() => resolve(null));
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        blobToDataUrl(blob).then(resolve).catch(() => resolve(null));
+      };
+      img.src = url;
     });
   }
 
@@ -1602,20 +1638,34 @@
     }
   }
 
+  async function loadChapterText(idx) {
+    if (idx < 0 || idx >= state.chapters.length) return '';
+    const ch = state.chapters[idx];
+    const href = ch.href || '';
+    const [baseHref, startHash] = href.split('#');
+    let endHash = null;
+    if (idx + 1 < state.chapters.length) {
+      const nextHref = state.chapters[idx + 1].href || '';
+      const [nextBase, nextAnchor] = nextHref.split('#');
+      if (nextBase === baseHref && nextAnchor) endHash = nextAnchor;
+    }
+    let section = state.bookInstance.spine.get(href);
+    if (!section && baseHref) section = state.bookInstance.spine.get(baseHref);
+    if (!section) section = state.bookInstance.spine.get(idx);
+    if (!section) throw new Error('Chapter not found');
+    const contents = await section.load(state.bookInstance.load.bind(state.bookInstance));
+    const text = extractText(contents, startHash, endHash);
+    section.unload && section.unload();
+    return text;
+  }
+
   async function openChapter(idx, startSentence = 0) {
     if (idx < 0 || idx >= state.chapters.length) return;
     state.currentChapterIdx = idx;
     const ch = state.chapters[idx];
     invalidatePrefetch();
     try {
-      let section = state.bookInstance.spine.get(ch.href);
-      if (!section && ch.href && ch.href.includes('#')) {
-        section = state.bookInstance.spine.get(ch.href.split('#')[0]);
-      }
-      if (!section) section = state.bookInstance.spine.get(idx);
-      if (!section) throw new Error('Chapter not found');
-      const contents = await section.load(state.bookInstance.load.bind(state.bookInstance));
-      const text = extractText(contents);
+      const text = await loadChapterText(idx);
       state.sentences = splitSentences(text);
       state.currentSentence = Math.min(startSentence, Math.max(state.sentences.length - 1, 0));
       renderReader();
@@ -1633,24 +1683,60 @@
         saveLibrary();
       }
       saveProgress();
-      section.unload && section.unload();
     } catch (err) {
       console.error(err);
       showToast('Chapter failed: ' + err.message);
     }
   }
 
-  function extractText(doc) {
+  function findAnchorNode(root, anchor) {
+    if (!anchor || !root) return null;
+    try {
+      const byId = root.querySelector(`[id="${anchor.replace(/"/g, '\\"')}"]`) ||
+                   root.querySelector(`[name="${anchor.replace(/"/g, '\\"')}"]`);
+      if (byId) return byId;
+    } catch {}
+    return null;
+  }
+
+  function extractText(doc, startHash = null, endHash = null) {
     if (!doc) return '';
     const body = doc.body || doc;
     if (!body) return '';
     const clone = body.cloneNode(true);
     clone.querySelectorAll('script, style, nav').forEach(n => n.remove());
-    // Ensure block elements have sentence-separating spaces so headings/paragraphs don't merge into one word
-    clone.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote, br, tr').forEach(n => {
-      n.appendChild(document.createTextNode(' '));
+
+    let targetRoot = clone;
+    if (startHash || endHash) {
+      try {
+        const ownerDoc = clone.ownerDocument || document;
+        const range = ownerDoc.createRange();
+        range.selectNodeContents(clone);
+        const startEl = findAnchorNode(clone, startHash);
+        if (startEl) range.setStartBefore(startEl);
+        const endEl = findAnchorNode(clone, endHash);
+        if (endEl && (!startEl || (startEl.compareDocumentPosition(endEl) & Node.DOCUMENT_POSITION_FOLLOWING))) {
+          range.setEndBefore(endEl);
+        }
+        const frag = range.cloneContents();
+        if ((frag.textContent || '').trim().length > 20) {
+          const wrap = ownerDoc.createElement('div');
+          wrap.appendChild(frag);
+          targetRoot = wrap;
+        }
+      } catch {}
+    }
+
+    targetRoot.querySelectorAll('br').forEach(n => {
+      n.replaceWith(document.createTextNode('\n'));
     });
-    return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    targetRoot.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote, tr').forEach(n => {
+      n.appendChild(document.createTextNode('\n\n'));
+    });
+    return (targetRoot.textContent || '')
+      .replace(/[ \t\f\v]+/g, ' ')
+      .replace(/\n\s*\n+/g, '\n\n')
+      .trim();
   }
 
   function isSpeakable(s) {
@@ -1682,28 +1768,26 @@
     return out;
   }
 
-  function splitSentences(text) {
-    if (!text) return [];
+  function splitParagraphIntoSentences(paraText) {
+    if (!paraText) return [];
     const maxLen = 240;
     let raw = [];
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
       try {
         const seg = new Intl.Segmenter('en', { granularity: 'sentence' });
-        for (const item of seg.segment(text)) {
+        for (const item of seg.segment(paraText)) {
           if (item.segment) raw.push(item.segment);
         }
       } catch {}
     }
     if (!raw.length) {
-      // Fallback regex supporting smart quotes and closing brackets
-      raw = text.match(/[^.!?…]+[.!?…]+(?:["'”’»)\]]*)|[^.!?…]+$/g) || [text];
+      raw = paraText.match(/[^.!?…]+[.!?…]+(?:["'”’»)\]]*)|[^.!?…]+$/g) || [paraText];
     }
 
-    // Merge non-speakable fragments (e.g. standalone closing quotes ”) or short abbreviations (Mr., Dr., etc.)
     const merged = [];
     const abbrevRe = /\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|No|vs|etc|Fig|Vol|Ch)\.\s*$/i;
     for (let i = 0; i < raw.length; i++) {
-      const s = raw[i].trim();
+      const s = raw[i].replace(/\s+/g, ' ').trim();
       if (!s) continue;
       if (!isSpeakable(s)) {
         if (merged.length > 0 && /^["'”’»)\].!?…]+$/.test(s)) {
@@ -1727,15 +1811,43 @@
     return out;
   }
 
+  function splitSentences(text) {
+    state.paragraphBreaks = new Set();
+    if (!text) return [];
+    const paragraphs = text.split(/\n\n+/);
+    const allSentences = [];
+    paragraphs.forEach(p => {
+      const trimmed = p.replace(/\s+/g, ' ').trim();
+      if (!trimmed) return;
+      const pSentences = splitParagraphIntoSentences(trimmed);
+      if (pSentences.length > 0) {
+        if (allSentences.length > 0) {
+          state.paragraphBreaks.add(allSentences.length);
+        }
+        allSentences.push(...pSentences);
+      }
+    });
+    return allSentences;
+  }
+
   function renderReader() {
     const view = el('readerView');
     view.innerHTML = '';
+    let currentPara = document.createElement('p');
+    currentPara.className = 'reader-para';
+    view.appendChild(currentPara);
+
     state.sentences.forEach((s, i) => {
+      if (i > 0 && state.paragraphBreaks && state.paragraphBreaks.has(i)) {
+        currentPara = document.createElement('p');
+        currentPara.className = 'reader-para';
+        view.appendChild(currentPara);
+      }
       const span = document.createElement('span');
       span.textContent = s + ' ';
       span.dataset.sentence = i;
       if (i === state.currentSentence) span.className = 'current-sentence';
-      view.appendChild(span);
+      currentPara.appendChild(span);
     });
     scrollToCurrent();
     updateProgress();
@@ -2225,17 +2337,41 @@
     if (state.playing) speakCurrent();
   });
 
-  el('fpScrubTrack').addEventListener('click', (e) => {
+  // Interactive draggable scrubber
+  let isScrubbing = false;
+  function getScrubIndex(clientX) {
+    const rect = el('fpScrubTrack').getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / (rect.width || 1)));
+    const idx = Math.min(state.sentences.length - 1, Math.max(0, Math.floor(pct * state.sentences.length)));
+    return { pct: pct * 100, idx };
+  }
+  el('fpScrubTrack').addEventListener('pointerdown', (e) => {
     if (!state.sentences.length) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    const idx = Math.floor(pct * state.sentences.length);
-    state.currentSentence = Math.max(0, Math.min(state.sentences.length - 1, idx));
+    isScrubbing = true;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    const { pct, idx } = getScrubIndex(e.clientX);
+    el('fpScrubFill').style.width = pct + '%';
+    el('fpScrubStart').textContent = `${idx + 1} / ${state.sentences.length}`;
+  });
+  el('fpScrubTrack').addEventListener('pointermove', (e) => {
+    if (!isScrubbing || !state.sentences.length) return;
+    const { pct, idx } = getScrubIndex(e.clientX);
+    el('fpScrubFill').style.width = pct + '%';
+    el('fpScrubStart').textContent = `${idx + 1} / ${state.sentences.length}`;
+  });
+  function finishScrub(e) {
+    if (!isScrubbing || !state.sentences.length) return;
+    isScrubbing = false;
+    try { el('fpScrubTrack').releasePointerCapture(e.pointerId); } catch {}
+    const { idx } = getScrubIndex(e.clientX);
+    state.currentSentence = idx;
     haltActiveAudio();
     highlightSentence(state.currentSentence);
     saveProgress();
     if (state.playing) speakCurrent();
-  });
+  }
+  el('fpScrubTrack').addEventListener('pointerup', finishScrub);
+  el('fpScrubTrack').addEventListener('pointercancel', finishScrub);
 
   // Mini & full player
   function updateMiniPlayer() {
@@ -2794,26 +2930,59 @@
     el('statsSummary').textContent = `${count} books · ${withProgress} finished`;
   }
 
-  el('exportBtn').addEventListener('click', () => {
-    const data = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      library: state.library,
-      settings,
-      progress: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
-      bookmarks: JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '{}')
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `diobook-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    showToast('Backup downloaded');
-    closeMenuSheet();
+  function arrayBufferToBase64(buf) {
+    const bytes = new Uint8Array(buf);
+    const chunkSize = 0x8000;
+    const parts = [];
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize)));
+    }
+    return btoa(parts.join(''));
+  }
+
+  function base64ToArrayBuffer(b64) {
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = bin.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  el('exportBtn').addEventListener('click', async () => {
+    try {
+      showToast('Preparing full backup…');
+      const epubData = {};
+      for (const bk of state.library) {
+        try {
+          const buf = await dbGet(bk.key);
+          if (buf) epubData[bk.key] = arrayBufferToBase64(buf);
+        } catch {}
+      }
+      const data = {
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        library: state.library,
+        settings,
+        progress: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'),
+        bookmarks: JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '{}'),
+        epubData
+      };
+      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `diobook-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Backup downloaded');
+      closeMenuSheet();
+    } catch (err) {
+      showToast('Backup failed: ' + err.message);
+    }
   });
 
   el('importBtn').addEventListener('click', () => el('importFile').click());
@@ -2821,10 +2990,18 @@
     const file = e.target.files[0];
     if (!file) return;
     try {
+      showToast('Restoring backup…');
       const text = await file.text();
       const data = JSON.parse(text);
       if (!data || typeof data !== 'object') throw new Error('Invalid file');
       if (!confirm('Restore will merge with existing library. Continue?')) return;
+      if (data.epubData && typeof data.epubData === 'object') {
+        for (const [key, b64] of Object.entries(data.epubData)) {
+          if (typeof b64 === 'string' && b64.length > 0) {
+            await dbPut(key, base64ToArrayBuffer(b64));
+          }
+        }
+      }
       if (Array.isArray(data.library)) {
         const existing = new Map(state.library.map(b => [b.key, b]));
         data.library.forEach(b => {
@@ -2853,6 +3030,22 @@
       showToast('Restore failed: ' + err.message);
     }
     e.target.value = '';
+  });
+
+  // Drag and drop EPUB files anywhere on window
+  window.addEventListener('dragover', (e) => {
+    if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  });
+  window.addEventListener('drop', async (e) => {
+    if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+    const file = Array.from(e.dataTransfer.files).find(f => /\.epub$/i.test(f.name) || f.type === 'application/epub+zip');
+    if (file) {
+      e.preventDefault();
+      await addBook(file);
+    }
   });
 
   el('statsBtn').addEventListener('click', () => {
@@ -2916,15 +3109,7 @@
     el('summaryContent').textContent = 'Generating summary…';
     openSummarySheet();
     try {
-      let section = state.bookInstance.spine.get(ch.href);
-      if (!section && ch.href && ch.href.includes('#')) {
-        section = state.bookInstance.spine.get(ch.href.split('#')[0]);
-      }
-      if (!section) section = state.bookInstance.spine.get(chapterIdx);
-      if (!section) throw new Error('Chapter not found');
-      const contents = await section.load(state.bookInstance.load.bind(state.bookInstance));
-      const text = extractText(contents);
-      section.unload && section.unload();
+      const text = await loadChapterText(chapterIdx);
 
       const resp = await fetch(CLOUD_TTS_URL + '/summarize', {
         method: 'POST',
@@ -3034,17 +3219,8 @@
   }
   async function getCurrentChapterText() {
     if (state.currentChapterIdx < 0) return '';
-    const ch = state.chapters[state.currentChapterIdx];
     try {
-      let section = state.bookInstance.spine.get(ch.href);
-      if (!section && ch.href && ch.href.includes('#')) {
-        section = state.bookInstance.spine.get(ch.href.split('#')[0]);
-      }
-      if (!section) section = state.bookInstance.spine.get(state.currentChapterIdx);
-      const contents = await section.load(state.bookInstance.load.bind(state.bookInstance));
-      const text = extractText(contents);
-      section.unload && section.unload();
-      return text;
+      return await loadChapterText(state.currentChapterIdx);
     } catch { return ''; }
   }
   async function sendChatMessage() {
