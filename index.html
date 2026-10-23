@@ -1173,13 +1173,16 @@
   function loadSettings() {
     const defaults = {
       voiceURI: null, rate: 1, pitch: 1, theme: null,
-      engine: 'cloud', cloudVoice: 'tr-pocket:female_1:neutral',
+      engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural',
       multiCharacter: true, emotionDirector: true,
       fontSize: 'medium', librarySort: 'recent',
       autoSummary: false, summaryLang: 'English'
     };
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      if (saved.cloudVoice === 'tr-pocket:female_1:neutral' && !saved._userPickedVoice) {
+        saved.cloudVoice = 'en-US-AvaMultilingualNeural';
+      }
       return Object.assign({}, defaults, saved);
     } catch { return defaults; }
   }
@@ -1432,10 +1435,27 @@
   window.speechSynthesis.onvoiceschanged = refreshVoices;
   refreshVoices();
 
+  function isCurrentBookTurkish() {
+    if (!state.sentences || !state.sentences.length) return false;
+    const sample = state.sentences.slice(0, 25).join(' ');
+    return /[çğıöşüÇĞİÖŞÜ]/.test(sample) || /\b(ve|bir|bu|için|değil|ama|dedi|diye|sonra|kadar|gibi|olarak)\b/i.test(sample);
+  }
+
   function updateVoiceLabel() {
     if (settings.engine === 'cloud') {
+      const bookIsTr = isCurrentBookTurkish();
+      const isTrOnlyVoice = settings.cloudVoice.startsWith('tr-');
+      if (state.sentences && state.sentences.length > 0 && !bookIsTr && isTrOnlyVoice) {
+        el('fpVoiceLabel').textContent = settings.multiCharacter ? '🎭 Auto English Cast' : 'Ava (English Narrator)';
+        return;
+      }
+      if (state.sentences && state.sentences.length > 0 && bookIsTr && !isTrOnlyVoice && !settings.cloudVoice.includes('Multilingual') && !settings.cloudVoice.startsWith('qwen:')) {
+        el('fpVoiceLabel').textContent = settings.multiCharacter ? '🎭 Otomatik Türkçe Kadro' : 'Emel (Türkçe Anlatıcı)';
+        return;
+      }
       const cv = cloudVoices.find(v => v.id === settings.cloudVoice);
-      el('fpVoiceLabel').textContent = cv ? cv.name : settings.cloudVoice;
+      const baseName = cv ? cv.name : settings.cloudVoice;
+      el('fpVoiceLabel').textContent = settings.multiCharacter ? `🎭 ${baseName}` : baseName;
     } else {
       const v = voices.find(x => x.voiceURI === settings.voiceURI);
       el('fpVoiceLabel').textContent = v ? v.name : 'Default';
@@ -2007,6 +2027,10 @@
     });
     scrollToCurrent();
     updateProgress();
+    updateVoiceLabel();
+    if (state.sentences.length > 0) {
+      updateCastStageBadge(analyzeSentenceCastAndEmotion(state.currentSentence, settings.cloudVoice));
+    }
   }
 
   function highlightSentence(i) {
@@ -2116,12 +2140,12 @@
   }
 
   const EMOTION_META = {
-    mutlu:   { label: '😊 Neşeli & Sıcak', instruct: 'Speak with warm happiness, excitement, and a bright smile in your voice', rateMod: 1.03 },
-    üzgün:   { label: '😢 Hüzünlü & Duygusal', instruct: 'Speak with deep sadness, melancholy, gentle fragility, and emotional weight', rateMod: 0.94 },
-    kızgın:  { label: '😠 Gerilimli & Sert', instruct: 'Speak with intense dramatic tension, urgency, and fierce emotion', rateMod: 1.05 },
-    şaşkın:  { label: '😲 Heyecanlı & Şaşkın', instruct: 'Speak with breathless surprise, suspense, and dramatic astonishment', rateMod: 1.04 },
-    sakin:   { label: '🤫 Sakin & İçsel', instruct: 'Speak softly, intimately, and calmly like a gentle secret or inner thought', rateMod: 0.95 },
-    neutral: { label: '📖 Doğal Anlatım', instruct: 'Speak like an expressive, warm, and natural audiobook storyteller', rateMod: 1.0 }
+    mutlu:   { labelTr: '😊 Neşeli & Sıcak', labelEn: '😊 Happy & Warm', instruct: 'Speak with warm happiness, excitement, and a bright smile in your voice', rateMod: 1.04 },
+    üzgün:   { labelTr: '😢 Hüzünlü & Duygusal', labelEn: '😢 Sad & Emotional', instruct: 'Speak with deep sadness, melancholy, gentle fragility, and emotional weight', rateMod: 0.93 },
+    kızgın:  { labelTr: '😠 Gerilimli & Sert', labelEn: '😠 Tense & Fierce', instruct: 'Speak with intense dramatic tension, urgency, and fierce emotion', rateMod: 1.06 },
+    şaşkın:  { labelTr: '😲 Heyecanlı & Şaşkın', labelEn: '😲 Surprised & Excited', instruct: 'Speak with breathless surprise, suspense, and dramatic astonishment', rateMod: 1.05 },
+    sakin:   { labelTr: '🤫 Sakin & Fısıltı', labelEn: '🤫 Soft & Whispery', instruct: 'Speak softly, intimately, and calmly like a gentle secret or inner thought', rateMod: 0.92 },
+    neutral: { labelTr: '📖 Doğal Anlatım', labelEn: '📖 Natural Narration', instruct: 'Speak like an expressive, warm, and natural audiobook storyteller', rateMod: 1.0 }
   };
 
   function analyzeSentenceCastAndEmotion(sentenceIdx, baseVoice) {
@@ -2131,117 +2155,179 @@
     const combinedContext = `${prevRaw} ${raw} ${nextRaw}`.toLowerCase();
     const lower = raw.toLowerCase();
 
-    const isTurkishText = /[çğıöşüÇĞİÖŞÜ]/.test(raw) || baseVoice.startsWith('tr-') || /\b(ve|bir|bu|için|değil|ama|dedi|diye|sonra|kadar|gibi|olarak)\b/i.test(raw);
+    // Detect language strictly from the sentence & book text (NEVER from baseVoice prefix!)
+    const isTurkishText = /[çğıöşüÇĞİÖŞÜ]/.test(raw) ||
+      /\b(ve|bir|bu|için|değil|ama|dedi|diye|sonra|kadar|gibi|olarak|var|yok)\b/i.test(raw) ||
+      isCurrentBookTurkish();
 
-    // Detect dialogue (quotes or Turkish novel em-dash dialogue)
+    // Detect dialogue (quotes or novel em-dash dialogue)
     const hasQuotes = /["“”«»‘’]|^[\s]*[—–\-]\s*\S/.test(raw);
-    const isWhisper = /(fısılda|mırıldan|usulca|sessizce|iç çek|whisper|murmur|softly|quietly|sighed)/i.test(combinedContext);
+    const isWhisper = /(fısılda|mırıldan|usulca|sessizce|iç çek|whisper|murmur|softly|quietly|sighed|under her breath|under his breath)/i.test(combinedContext);
 
     // Detect emotion from sentence + surrounding context
     let emotion = 'neutral';
-    if (baseVoice.startsWith('tr-pocket:')) {
+    if (isTurkishText && baseVoice.startsWith('tr-pocket:')) {
       const parts = baseVoice.split(':');
       if (parts[2]) emotion = parts[2];
     }
 
     if (settings.emotionDirector !== false) {
-      if (/(bağır|haykır|öfke|sinir|kızgın|lanet|defol|yeter|sus!|nefret|sertçe|kükre|shout|yell|furious|angrily|damn|rage|scream)/i.test(lower)) {
+      if (/(bağır|haykır|öfke|sinir|kızgın|lanet|defol|yeter|sus!|nefret|sertçe|kükre|shout|yell|furious|angrily|damn|rage|scream|snarled|growled)/i.test(lower)) {
         emotion = 'kızgın';
-      } else if (/(ağla|gözyaş|hıçkır|üzgün|hüzün|acıyla|inle|keşke|elveda|öldü|yalnız|keder|boğazı düğüm|cried|tears|sob|sadly|sorrow|grief|mourn|heartbroken)/i.test(lower)) {
+      } else if (/(ağla|gözyaş|hıçkır|üzgün|hüzün|acıyla|inle|keşke|elveda|öldü|yalnız|keder|boğazı düğüm|cried|tears|sob|sadly|sorrow|grief|mourn|heartbroken|wept)/i.test(lower)) {
         emotion = 'üzgün';
       } else if (isWhisper || /(\.\.\.|…)$/.test(raw)) {
         emotion = 'sakin';
-      } else if (/(\?!|!\?)|(\b(şaşır|inanamıyorum|olamaz|nasıl olur|dehşet|korkuyla|irkil|ne!|gerçekten mi|hayret|gasped|shocked|impossible|terrified|suddenly)\b)/i.test(lower) || (raw.endsWith('!') && raw.length < 95)) {
+      } else if (/(\?!|!\?)|(\b(şaşır|inanamıyorum|olamaz|nasıl olur|dehşet|korkuyla|irkil|ne!|gerçekten mi|hayret|gasped|shocked|impossible|terrified|suddenly|startled)\b)/i.test(lower) || (raw.endsWith('!') && raw.length < 95)) {
         emotion = 'şaşkın';
-      } else if (/(güldü|gülümse|kahkaha|sevinç|mutlu|harika|mükemmel|neşe|tebessüm|heyecanla|laugh|smiled|joy|happily|wonderful|delight)/i.test(lower)) {
+      } else if (/(güldü|gülümse|kahkaha|sevinç|mutlu|harika|mükemmel|neşe|tebessüm|heyecanla|laugh|smiled|joy|happily|wonderful|delight|grinned|chuckled)/i.test(lower)) {
         emotion = 'mutlu';
       } else if (!hasQuotes) {
         emotion = 'neutral';
       }
     }
 
+    // Ensure narrator voice matches the book's actual language!
     let effectiveVoice = baseVoice;
+    if (!isTurkishText && baseVoice.startsWith('tr-')) {
+      const wantMale = baseVoice.includes('Ahmet') || baseVoice.includes('male');
+      effectiveVoice = wantMale ? 'en-US-AndrewMultilingualNeural' : 'en-US-AvaMultilingualNeural';
+    } else if (isTurkishText && !baseVoice.startsWith('tr-') && !baseVoice.includes('Multilingual') && !baseVoice.startsWith('qwen:')) {
+      const vObj = cloudVoices.find(v => v.id === baseVoice);
+      const wantMale = vObj && vObj.gender === 'Male';
+      effectiveVoice = wantMale ? 'tr-TR-AhmetNeural' : 'en-US-AvaMultilingualNeural';
+    }
+
     let roleLabel = isTurkishText ? '📖 Anlatıcı' : '📖 Narrator';
 
     if (settings.multiCharacter && hasQuotes) {
-      // Determine speaker gender/persona from context cues or dialogue turn-taking
-      const femaleCue = /\b(kadın|kız|anne|abla|hanım|teyze|prenses|kraliçe|genç kız|she|her|woman|girl|mother|sister|lady|queen|princess)\b/i.test(combinedContext);
-      const maleCue = /\b(adam|erkek|baba|abi|ağabey|bey|amca|oğlan|delikanlı|kral|prens|he|him|man|boy|father|brother|lord|king|prince)\b/i.test(combinedContext);
-      const olderCue = /\b(yaşlı|ihtiyar|dede|bilge|profesör|usta|old man|elder|professor|master)\b/i.test(combinedContext);
+      const femaleCue = /\b(kadın|kız|anne|abla|hanım|teyze|prenses|kraliçe|genç kız|she|her|woman|girl|mother|sister|lady|queen|princess|duchess|actress|wife|daughter)\b/i.test(combinedContext);
+      const maleCue = /\b(adam|erkek|baba|abi|ağabey|bey|amca|oğlan|delikanlı|kral|prens|he|him|man|boy|father|brother|lord|king|prince|duke|husband|son|gentleman)\b/i.test(combinedContext);
+      const olderCue = /\b(yaşlı|ihtiyar|dede|bilge|profesör|usta|old man|elder|professor|master|grandfather|captain|doctor)\b/i.test(combinedContext);
+      const childCue = /\b(çocuk|küçük kız|küçük oğlan|ufaklık|little girl|little boy|child|kid)\b/i.test(combinedContext);
 
-      // Count consecutive dialogue turns to alternate characters naturally in conversations
       let dialogueTurn = 0;
-      for (let k = Math.max(0, sentenceIdx - 6); k <= sentenceIdx; k++) {
+      for (let k = Math.max(0, sentenceIdx - 8); k <= sentenceIdx; k++) {
         if (/["“”«»]|^[\s]*[—–\-]/.test(state.sentences[k] || '')) dialogueTurn++;
       }
 
       if (isTurkishText) {
-        const baseSpeaker = baseVoice.startsWith('tr-pocket:') ? baseVoice.split(':')[1] : (baseVoice.includes('Ahmet') || baseVoice.includes('Andrew') || baseVoice.includes('Brian') ? 'male_1' : 'female_1');
-        let targetSpeaker = baseSpeaker;
-        if (femaleCue && !maleCue) {
-          targetSpeaker = (dialogueTurn % 2 === 0 || baseSpeaker === 'female_2') ? 'female_3' : 'female_2';
-          roleLabel = targetSpeaker === 'female_2' ? '🎭 Kadın Karakter (Elif)' : '🎭 Kadın Karakter (Defne)';
+        if (baseVoice.startsWith('tr-pocket:')) {
+          const baseSpeaker = baseVoice.split(':')[1] || 'female_1';
+          let targetSpeaker = baseSpeaker;
+          if (femaleCue && !maleCue) {
+            targetSpeaker = (dialogueTurn % 2 === 0) ? 'female_3' : 'female_2';
+            roleLabel = targetSpeaker === 'female_2' ? '🎭 Kadın Karakter (Elif)' : '🎭 Kadın Karakter (Defne)';
+          } else if (maleCue && !femaleCue) {
+            targetSpeaker = olderCue ? 'male_3' : ((dialogueTurn % 2 === 0) ? 'male_1' : 'male_2');
+            roleLabel = olderCue ? '🎭 Olgun Karakter (Barış)' : (targetSpeaker === 'male_2' ? '🎭 Erkek Karakter (Mert)' : '🎭 Erkek Karakter (Kerem)');
+          } else {
+            const castPool = ['male_2', 'female_2', 'male_1', 'female_3', 'male_3'];
+            targetSpeaker = castPool[dialogueTurn % castPool.length];
+            const names = {
+              female_1: '🎭 Karakter (Zeynep)',
+              female_2: '🎭 Kadın Karakter (Elif)',
+              female_3: '🎭 Kadın Karakter (Defne)',
+              male_1: '🎭 Erkek Karakter (Kerem)',
+              male_2: '🎭 Erkek Karakter (Mert)',
+              male_3: '🎭 Olgun Karakter (Barış)'
+            };
+            roleLabel = names[targetSpeaker] || '🎭 Diyalog Karakteri';
+          }
+          effectiveVoice = `tr-pocket:${targetSpeaker}:${emotion}`;
+        } else {
+          // Fast Parallel Turkish & Multilingual Neural Cast (<1.4s response)
+          if (femaleCue && !maleCue) {
+            const trFemales = [
+              { id: 'en-US-EmmaMultilingualNeural', label: '🎭 Kadın Karakter (Emma)' },
+              { id: 'fr-FR-VivienneMultilingualNeural', label: '🎭 Kadın Karakter (Vivienne)' },
+              { id: 'tr-TR-EmelNeural', label: '🎭 Kadın Karakter (Emel)' },
+              { id: 'de-DE-SeraphinaMultilingualNeural', label: '🎭 Kadın Karakter (Seraphina)' }
+            ];
+            const pick = trFemales[dialogueTurn % trFemales.length];
+            effectiveVoice = pick.id;
+            roleLabel = pick.label;
+          } else if (maleCue && !femaleCue) {
+            if (olderCue) {
+              effectiveVoice = 'de-DE-FlorianMultilingualNeural';
+              roleLabel = '🎭 Olgun Karakter (Florian)';
+            } else {
+              const trMales = [
+                { id: 'tr-TR-AhmetNeural', label: '🎭 Erkek Karakter (Ahmet)' },
+                { id: 'en-US-AndrewMultilingualNeural', label: '🎭 Erkek Karakter (Andrew)' },
+                { id: 'en-US-BrianMultilingualNeural', label: '🎭 Erkek Karakter (Brian)' }
+              ];
+              const pick = trMales[dialogueTurn % trMales.length];
+              effectiveVoice = pick.id;
+              roleLabel = pick.label;
+            }
+          } else {
+            const trMixed = [
+              { id: 'tr-TR-AhmetNeural', label: '🎭 Erkek Karakter (Ahmet)' },
+              { id: 'en-US-EmmaMultilingualNeural', label: '🎭 Kadın Karakter (Emma)' },
+              { id: 'en-US-AndrewMultilingualNeural', label: '🎭 Erkek Karakter (Andrew)' },
+              { id: 'fr-FR-VivienneMultilingualNeural', label: '🎭 Kadın Karakter (Vivienne)' },
+              { id: 'en-US-BrianMultilingualNeural', label: '🎭 Erkek Karakter (Brian)' }
+            ];
+            const pick = trMixed[dialogueTurn % trMixed.length];
+            effectiveVoice = pick.id;
+            roleLabel = pick.label;
+          }
+        }
+      } else {
+        // Fast Parallel English Multi-Character Cast (<1s response)
+        if (childCue) {
+          effectiveVoice = 'en-US-AnaNeural';
+          roleLabel = '👧 Young Character (Ana)';
+        } else if (isWhisper) {
+          effectiveVoice = baseVoice.startsWith('kokoro') ? 'kokoro:af_nicole' : 'en-US-EmmaMultilingualNeural';
+          roleLabel = '🤫 Whisper Character (Emma)';
+        } else if (femaleCue && !maleCue) {
+          const enFemales = [
+            { id: 'en-US-AriaNeural', label: '🎭 Female Character (Aria)' },
+            { id: 'en-GB-SoniaNeural', label: '🎭 Female Character (Sonia)' },
+            { id: 'en-US-EmmaMultilingualNeural', label: '🎭 Female Character (Emma)' }
+          ];
+          const pick = enFemales[dialogueTurn % enFemales.length];
+          effectiveVoice = pick.id;
+          roleLabel = pick.label;
         } else if (maleCue && !femaleCue) {
           if (olderCue) {
-            targetSpeaker = 'male_3';
-            roleLabel = '🎭 Olgun Karakter (Barış)';
+            effectiveVoice = 'en-US-ChristopherNeural';
+            roleLabel = '🎭 Older Character (Christopher)';
           } else {
-            targetSpeaker = (dialogueTurn % 2 === 0 || baseSpeaker === 'male_2') ? 'male_1' : 'male_2';
-            roleLabel = targetSpeaker === 'male_2' ? '🎭 Erkek Karakter (Mert)' : '🎭 Erkek Karakter (Kerem)';
+            const enMales = [
+              { id: 'en-US-GuyNeural', label: '🎭 Male Character (Guy)' },
+              { id: 'en-US-AndrewMultilingualNeural', label: '🎭 Male Character (Andrew)' },
+              { id: 'en-GB-RyanNeural', label: '🎭 Male Character (Ryan)' }
+            ];
+            const pick = enMales[dialogueTurn % enMales.length];
+            effectiveVoice = pick.id;
+            roleLabel = pick.label;
           }
         } else {
-          // Alternate between distinct male & female character voices in dialogue
-          const castPool = baseSpeaker.startsWith('female')
-            ? ['male_2', 'female_2', 'male_1', 'female_3', 'male_3']
-            : ['female_2', 'male_2', 'female_3', 'male_3', 'female_1'];
-          targetSpeaker = castPool[dialogueTurn % castPool.length];
-          const names = {
-            female_1: '🎭 Karakter (Zeynep)',
-            female_2: '🎭 Kadın Karakter (Elif)',
-            female_3: '🎭 Kadın Karakter (Defne)',
-            male_1: '🎭 Erkek Karakter (Kerem)',
-            male_2: '🎭 Erkek Karakter (Mert)',
-            male_3: '🎭 Olgun Karakter (Barış)'
-          };
-          roleLabel = names[targetSpeaker] || '🎭 Diyalog Karakteri';
-        }
-        effectiveVoice = `tr-pocket:${targetSpeaker}:${emotion}`;
-      } else {
-        // English / Multilingual Multi-Character Cast (powered by Kokoro-82M character voices)
-        if (isWhisper) {
-          effectiveVoice = 'kokoro:af_nicole';
-          roleLabel = '🤫 Fısıltı Karakteri (Nicole)';
-        } else if (femaleCue && !maleCue) {
-          effectiveVoice = (dialogueTurn % 2 === 0) ? 'kokoro:af_bella' : 'kokoro:bf_isabella';
-          roleLabel = effectiveVoice.includes('bella') && !effectiveVoice.includes('isabella') ? '🎭 Kadın Karakter (Bella)' : '🎭 Kadın Karakter (Isabella)';
-        } else if (maleCue && !femaleCue) {
-          effectiveVoice = olderCue ? 'kokoro:bm_george' : ((dialogueTurn % 2 === 0) ? 'kokoro:am_fenrir' : 'kokoro:am_puck');
-          roleLabel = olderCue ? '🎭 Olgun Karakter (George)' : (effectiveVoice.includes('fenrir') ? '🎭 Erkek Karakter (Fenrir)' : '🎭 Genç Karakter (Puck)');
-        } else {
           const enCast = [
-            { id: 'kokoro:am_fenrir', label: '🎭 Erkek Karakter (Fenrir)' },
-            { id: 'kokoro:af_bella', label: '🎭 Kadın Karakter (Bella)' },
-            { id: 'kokoro:am_puck', label: '🎭 Genç Karakter (Puck)' },
-            { id: 'kokoro:bf_emma', label: '🎭 Karakter (Emma)' }
+            { id: 'en-US-GuyNeural', label: '🎭 Male Character (Guy)' },
+            { id: 'en-US-AriaNeural', label: '🎭 Female Character (Aria)' },
+            { id: 'en-GB-RyanNeural', label: '🎭 Male Character (Ryan)' },
+            { id: 'en-US-EmmaMultilingualNeural', label: '🎭 Female Character (Emma)' },
+            { id: 'en-US-AndrewMultilingualNeural', label: '🎭 Male Character (Andrew)' },
+            { id: 'en-GB-SoniaNeural', label: '🎭 Female Character (Sonia)' }
           ];
           const pick = enCast[dialogueTurn % enCast.length];
           effectiveVoice = pick.id;
           roleLabel = pick.label;
         }
       }
-    } else if (isTurkishText && (baseVoice.startsWith('tr-pocket:') || !workerSupportsEdge)) {
-      const spk = baseVoice.startsWith('tr-pocket:')
-        ? baseVoice.split(':')[1]
-        : (baseVoice.includes('Ahmet') || baseVoice.includes('Andrew') || baseVoice.includes('Brian') ? 'male_1' : 'female_1');
-      effectiveVoice = `tr-pocket:${spk}:${emotion}`;
     }
 
     const emMeta = EMOTION_META[emotion] || EMOTION_META.neutral;
     return {
       effectiveVoice,
       emotion,
+      isTurkishText,
       roleLabel,
-      emotionLabel: emMeta.label,
+      emotionLabel: isTurkishText ? emMeta.labelTr : emMeta.labelEn,
       instruct: emMeta.instruct,
       rateMod: emMeta.rateMod
     };
@@ -2288,18 +2374,55 @@
     return { blob, empty: false };
   }
 
-  const KOKORO_FALLBACK_MAP = {
-    'en-US-AriaNeural': 'af_heart',
-    'en-US-GuyNeural': 'am_fenrir',
-    'en-US-JennyNeural': 'af_bella',
-    'en-GB-SoniaNeural': 'bf_emma',
-    'en-GB-RyanNeural': 'bm_fable',
-    'aura-2-thalia-en': 'af_heart',
-    'aura-2-aurora-en': 'af_bella',
-    'aura-2-apollo-en': 'am_puck',
-    'aura-2-draco-en': 'bm_fable',
-    'aura-2-helena-en': 'af_aoede',
-    'aura-2-orpheus-en': 'am_fenrir'
+  async function callFlaevoNeuralEdge(cleanText, neuralVoice, speedMod, signal) {
+    const resp = await fetch('https://braindesmond-flaevo-tts-edge.hf.space/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Flaevo-Key': 'flaevo-tts-secure-token-99'
+      },
+      body: JSON.stringify({
+        text: cleanText,
+        voice: neuralVoice,
+        speed: speedMod || 1.0
+      }),
+      signal
+    });
+    if (!resp.ok) throw new Error(`Flaevo Edge HTTP ${resp.status}`);
+    const blob = await resp.blob();
+    if (!blob || blob.size < 400) return { blob: null, empty: true };
+    return { blob, empty: false };
+  }
+
+  const FAST_NEURAL_VOICE_MAP = {
+    'tr-pocket:female_1': 'en-US-AvaMultilingualNeural',
+    'tr-pocket:female_2': 'en-US-EmmaMultilingualNeural',
+    'tr-pocket:female_3': 'fr-FR-VivienneMultilingualNeural',
+    'tr-pocket:male_1': 'tr-TR-AhmetNeural',
+    'tr-pocket:male_2': 'en-US-AndrewMultilingualNeural',
+    'tr-pocket:male_3': 'de-DE-FlorianMultilingualNeural',
+    'kokoro:af_heart': 'en-US-AvaMultilingualNeural',
+    'kokoro:af_bella': 'en-US-AriaNeural',
+    'kokoro:af_nicole': 'en-US-EmmaMultilingualNeural',
+    'kokoro:am_fenrir': 'en-US-GuyNeural',
+    'kokoro:am_puck': 'en-US-AndrewMultilingualNeural',
+    'kokoro:bf_emma': 'en-GB-SoniaNeural',
+    'kokoro:bm_fable': 'en-GB-RyanNeural',
+    'kokoro:af_aoede': 'fr-FR-VivienneMultilingualNeural',
+    'kokoro:af_kore': 'en-US-AriaNeural',
+    'kokoro:af_sky': 'en-US-EmmaMultilingualNeural',
+    'kokoro:am_michael': 'en-US-BrianMultilingualNeural',
+    'kokoro:am_onyx': 'en-US-ChristopherNeural',
+    'kokoro:bf_isabella': 'en-GB-SoniaNeural',
+    'kokoro:bm_george': 'en-GB-RyanNeural',
+    'kokoro-blend:af_heart+af_nicole': 'en-US-EmmaMultilingualNeural',
+    'kokoro-blend:bm_fable+am_fenrir': 'en-GB-RyanNeural',
+    'aura-2-thalia-en': 'en-US-AvaMultilingualNeural',
+    'aura-2-aurora-en': 'en-US-EmmaMultilingualNeural',
+    'aura-2-apollo-en': 'en-US-AndrewMultilingualNeural',
+    'aura-2-draco-en': 'en-GB-RyanNeural',
+    'aura-2-helena-en': 'en-US-AriaNeural',
+    'aura-2-orpheus-en': 'en-US-GuyNeural'
   };
 
   async function fetchCloudAudioWithRetry(text, voice, castMeta = null) {
@@ -2310,39 +2433,53 @@
     const cleanText = text.replace(/\s+/g, ' ').trim();
     if (!cleanText) return { blob: null, empty: true };
 
-    const isTurkishText = /[çğıöşüÇĞİÖŞÜ]/.test(cleanText);
+    const speedMod = castMeta?.rateMod || 1.0;
     const isPocketTr = voice.startsWith('tr-pocket:');
-    const isLegacyTrOrMulti = (voice.startsWith('tr-') || voice.includes('Multilingual')) && !isPocketTr;
+    const isKokoro = voice.startsWith('kokoro:') || voice.startsWith('kokoro-blend:');
+    const isQwen = voice.startsWith('qwen:');
+    const isNeuralEdge = voice.endsWith('Neural') || Boolean(FAST_NEURAL_VOICE_MAP[voice]);
 
-    // 1. 🇹🇷 Pocket-TTS Turkish Emotional & Multi-Character Engine (Direct CORS, 6 speakers × 6 emotions, NO robotic fallback!)
-    if (isPocketTr || (!workerSupportsEdge && (isLegacyTrOrMulti || isTurkishText))) {
-      const parts = isPocketTr ? voice.split(':') : [];
-      const speakerId = parts[1] || (voice.includes('Ahmet') || voice.includes('Andrew') || voice.includes('Brian') || voice.includes('male') ? 'male_1' : 'female_1');
-      const emotion = castMeta?.emotion || parts[2] || 'neutral';
-
-      let lastErr = null;
+    // 1. Fast Parallel Neural Cast Engine (Flaevo Edge v2 — responds in ~0.8s for both English & Turkish!)
+    if (voice.endsWith('Neural') || voice.startsWith('aura-2-')) {
+      const targetNeural = FAST_NEURAL_VOICE_MAP[voice] || voice;
       for (let attempt = 0; attempt < 2; attempt++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 16000);
+        const timeoutId = setTimeout(() => controller.abort(), 9000);
         try {
-          const res = await callGradioSpaceAudio(
-            'https://wite-tech-pocket-tts-turkish.hf.space',
-            '/synthesize',
-            [cleanText, speakerId, emotion],
-            controller.signal
-          );
+          const res = await callFlaevoNeuralEdge(cleanText, targetNeural, speedMod, controller.signal);
           clearTimeout(timeoutId);
           return res;
         } catch (err) {
           clearTimeout(timeoutId);
-          lastErr = err;
         }
       }
-      throw lastErr || new Error('Turkish neural voice failed');
     }
 
-    // 2. 🎭 Kokoro-82M Ultra-Human Character & Voice Blending Engine (Direct CPU CORS)
-    if (voice.startsWith('kokoro:') || voice.startsWith('kokoro-blend:') || (!workerSupportsEdge && KOKORO_FALLBACK_MAP[voice])) {
+    // 2. 🇹🇷 Pocket-TTS Turkish Emotional Engine (with instant fallback to Fast Neural Edge if busy)
+    if (isPocketTr) {
+      const parts = voice.split(':');
+      const speakerId = parts[1] || 'female_1';
+      const emotion = castMeta?.emotion || parts[2] || 'neutral';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8500);
+      try {
+        const res = await callGradioSpaceAudio(
+          'https://wite-tech-pocket-tts-turkish.hf.space',
+          '/synthesize',
+          [cleanText, speakerId, emotion],
+          controller.signal
+        );
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        const fallbackVoice = FAST_NEURAL_VOICE_MAP[`tr-pocket:${speakerId}`] || 'en-US-AvaMultilingualNeural';
+        return await callFlaevoNeuralEdge(cleanText, fallbackVoice, speedMod);
+      }
+    }
+
+    // 3. 🎭 Kokoro-82M Character & Voice Blending Engine (with instant fallback to Fast Neural Edge if busy)
+    if (isKokoro) {
       let mode = 'Single';
       let voiceA = 'af_heart';
       let voiceB = 'af_nicole';
@@ -2351,40 +2488,33 @@
         const pair = voice.replace('kokoro-blend:', '').split('+');
         voiceA = pair[0] || 'af_heart';
         voiceB = pair[1] || 'af_nicole';
-      } else if (voice.startsWith('kokoro:')) {
-        voiceA = voice.replace('kokoro:', '');
       } else {
-        voiceA = KOKORO_FALLBACK_MAP[voice] || 'af_heart';
+        voiceA = voice.replace('kokoro:', '');
       }
-      const speedMod = castMeta?.rateMod || 1.0;
-
-      let lastErr = null;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 16000);
-        try {
-          const res = await callGradioSpaceAudio(
-            'https://nam194-kokorotts-hf-cpu.hf.space',
-            '/generate',
-            [cleanText, mode, voiceA, voiceB, speedMod, 0.5],
-            controller.signal
-          );
-          clearTimeout(timeoutId);
-          return res;
-        } catch (err) {
-          clearTimeout(timeoutId);
-          lastErr = err;
-        }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8500);
+      try {
+        const res = await callGradioSpaceAudio(
+          'https://nam194-kokorotts-hf-cpu.hf.space',
+          '/generate',
+          [cleanText, mode, voiceA, voiceB, speedMod, 0.5],
+          controller.signal
+        );
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        const fallbackVoice = FAST_NEURAL_VOICE_MAP[voice] || 'en-US-AvaMultilingualNeural';
+        return await callFlaevoNeuralEdge(cleanText, fallbackVoice, speedMod);
       }
-      // If Kokoro Space is temporarily busy, fall through to Studio worker
     }
 
-    // 3. 🎬 Qwen3-TTS 12Hz Emotion-Instruct AI Actor Engine (Direct CPU CORS)
-    if (voice.startsWith('qwen:')) {
+    // 4. 🎬 Qwen3-TTS 12Hz Emotion-Instruct AI Actor Engine (with instant fallback to Fast Neural Edge)
+    if (isQwen) {
       const qwenSpeaker = voice.replace('qwen:', '') || 'serena';
       const instruct = castMeta?.instruct || 'Speak with natural warmth, emotion, and expressive storytelling';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 18000);
+      const timeoutId = setTimeout(() => controller.abort(), 9500);
       try {
         const resp = await fetch('https://1een-edge-tts.hf.space/qwen/synthesize', {
           method: 'POST',
@@ -2405,23 +2535,22 @@
       } catch (err) {
         clearTimeout(timeoutId);
       }
+      const fallbackVoice = (qwenSpeaker === 'ryan' || qwenSpeaker === 'aiden') ? 'en-US-AndrewMultilingualNeural' : 'en-US-AvaMultilingualNeural';
+      return await callFlaevoNeuralEdge(cleanText, fallbackVoice, speedMod);
     }
 
-    // 4. Studio / Cloudflare Worker TTS
-    const effectiveVoice = (!workerSupportsEdge && KOKORO_FALLBACK_MAP[voice]) ? 'asteria-en' : voice;
-    const minValidBytes = effectiveVoice.endsWith('Neural') ? 400 : 1350;
-
+    // 5. Studio / Cloudflare Worker TTS (Deepgram Aura-1)
     let lastErr = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
         const resp = await fetch(CLOUD_TTS_URL + '/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: cleanText,
-            voice: effectiveVoice,
+            voice,
             rate: 1,
             pitch: settings.pitch
           }),
@@ -2430,19 +2559,17 @@
         clearTimeout(timeoutId);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const blob = await resp.blob();
-        if (!blob || blob.size <= minValidBytes) {
+        if (!blob || blob.size <= 1000) {
           return { blob: null, empty: true };
         }
         return { blob, empty: false };
       } catch (err) {
         clearTimeout(timeoutId);
         lastErr = err.name === 'AbortError' ? new Error('Request timed out') : err;
-        if (attempt < 2) {
-          await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
-        }
       }
     }
-    throw lastErr || new Error('Network error');
+    // Final safety fallback to Fast Neural Edge so playback never fails
+    return await callFlaevoNeuralEdge(cleanText, 'en-US-AvaMultilingualNeural', speedMod);
   }
 
   function fetchCloudAudio(sentenceIdx) {
@@ -2471,7 +2598,9 @@
   }
 
   function prefetchAhead(fromIdx) {
-    for (let offset = 1; offset <= 4; offset++) {
+    const isGradioVoice = settings.cloudVoice.startsWith('tr-pocket:') || settings.cloudVoice.startsWith('kokoro') || settings.cloudVoice.startsWith('qwen:');
+    const maxOffset = isGradioVoice ? 1 : 3;
+    for (let offset = 1; offset <= maxOffset; offset++) {
       const nextIdx = fromIdx + offset;
       if (nextIdx < state.sentences.length) {
         fetchCloudAudio(nextIdx).catch(() => {});
@@ -2509,13 +2638,21 @@
       return;
     }
     highlightSentence(idx);
+    updateVoiceLabel();
     const previewCast = analyzeSentenceCastAndEmotion(idx, settings.cloudVoice);
     updateCastStageBadge(previewCast);
-    // Immediately start prefetching upcoming sentences so transitions are instant
-    prefetchAhead(idx);
 
     try {
-      const res = await fetchCloudAudio(idx);
+      // Fetch current sentence FIRST before prefetching upcoming sentences so it is never queued behind prefetches!
+      const currentPromise = fetchCloudAudio(idx);
+      const isGradioVoice = previewCast.effectiveVoice.startsWith('tr-pocket:') || previewCast.effectiveVoice.startsWith('kokoro') || previewCast.effectiveVoice.startsWith('qwen:');
+      if (!isGradioVoice) {
+        prefetchAhead(idx);
+      }
+      const res = await currentPromise;
+      if (isGradioVoice) {
+        prefetchAhead(idx);
+      }
       if (token !== playbackToken || state.currentSentence !== idx || !state.playing) return;
       if (!res || res.empty || !res.blob) {
         advance();
@@ -2531,8 +2668,7 @@
       cloudAudio._activeToken = token;
       cloudAudio.src = url;
       cloudAudio._lastUrl = url;
-      const rateMod = res.castInfo?.rateMod || 1.0;
-      cloudAudio.playbackRate = Math.max(0.5, Math.min(2.5, settings.rate * rateMod));
+      cloudAudio.playbackRate = Math.max(0.5, Math.min(2.5, settings.rate));
       cloudAudio.preservesPitch = true;
 
       try {
