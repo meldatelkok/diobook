@@ -3372,35 +3372,74 @@
     return data[0].map(seg => (seg && seg[0]) ? seg[0] : '').join('').trim() || clean;
   }
 
-  let lastLlmCallAt = 0;
-  async function callBrowserLLM(messages) {
-    const elapsed = Date.now() - lastLlmCallAt;
-    if (lastLlmCallAt > 0 && elapsed < 4500) {
-      await new Promise(r => setTimeout(r, 4500 - elapsed));
-    }
-    lastLlmCallAt = Date.now();
+  let lastPollinationsCallAt = 0;
+
+  async function callSmolCpuLLM(messages, targetLang = 'Turkish') {
+    const tl = LANG_CODES_MAP[targetLang] || 'tr';
+    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || '';
+    const enPrompt = await translateTextGtx(lastUserMsg.slice(0, 1800), 'en').catch(() => lastUserMsg.slice(0, 1800));
+    const host = 'https://harley-ml-smollm2-chat.hf.space';
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 14000);
     try {
-      const resp = await fetch('https://text.pollinations.ai/openai', {
+      const postResp = await fetch(`${host}/gradio_api/call/respond`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'openai-fast',
-          messages
+          data: [enPrompt, [], 'SmolLM2 360M Instruct', 'CPU', 256]
         }),
         signal: controller.signal
       });
+      if (!postResp.ok) throw new Error('SmolLM POST ' + postResp.status);
+      const { event_id } = await postResp.json();
+      if (!event_id) throw new Error('Missing SmolLM event_id');
+      const sseResp = await fetch(`${host}/gradio_api/call/respond/${event_id}`, { signal: controller.signal });
+      if (!sseResp.ok) throw new Error('SmolLM SSE ' + sseResp.status);
+      const sseText = await sseResp.text();
       clearTimeout(timer);
-      if (!resp.ok) throw new Error('LLM HTTP ' + resp.status);
-      const data = await resp.json();
-      const reply = data?.choices?.[0]?.message?.content;
-      if (!reply || !reply.trim()) throw new Error('Empty LLM response');
-      return reply.trim();
+      const matches = [...sseText.matchAll(/event:\s*complete\s*\r?\ndata:\s*([^\r\n]+)/g)];
+      if (!matches.length) throw new Error('SmolLM stream incomplete');
+      const payload = JSON.parse(matches[matches.length - 1][1]);
+      const chatArr = payload && payload[0];
+      const lastItem = Array.isArray(chatArr) ? chatArr[chatArr.length - 1] : null;
+      const enReply = lastItem?.content?.[0]?.text || '';
+      if (!enReply.trim()) throw new Error('Empty SmolLM reply');
+      if (tl === 'en') return enReply.trim();
+      return await translateTextGtx(enReply.trim(), tl);
     } catch (err) {
       clearTimeout(timer);
       throw err;
     }
+  }
+
+  async function callBrowserLLM(messages, targetLang = 'Turkish') {
+    const now = Date.now();
+    // Pollinations free tier allows 1 call per 30s per IP; if within cooldown, use SmolLM2 CPU + GTX
+    if (now - lastPollinationsCallAt >= 31000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 12000);
+      try {
+        lastPollinationsCallAt = now;
+        const resp = await fetch('https://text.pollinations.ai/openai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'openai-fast',
+            messages
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (resp.ok) {
+          const data = await resp.json();
+          const reply = data?.choices?.[0]?.message?.content;
+          if (reply && reply.trim()) return reply.trim();
+        }
+      } catch {
+        clearTimeout(timer);
+      }
+    }
+    return await callSmolCpuLLM(messages, targetLang);
   }
 
   async function buildExtractiveChapterSummary(text, targetLang) {
@@ -3445,7 +3484,7 @@
         summaryText = await callBrowserLLM([
           { role: 'system', content: `You are a helpful literary assistant. Summarize the chapter in ${targetLang} using 4-5 clear bullet points.` },
           { role: 'user', content: `Summarize this chapter ("${ch.label || ''}") from "${state.currentBook?.title || ''}" in ${targetLang} in 4-5 concise bullet points:\n\n${clipped}` }
-        ]);
+        ], targetLang);
       } catch {
         summaryText = await buildExtractiveChapterSummary(text, targetLang);
       }
@@ -3575,7 +3614,7 @@
           ...chatHistory.slice(-7, -1).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '') })),
           { role: 'user', content: msg }
         ];
-        reply = await callBrowserLLM(messages);
+        reply = await callBrowserLLM(messages, targetLang);
       } catch {
         // Fallback: find the most relevant passage around current reading position or matching keywords
         const tl = LANG_CODES_MAP[targetLang] || 'tr';
@@ -3906,19 +3945,21 @@
       let recs = recCache.get(cacheKey) || [];
       if (!recs.length) {
         try {
+          recs = await fetchOpenLibraryRecommendations(title, author, targetLang);
+        } catch {}
+      }
+      if (!recs.length) {
+        try {
           const raw = await callBrowserLLM([
             { role: 'system', content: 'You return ONLY a valid JSON array of 4 objects with keys "title", "author", and "why". No markdown fences.' },
             { role: 'user', content: `Recommend 4 books similar to "${title}"${author ? ` by ${author}` : ''}. Respond in ${targetLang} as a JSON array of objects with keys "title", "author", and "why". Output ONLY valid JSON.` }
-          ]);
+          ], targetLang);
           const match = raw.match(/\[[\s\S]*\]/);
           if (match) {
             const parsed = JSON.parse(match[0]);
             if (Array.isArray(parsed) && parsed.length > 0) recs = parsed;
           }
         } catch {}
-      }
-      if (!recs.length) {
-        recs = await fetchOpenLibraryRecommendations(title, author, targetLang);
       }
       if (!recs.length) {
         el('recContent').textContent = 'Öneri bulunamadı.';
