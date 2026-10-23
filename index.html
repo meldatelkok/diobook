@@ -2558,17 +2558,17 @@
     if (state.playing) speakCurrent();
   }
 
-  el('readerView')?.addEventListener('click', e => {
-    const span = e.target.closest('[data-sentence]');
+  function selectSentenceAtSpan(span) {
     if (!span) return;
     const i = parseInt(span.dataset.sentence, 10);
     if (isNaN(i)) return;
+    try { window.getSelection()?.removeAllRanges(); } catch {}
     state.currentSentence = i;
     haltActiveAudio();
     highlightSentence(i);
     saveProgress();
     if (state.playing) speakCurrent();
-  });
+  }
 
   // Interactive draggable scrubber
   let isScrubbing = false;
@@ -3629,25 +3629,81 @@
   el('defineSheetClose').addEventListener('click', closeDefineSheet);
   el('defineBackdrop').addEventListener('click', closeDefineSheet);
 
-  // Long-press / double-tap detection on reader words
+  // Long-press (press & hold) on word -> Translation / Dictionary
+  // Double-click / Double-tap on sentence -> Select reading position
   let pressTimer = null;
-  el('readerView').addEventListener('touchstart', (e) => {
-    const target = e.target;
+  let pressStartX = 0;
+  let pressStartY = 0;
+  let longPressTriggered = false;
+  let lastTapTime = 0;
+  let lastTapX = 0;
+  let lastTapY = 0;
+
+  el('readerView').addEventListener('pointerdown', (e) => {
+    if (e.button && e.button !== 0) return;
     clearTimeout(pressTimer);
+    longPressTriggered = false;
+    pressStartX = e.clientX;
+    pressStartY = e.clientY;
     pressTimer = setTimeout(() => {
-      const selection = getWordAtPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const selection = getWordAtPoint(pressStartX, pressStartY);
       if (selection) {
-        navigator.vibrate && navigator.vibrate(30);
-        const ctx = selection.sentence || '';
-        defineWord(selection.word, ctx);
+        longPressTriggered = true;
+        try { window.getSelection()?.removeAllRanges(); } catch {}
+        if (navigator.vibrate) navigator.vibrate(30);
+        defineWord(selection.word, selection.sentence || '');
       }
-    }, 550);
-  }, { passive: true });
-  el('readerView').addEventListener('touchend', () => clearTimeout(pressTimer), { passive: true });
-  el('readerView').addEventListener('touchmove', () => clearTimeout(pressTimer), { passive: true });
+    }, 500);
+  });
+
+  el('readerView').addEventListener('pointermove', (e) => {
+    if (!pressTimer) return;
+    if (Math.hypot(e.clientX - pressStartX, e.clientY - pressStartY) > 10) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  });
+
+  function cancelPressTimer() {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  }
+  el('readerView').addEventListener('pointerup', (e) => {
+    cancelPressTimer();
+    if (longPressTriggered) return;
+    // Mobile / touch double-tap to select sentence to read
+    if (e.pointerType === 'touch') {
+      const now = Date.now();
+      const dist = Math.hypot(e.clientX - lastTapX, e.clientY - lastTapY);
+      if (now - lastTapTime < 320 && dist < 32) {
+        lastTapTime = 0;
+        const span = e.target.closest('[data-sentence]');
+        if (span) selectSentenceAtSpan(span);
+      } else {
+        lastTapTime = now;
+        lastTapX = e.clientX;
+        lastTapY = e.clientY;
+      }
+    }
+  });
+  el('readerView').addEventListener('pointercancel', cancelPressTimer);
+  el('readerView').addEventListener('contextmenu', (e) => {
+    if (longPressTriggered) {
+      e.preventDefault();
+    }
+  });
+
+  // Desktop / mouse double-click to select sentence to read
   el('readerView').addEventListener('dblclick', (e) => {
-    const w = getWordAtPoint(e.clientX, e.clientY);
-    if (w) defineWord(w.word, w.sentence);
+    cancelPressTimer();
+    if (longPressTriggered) return;
+    const span = e.target.closest('[data-sentence]');
+    if (span) {
+      e.preventDefault();
+      selectSentenceAtSpan(span);
+    }
   });
 
   function getWordAtPoint(x, y) {
