@@ -1,5 +1,5 @@
 // DioBook Service Worker
-const CACHE_VERSION = 'diobook-v8';
+const CACHE_VERSION = 'diobook-v9';
 const APP_SHELL = [
   './',
   './index.html',
@@ -33,9 +33,9 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Never cache TTS or translation requests
+  // Never cache TTS, AI, or translation requests
   if (url.pathname.startsWith('/tts') || url.pathname.startsWith('/say') || url.pathname.startsWith('/voices') || url.pathname.startsWith('/gradio_api')) return;
-  if (url.hostname.endsWith('.workers.dev') || url.hostname.endsWith('.deno.net') || url.hostname.endsWith('.hf.space') || url.hostname.includes('googleapis.com') || url.hostname.includes('dictionaryapi.dev')) return;
+  if (url.hostname.endsWith('.workers.dev') || url.hostname.endsWith('.deno.net') || url.hostname.endsWith('.hf.space') || url.hostname.includes('googleapis.com') || url.hostname.includes('dictionaryapi.dev') || url.hostname.includes('pollinations.ai') || url.hostname.includes('openlibrary.org')) return;
 
   // Stale-while-revalidate for app shell
   event.respondWith(

@@ -1210,7 +1210,7 @@
       voiceURI: null, rate: 1, pitch: 1, theme: null,
       engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural',
       fontSize: 'medium', librarySort: 'recent',
-      autoSummary: false, summaryLang: 'English'
+      autoSummary: false, summaryLang: 'Turkish'
     };
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -3355,26 +3355,104 @@
   el('summarySheetClose').addEventListener('click', closeSummarySheet);
   el('summaryBackdrop').addEventListener('click', closeSummarySheet);
 
+  const LANG_CODES_MAP = {
+    Turkish: 'tr', English: 'en', Spanish: 'es', French: 'fr',
+    German: 'de', Italian: 'it', Portuguese: 'pt', Russian: 'ru'
+  };
+  const summaryCache = new Map();
+
+  async function translateTextGtx(text, tl = 'tr') {
+    const clean = (text || '').trim();
+    if (!clean) return '';
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(clean.slice(0, 3500))}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Translate HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!Array.isArray(data?.[0])) return clean;
+    return data[0].map(seg => (seg && seg[0]) ? seg[0] : '').join('').trim() || clean;
+  }
+
+  let lastLlmCallAt = 0;
+  async function callBrowserLLM(messages) {
+    const elapsed = Date.now() - lastLlmCallAt;
+    if (lastLlmCallAt > 0 && elapsed < 4500) {
+      await new Promise(r => setTimeout(r, 4500 - elapsed));
+    }
+    lastLlmCallAt = Date.now();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 14000);
+    try {
+      const resp = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai-fast',
+          messages
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (!resp.ok) throw new Error('LLM HTTP ' + resp.status);
+      const data = await resp.json();
+      const reply = data?.choices?.[0]?.message?.content;
+      if (!reply || !reply.trim()) throw new Error('Empty LLM response');
+      return reply.trim();
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
+    }
+  }
+
+  async function buildExtractiveChapterSummary(text, targetLang) {
+    const tl = LANG_CODES_MAP[targetLang] || 'tr';
+    const rawSents = (text || '')
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+/)
+      .map(s => s.trim())
+      .filter(s => s.length >= 45 && s.length <= 280);
+    if (!rawSents.length) return '(Bu bölümde özetlenecek yeterli metin bulunamadı.)';
+    const picks = [];
+    const count = Math.min(5, rawSents.length);
+    for (let i = 0; i < count; i++) {
+      const idx = Math.min(rawSents.length - 1, Math.floor((i / count) * rawSents.length));
+      if (!picks.includes(rawSents[idx])) picks.push(rawSents[idx]);
+    }
+    const joined = picks.map(s => `• ${s}`).join('\n\n');
+    try {
+      return await translateTextGtx(joined, tl);
+    } catch {
+      return joined;
+    }
+  }
+
   async function summarizeChapter(chapterIdx) {
     if (chapterIdx < 0 || chapterIdx >= state.chapters.length) return;
     const ch = state.chapters[chapterIdx];
+    const targetLang = settings.summaryLang || 'Turkish';
+    const cacheKey = `${state.currentBookKey}:${chapterIdx}:${targetLang}`;
     el('summaryTitle').textContent = ch.label || `Chapter ${chapterIdx + 1}`;
-    el('summaryContent').textContent = 'Generating summary…';
+    el('summaryContent').textContent = 'Bölüm özeti hazırlanıyor…';
     openSummarySheet();
+    if (summaryCache.has(cacheKey)) {
+      el('summaryContent').textContent = summaryCache.get(cacheKey);
+      return;
+    }
     try {
       const text = await loadChapterText(chapterIdx);
-
-      const resp = await fetch(CLOUD_TTS_URL + '/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, language: settings.summaryLang || 'English' })
-      });
-      if (!resp.ok) throw new Error('Server ' + resp.status);
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
-      el('summaryContent').textContent = data.summary || '(empty)';
+      let summaryText = '';
+      try {
+        const clipped = text.slice(0, 6500);
+        summaryText = await callBrowserLLM([
+          { role: 'system', content: `You are a helpful literary assistant. Summarize the chapter in ${targetLang} using 4-5 clear bullet points.` },
+          { role: 'user', content: `Summarize this chapter ("${ch.label || ''}") from "${state.currentBook?.title || ''}" in ${targetLang} in 4-5 concise bullet points:\n\n${clipped}` }
+        ]);
+      } catch {
+        summaryText = await buildExtractiveChapterSummary(text, targetLang);
+      }
+      summaryCache.set(cacheKey, summaryText);
+      el('summaryContent').textContent = summaryText || '(Özet oluşturulamadı)';
     } catch (e) {
-      el('summaryContent').textContent = 'Summary failed: ' + e.message;
+      el('summaryContent').textContent = 'Özet hatası: ' + e.message;
     }
   }
 
@@ -3389,11 +3467,11 @@
   // Menu settings toggles for summary
   function updateMenuStates() {
     el('autoSummaryState').textContent = settings.autoSummary ? 'On' : 'Off';
-    el('summaryLangState').textContent = settings.summaryLang || 'English';
+    el('summaryLangState').textContent = settings.summaryLang || 'Turkish';
   }
   el('summarizeNowBtn').addEventListener('click', () => {
     if (state.currentChapterIdx < 0) {
-      showToast('Open a chapter first');
+      showToast('Önce bir bölüm açın');
       return;
     }
     closeMenuSheet();
@@ -3405,8 +3483,8 @@
     updateMenuStates();
   });
   el('toggleSummaryLang').addEventListener('click', () => {
-    const langs = ['English', 'Turkish', 'Spanish', 'French', 'German'];
-    const idx = langs.indexOf(settings.summaryLang || 'English');
+    const langs = ['Turkish', 'English', 'Spanish', 'French', 'German'];
+    const idx = langs.indexOf(settings.summaryLang || 'Turkish');
     settings.summaryLang = langs[(idx + 1) % langs.length];
     saveSettings();
     updateMenuStates();
@@ -3452,7 +3530,7 @@
     if (!el('chatMessages').children.length) {
       const intro = document.createElement('div');
       intro.style.cssText = 'color:var(--text-dim); font-size:13px; text-align:center; padding:20px 0;';
-      intro.textContent = 'Ask about characters, plot, or the current chapter.';
+      intro.textContent = 'Kitaptaki karakterler, olay örgüsü veya mevcut bölüm hakkında soru sorabilirsiniz.';
       el('chatMessages').appendChild(intro);
     }
     setTimeout(() => el('chatInput').focus(), 300);
@@ -3483,30 +3561,34 @@
     input.value = '';
     appendChatMsg('user', msg);
     chatHistory.push({ role: 'user', content: msg });
-    const thinking = appendChatMsg('assistant', 'Thinking…');
+    const thinking = appendChatMsg('assistant', 'Düşünüyor…');
     try {
       const context = await getCurrentChapterText();
       const ch = state.chapters[state.currentChapterIdx];
-      const resp = await fetch(CLOUD_TTS_URL + '/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bookTitle: state.currentBook.title,
-          author: state.currentBook.author || '',
-          chapterLabel: ch ? ch.label : '',
-          context,
-          history: chatHistory.slice(0, -1),
-          message: msg,
-          language: settings.summaryLang || 'English'
-        })
-      });
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
-      const reply = data.reply || '(no reply)';
+      const targetLang = settings.summaryLang || 'Turkish';
+      const clipped = context.slice(0, 5500);
+      let reply = '';
+      try {
+        const sys = `You are an insightful reading companion for the book "${state.currentBook.title}"${state.currentBook.author ? ` by ${state.currentBook.author}` : ''} (current chapter: "${ch ? ch.label : ''}"). Always reply in the same language as the user's message (defaulting to ${targetLang}). Base your answer on the book and this chapter excerpt:\n\n${clipped}`;
+        const messages = [
+          { role: 'system', content: sys },
+          ...chatHistory.slice(-7, -1).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '') })),
+          { role: 'user', content: msg }
+        ];
+        reply = await callBrowserLLM(messages);
+      } catch {
+        // Fallback: find the most relevant passage around current reading position or matching keywords
+        const tl = LANG_CODES_MAP[targetLang] || 'tr';
+        const curIdx = Math.max(0, state.currentSentence || 0);
+        const windowSents = state.sentences.slice(Math.max(0, curIdx - 2), curIdx + 5).join(' ');
+        const excerpt = windowSents || context.slice(0, 800);
+        const translatedExcerpt = await translateTextGtx(excerpt, tl);
+        reply = `📖 Mevcut bölümden ilgili kesit (${ch ? ch.label : 'Bölüm'}):\n\n"${translatedExcerpt}"`;
+      }
       thinking.textContent = reply;
       chatHistory.push({ role: 'assistant', content: reply });
     } catch (e) {
-      thinking.textContent = 'Error: ' + e.message;
+      thinking.textContent = 'Yanıt alınamadı: ' + e.message;
       chatHistory.pop();
     }
   }
@@ -3731,26 +3813,118 @@
   }
 
   // === Recommendations ===
+  const recCache = new Map();
+
+  async function fetchOpenLibraryRecommendations(title, author, targetLang) {
+    const tl = LANG_CODES_MAP[targetLang] || 'tr';
+    const recs = [];
+    const seenTitles = new Set([String(title || '').toLowerCase().trim()]);
+
+    // 1. Search by the book title first to discover its subjects & canonical author
+    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&fields=title,author_name,subject,first_publish_year&limit=6`;
+    const searchResp = await fetch(searchUrl);
+    let topSubjects = [];
+    let mainAuthor = author || '';
+    if (searchResp.ok) {
+      const searchData = await searchResp.json();
+      const docs = searchData.docs || [];
+      if (docs[0]) {
+        if (!mainAuthor && docs[0].author_name?.[0]) mainAuthor = docs[0].author_name[0];
+        if (Array.isArray(docs[0].subject)) {
+          topSubjects = docs[0].subject
+            .filter(s => typeof s === 'string' && s.length > 3 && s.length < 32 && !/accessible|protected|daisy|lending|in library/i.test(s))
+            .slice(0, 3);
+        }
+      }
+      for (const d of docs) {
+        const t = (d.title || '').trim();
+        const norm = t.toLowerCase();
+        if (t && !seenTitles.has(norm) && !norm.includes(String(title).toLowerCase())) {
+          seenTitles.add(norm);
+          const a = d.author_name?.[0] || mainAuthor || '';
+          const subj = Array.isArray(d.subject) ? d.subject.slice(0, 3).join(', ') : '';
+          recs.push({
+            title: t,
+            author: a,
+            why: subj ? `Benzer temalar ve atmosfer (${subj}).` : `"${title}" okurları için önerilen benzer eser.`
+          });
+          if (recs.length >= 4) break;
+        }
+      }
+    }
+
+    // 2. Fetch more books by the same author or top subject if we need up to 4 recommendations
+    if (recs.length < 4 && (mainAuthor || topSubjects[0])) {
+      const qParam = mainAuthor
+        ? `author=${encodeURIComponent(mainAuthor)}`
+        : `subject=${encodeURIComponent(topSubjects[0])}`;
+      const moreResp = await fetch(`https://openlibrary.org/search.json?${qParam}&fields=title,author_name,subject,first_publish_year&limit=10`);
+      if (moreResp.ok) {
+        const moreData = await moreResp.json();
+        for (const d of (moreData.docs || [])) {
+          const t = (d.title || '').trim();
+          const norm = t.toLowerCase();
+          if (t && !seenTitles.has(norm) && !norm.includes(String(title).toLowerCase())) {
+            seenTitles.add(norm);
+            const a = d.author_name?.[0] || mainAuthor || '';
+            const year = d.first_publish_year ? ` (${d.first_publish_year})` : '';
+            const subj = Array.isArray(d.subject) ? d.subject.filter(s => s.length < 28).slice(0, 2).join(', ') : '';
+            recs.push({
+              title: t + year,
+              author: a,
+              why: a === mainAuthor
+                ? `${a} tarafından yazılan, benzer anlatım diline sahip sevilen bir eser${subj ? ` (${subj})` : ''}.`
+                : `Benzer türde öne çıkan kitap${subj ? `: ${subj}` : ''}.`
+            });
+            if (recs.length >= 4) break;
+          }
+        }
+      }
+    }
+
+    if (recs.length > 0 && tl !== 'tr') {
+      await Promise.all(recs.map(async (r) => {
+        try { r.why = await translateTextGtx(r.why, tl); } catch {}
+      }));
+    }
+    return recs;
+  }
+
   async function showRecommendations() {
-    if (!state.currentBook) { showToast('Open a book first'); return; }
-    el('recTitle').textContent = `More like "${state.currentBook.title}"`;
-    el('recContent').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-dim);">Finding recommendations…</div>';
+    if (!state.currentBook) { showToast('Önce bir kitap açın'); return; }
+    const title = state.currentBook.title || '';
+    const author = state.currentBook.author || '';
+    const targetLang = settings.summaryLang || 'Turkish';
+    const cacheKey = `${title}:${author}:${targetLang}`;
+
+    el('recTitle').textContent = `"${title}" benzeri kitaplar`;
+    el('recContent').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-dim);">Benzer kitap önerileri hazırlanıyor…</div>';
     el('recBackdrop').classList.add('open');
     el('recSheet').classList.add('open');
+
     try {
-      const resp = await fetch(CLOUD_TTS_URL + '/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: state.currentBook.title,
-          author: state.currentBook.author || '',
-          language: settings.summaryLang || 'English'
-        })
-      });
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
-      const recs = data.recommendations || [];
-      if (!recs.length) { el('recContent').textContent = 'No recommendations.'; return; }
+      let recs = recCache.get(cacheKey) || [];
+      if (!recs.length) {
+        try {
+          const raw = await callBrowserLLM([
+            { role: 'system', content: 'You return ONLY a valid JSON array of 4 objects with keys "title", "author", and "why". No markdown fences.' },
+            { role: 'user', content: `Recommend 4 books similar to "${title}"${author ? ` by ${author}` : ''}. Respond in ${targetLang} as a JSON array of objects with keys "title", "author", and "why". Output ONLY valid JSON.` }
+          ]);
+          const match = raw.match(/\[[\s\S]*\]/);
+          if (match) {
+            const parsed = JSON.parse(match[0]);
+            if (Array.isArray(parsed) && parsed.length > 0) recs = parsed;
+          }
+        } catch {}
+      }
+      if (!recs.length) {
+        recs = await fetchOpenLibraryRecommendations(title, author, targetLang);
+      }
+      if (!recs.length) {
+        el('recContent').textContent = 'Öneri bulunamadı.';
+        return;
+      }
+      recCache.set(cacheKey, recs);
       el('recContent').innerHTML = recs.map(r => `
         <div style="padding: 14px; background: var(--surface-2); border-radius: 12px; margin-bottom: 10px;">
           <div style="font-size: 15px; font-weight: 600; margin-bottom: 3px;">${escapeHtml(r.title || '')}</div>
@@ -3759,7 +3933,7 @@
         </div>
       `).join('');
     } catch (e) {
-      el('recContent').textContent = 'Failed: ' + e.message;
+      el('recContent').textContent = 'Öneriler alınamadı: ' + e.message;
     }
   }
   function closeRecSheet() {
