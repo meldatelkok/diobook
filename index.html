@@ -779,7 +779,8 @@
   <!-- Library (home) -->
   <div id="libraryPage">
     <div class="topbar">
-      <h1>Library</h1>
+      <h1 id="libraryHeaderTitle">Kütüphane</h1>
+      <button class="icon-btn" id="langToggleBtn" title="Dil / Language" style="font-size:12px; font-weight:700; width:auto; padding:0 10px; border-radius:16px;">🇹🇷 TR</button>
       <button class="icon-btn theme-toggle" data-role="theme" aria-label="Theme"></button>
       <button class="icon-btn open-menu-btn" id="menuBtn" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <button class="icon-btn" id="settingsBtn" aria-label="Settings" data-icon="settings"></button>
@@ -795,7 +796,7 @@
   <div id="bookPage" class="hidden">
     <div class="topbar">
       <button class="icon-btn" id="backToLibrary" aria-label="Back" data-icon="arrowLeft"></button>
-      <div class="page-title" style="flex:1; text-align:center;">Book</div>
+      <div class="page-title" id="bookPageHeaderTitle" style="flex:1; text-align:center;">Kitap</div>
       <button class="icon-btn theme-toggle" data-role="theme" aria-label="Theme"></button>
       <button class="icon-btn open-menu-btn" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <button class="icon-btn" id="settingsBtn2" aria-label="Settings" data-icon="settings"></button>
@@ -807,10 +808,10 @@
           <h2 id="bookPageTitle"></h2>
           <div class="author" id="bookPageAuthor"></div>
           <div class="actions">
-            <button class="primary-btn wide" id="playBookBtn">Play from start</button>
+            <button class="primary-btn wide" id="playBookBtn">Baştan dinle</button>
           </div>
         </div>
-        <div class="section-header">Chapters</div>
+        <div class="section-header" id="chaptersSectionHeader">Bölümler</div>
         <ul class="chapter-list" id="chapterList"></ul>
       </div>
     </main>
@@ -824,6 +825,7 @@
         <div class="page-title" id="readerChTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
         <div style="font-size:12px; color:var(--text-dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="readerBookTitle"></div>
       </div>
+      <button class="icon-btn" id="readerSearchBtn" title="Kitapta Ara / Search" aria-label="Search" data-icon="search"></button>
       <button class="icon-btn" id="fontSizeBtn" title="Text size" style="font-weight:700; font-size:15px;">Aa</button>
       <button class="icon-btn bookmark-btn" id="addBookmarkBtn" title="Bookmark"></button>
       <button class="icon-btn open-menu-btn" title="More / AI" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
@@ -989,21 +991,24 @@
 <div class="sheet" id="menuSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <h3>More</h3>
-    <button class="close" id="menuSheetClose">Done</button>
+    <h3 id="menuSheetTitle">Diğer</h3>
+    <button class="close" id="menuSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
     <div class="sleep-options">
-      <button class="sleep-option" id="chatBtn"><span>Ask about this book</span><span style="color:var(--text-dim); font-size:12px;">AI chat</span></button>
-      <button class="sleep-option" id="summarizeNowBtn"><span>Summarize current chapter</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
-      <button class="sleep-option" id="recommendBtn"><span>Recommend similar books</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
-      <button class="sleep-option" id="ambientBtn"><span>Ambient sounds</span><span id="ambientState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
-      <button class="sleep-option" id="urlImportBtn"><span>Import from URL</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
-      <button class="sleep-option" id="toggleAutoSummary"><span>Auto chapter summary</span><span id="autoSummaryState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
-      <button class="sleep-option" id="toggleSummaryLang"><span>Summary / chat language</span><span id="summaryLangState" style="color:var(--text-dim); font-size:12px;">English</span></button>
-      <button class="sleep-option" id="exportBtn"><span>Backup library</span><span style="color:var(--text-dim); font-size:12px;">Save to file</span></button>
-      <button class="sleep-option" id="importBtn"><span>Restore from backup</span><span style="color:var(--text-dim); font-size:12px;">Load JSON file</span></button>
-      <button class="sleep-option" id="statsBtn"><span>Reading stats</span><span id="statsSummary" style="color:var(--text-dim); font-size:12px;">—</span></button>
+      <button class="sleep-option" id="toggleUiLangBtn"><span id="lblUiLang">🌐 Uygulama dili</span><span id="uiLangState" style="color:var(--accent); font-weight:600; font-size:12px;">🇹🇷 Türkçe</span></button>
+      <button class="sleep-option" id="vocabBtn"><span id="lblVocabMenu">⭐ Kelime defterim</span><span id="vocabCountState" style="color:var(--text-dim); font-size:12px;">0</span></button>
+      <button class="sleep-option" id="classicsMenuBtn"><span id="lblClassicsMenu">📚 Ücretsiz klasikler</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="chatBtn"><span id="lblChatMenu">Kitap hakkında soru sor</span><span style="color:var(--text-dim); font-size:12px;">AI</span></button>
+      <button class="sleep-option" id="summarizeNowBtn"><span id="lblSummarizeMenu">Mevcut bölümü özetle</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="recommendBtn"><span id="lblRecommendMenu">Benzer kitaplar öner</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="ambientBtn"><span id="lblAmbientMenu">Arka plan sesleri</span><span id="ambientState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
+      <button class="sleep-option" id="urlImportBtn"><span id="lblUrlImportMenu">Linkten (URL) kitap ekle</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
+      <button class="sleep-option" id="toggleAutoSummary"><span id="lblAutoSummaryMenu">Otomatik bölüm özeti</span><span id="autoSummaryState" style="color:var(--text-dim); font-size:12px;">Off</span></button>
+      <button class="sleep-option" id="toggleSummaryLang"><span id="lblSummaryLangMenu">Özet / sohbet dili</span><span id="summaryLangState" style="color:var(--text-dim); font-size:12px;">Turkish</span></button>
+      <button class="sleep-option" id="exportBtn"><span id="lblExportMenu">Kütüphaneyi yedekle</span><span id="lblExportSub" style="color:var(--text-dim); font-size:12px;">Dosyaya kaydet</span></button>
+      <button class="sleep-option" id="importBtn"><span id="lblImportMenu">Yedekten geri yükle</span><span id="lblImportSub" style="color:var(--text-dim); font-size:12px;">JSON yükle</span></button>
+      <button class="sleep-option" id="statsBtn"><span id="lblStatsMenu">Okuma istatistikleri</span><span id="statsSummary" style="color:var(--text-dim); font-size:12px;">—</span></button>
       <div id="streakDisplay" style="text-align:center; font-size:13px; color:var(--text-dim); padding:10px;"></div>
     </div>
   </div>
@@ -1012,14 +1017,64 @@
 
 <!-- Word definition popup -->
 <div class="sheet-backdrop" id="defineBackdrop"></div>
-<div class="sheet" id="defineSheet" style="max-height: 60vh;">
+<div class="sheet" id="defineSheet" style="max-height: 68vh;">
   <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <h3 id="defineWord">Word</h3>
-    <button class="close" id="defineSheetClose">Done</button>
+  <div class="sheet-header" style="gap:8px;">
+    <h3 id="defineWord" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Word</h3>
+    <button class="icon-btn" id="defineSpeakBtn" title="Sesli Dinle / Listen" aria-label="Listen" data-icon="volume" style="width:36px; height:36px;"></button>
+    <button class="icon-btn" id="defineSaveWordBtn" title="Kelime Defterine Kaydet / Save" aria-label="Save word" style="width:36px; height:36px; font-size:18px; line-height:1;">☆</button>
+    <button class="close" id="defineSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
     <div id="defineContent" style="font-size:15px; line-height:1.6; padding: 8px 0;">Loading…</div>
+  </div>
+</div>
+
+<!-- In-Book Search sheet -->
+<div class="sheet-backdrop" id="searchBackdrop"></div>
+<div class="sheet" id="searchSheet" style="max-height: 82vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="searchSheetTitle">Kitap İçinde Ara</h3>
+    <button class="close" id="searchSheetClose">Tamam</button>
+  </div>
+  <div class="sheet-body">
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input type="text" id="bookSearchInput" class="voice-search" style="margin-bottom:0; flex:1;" placeholder="Kelime veya cümle ara…">
+      <button class="secondary-btn" id="searchAllChBtn" style="padding:0 12px; font-size:12px; white-space:nowrap;">Tüm Kitapta</button>
+    </div>
+    <div id="bookSearchResults" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>
+</div>
+
+<!-- Vocabulary Notebook sheet -->
+<div class="sheet-backdrop" id="vocabBackdrop"></div>
+<div class="sheet" id="vocabSheet" style="max-height: 82vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="vocabSheetTitle">⭐ Kelime Defterim</h3>
+    <button class="close" id="vocabSheetClose">Tamam</button>
+  </div>
+  <div class="sheet-body">
+    <div id="vocabListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+  </div>
+</div>
+
+<!-- Free Classics Catalog sheet -->
+<div class="sheet-backdrop" id="classicsBackdrop"></div>
+<div class="sheet" id="classicsSheet" style="max-height: 85vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="classicsSheetTitle">📚 Ücretsiz Klasikler</h3>
+    <button class="close" id="classicsSheetClose">Tamam</button>
+  </div>
+  <div class="sheet-body">
+    <div class="voice-filter-bar" id="classicsFilterBar" style="margin-bottom:12px;">
+      <button class="voice-filter-pill active" data-cfilter="all" id="cfilterAll">Tümü</button>
+      <button class="voice-filter-pill" data-cfilter="tr" id="cfilterTr">🇹🇷 Türkçe Klasikler</button>
+      <button class="voice-filter-pill" data-cfilter="en" id="cfilterEn">🇬🇧 English Classics</button>
+    </div>
+    <div id="classicsListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
 </div>
 
@@ -1210,7 +1265,8 @@
       voiceURI: null, rate: 1, pitch: 1, theme: null,
       engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural',
       fontSize: 'medium', librarySort: 'recent',
-      autoSummary: false, summaryLang: 'Turkish'
+      autoSummary: false, summaryLang: 'Turkish',
+      uiLang: 'tr'
     };
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -1221,6 +1277,132 @@
     } catch { return defaults; }
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+
+  const I18N = {
+    tr: {
+      libraryTitle: 'Kütüphane',
+      bookTitle: 'Kitap',
+      chaptersTitle: 'Bölümler',
+      playFromStart: 'Baştan dinle',
+      resumeChapter: (n) => `Bölüm ${n} ile devam et`,
+      chapterWord: 'Bölüm',
+      emptyTitle: 'Kütüphaneniz boş',
+      emptySub: 'Bir EPUB dosyası ekleyin veya ücretsiz klasiklerden hemen seçip dinleyin.',
+      addBookBtn: '+ Kitap ekle',
+      freeClassicsBtn: '📚 Ücretsiz Klasikler',
+      searchLibrary: 'Kütüphanede ara…',
+      continueReading: 'Dinlemeye devam et',
+      allBooks: 'Tüm kitaplar',
+      noMatches: 'Eşleşen kitap bulunamadı',
+      removeConfirm: (t) => `"${t}" kütüphaneden silinsin mi?`,
+      sortRecent: 'Son',
+      sortTitle: 'Başlık',
+      sortAuthor: 'Yazar',
+      sortProgress: 'İlerleme',
+      done: 'Tamam',
+      moreTitle: 'Diğer',
+      uiLangLabel: '🌐 Uygulama dili',
+      vocabMenuLabel: '⭐ Kelime defterim',
+      classicsMenuLabel: '📚 Ücretsiz klasikler',
+      chatMenuLabel: 'Kitap hakkında soru sor',
+      summarizeMenuLabel: 'Mevcut bölümü özetle',
+      recommendMenuLabel: 'Benzer kitaplar öner',
+      ambientMenuLabel: 'Arka plan sesleri',
+      urlImportMenuLabel: 'Linkten (URL) kitap ekle',
+      autoSummaryMenuLabel: 'Otomatik bölüm özeti',
+      summaryLangMenuLabel: 'Özet / sohbet dili',
+      exportMenuLabel: 'Kütüphaneyi yedekle',
+      exportSubLabel: 'Dosyaya kaydet',
+      importMenuLabel: 'Yedekten geri yükle',
+      importSubLabel: 'JSON yükle',
+      statsMenuLabel: 'Okuma istatistikleri',
+      backToPlaying: '↑ Okunan yere dön',
+      chooseVoice: 'Ses seçin',
+      searchVoices: 'Seslerde ara…',
+      playbackSpeed: 'Okuma hızı',
+      sleepTimer: 'Uyku zamanlayıcısı',
+      bookmarksTitle: 'Yer imleri',
+      bookmarksEmpty: 'Henüz yer imi yok. Okuma ekranındaki yer imi simgesine dokunarak kaldığınız yeri kaydedebilirsiniz.',
+      textSizeTitle: 'Yazı boyutu',
+      searchInBookTitle: 'Kitap İçinde Ara',
+      searchInBookPlaceholder: 'Kelime veya cümle ara…',
+      searchAllChapters: 'Tüm Kitapta',
+      vocabSheetTitle: '⭐ Kelime Defterim',
+      vocabEmpty: 'Henüz kaydedilmiş kelime yok. Kitap okurken bir kelimeye basılı tutup ☆ simgesine dokunarak kelimeleri buraya kaydedebilirsiniz.',
+      classicsSheetTitle: '📚 Ücretsiz Klasikler',
+      cfilterAll: 'Tümü',
+      cfilterTr: '🇹🇷 Türkçe Klasikler',
+      cfilterEn: '🇬🇧 English Classics',
+      addClassicBtn: '+ Ekle',
+      inLibraryBadge: '✓ Kütüphanede',
+      voiceChipLabel: 'Ses',
+      speedChipLabel: 'Hız'
+    },
+    en: {
+      libraryTitle: 'Library',
+      bookTitle: 'Book',
+      chaptersTitle: 'Chapters',
+      playFromStart: 'Play from start',
+      resumeChapter: (n) => `Resume chapter ${n}`,
+      chapterWord: 'Chapter',
+      emptyTitle: 'Your library is empty',
+      emptySub: 'Add an EPUB file or pick from free classics to start listening.',
+      addBookBtn: '+ Add book',
+      freeClassicsBtn: '📚 Free Classics',
+      searchLibrary: 'Search library…',
+      continueReading: 'Continue reading',
+      allBooks: 'All books',
+      noMatches: 'No matches',
+      removeConfirm: (t) => `Remove "${t}"?`,
+      sortRecent: 'Recent',
+      sortTitle: 'Title',
+      sortAuthor: 'Author',
+      sortProgress: 'Progress',
+      done: 'Done',
+      moreTitle: 'More',
+      uiLangLabel: '🌐 App language',
+      vocabMenuLabel: '⭐ Vocabulary notebook',
+      classicsMenuLabel: '📚 Free classics',
+      chatMenuLabel: 'Ask about this book',
+      summarizeMenuLabel: 'Summarize current chapter',
+      recommendMenuLabel: 'Recommend similar books',
+      ambientMenuLabel: 'Ambient sounds',
+      urlImportMenuLabel: 'Import from URL',
+      autoSummaryMenuLabel: 'Auto chapter summary',
+      summaryLangMenuLabel: 'Summary / chat language',
+      exportMenuLabel: 'Backup library',
+      exportSubLabel: 'Save to file',
+      importMenuLabel: 'Restore from backup',
+      importSubLabel: 'Load JSON file',
+      statsMenuLabel: 'Reading stats',
+      backToPlaying: '↑ Back to playing',
+      chooseVoice: 'Choose voice',
+      searchVoices: 'Search voices…',
+      playbackSpeed: 'Playback speed',
+      sleepTimer: 'Sleep timer',
+      bookmarksTitle: 'Bookmarks',
+      bookmarksEmpty: 'No bookmarks yet. Tap the bookmark icon in the reader to save your place.',
+      textSizeTitle: 'Text size',
+      searchInBookTitle: 'Search in Book',
+      searchInBookPlaceholder: 'Search word or sentence…',
+      searchAllChapters: 'All Chapters',
+      vocabSheetTitle: '⭐ My Vocabulary',
+      vocabEmpty: 'No saved words yet. Long-press any word in the reader and tap ☆ to save it here.',
+      classicsSheetTitle: '📚 Free Classics',
+      cfilterAll: 'All',
+      cfilterTr: '🇹🇷 Turkish Classics',
+      cfilterEn: '🇬🇧 English Classics',
+      addClassicBtn: '+ Add',
+      inLibraryBadge: '✓ In Library',
+      voiceChipLabel: 'Voice',
+      speedChipLabel: 'Speed'
+    }
+  };
+
+  function t(key) {
+    const lang = (typeof settings !== 'undefined' && settings.uiLang === 'en') ? 'en' : 'tr';
+    return I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.tr[key];
+  }
 
   // Font size
   function applyFontSize() {
@@ -1498,20 +1680,24 @@
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon" style="color: var(--accent);">${Icons.bookEmpty}</div>
-          <h2>Your library is empty</h2>
-          <p>Add an EPUB file and listen to it with the best voices.</p>
-          <button class="primary-btn" id="emptyAddBtn">+ Add book</button>
+          <h2>${escapeHtml(t('emptyTitle'))}</h2>
+          <p>${escapeHtml(t('emptySub'))}</p>
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <button class="primary-btn" id="emptyAddBtn">${escapeHtml(t('addBookBtn'))}</button>
+            <button class="secondary-btn" id="emptyClassicsBtn">${escapeHtml(t('freeClassicsBtn'))}</button>
+          </div>
         </div>`;
       el('emptyAddBtn').addEventListener('click', () => el('fileInput').click());
+      el('emptyClassicsBtn').addEventListener('click', () => openClassicsSheet());
       return;
     }
 
     const sortLabel = {
-      recent: 'Recent',
-      title: 'Title',
-      author: 'Author',
-      progress: 'Progress'
-    }[settings.librarySort] || 'Recent';
+      recent: t('sortRecent'),
+      title: t('sortTitle'),
+      author: t('sortAuthor'),
+      progress: t('sortProgress')
+    }[settings.librarySort] || t('sortRecent');
 
     // Find continue reading book (most recently played)
     const continueBook = [...state.library]
@@ -1522,7 +1708,7 @@
     if (continueBook && !librarySearch) {
       const prog = loadProgress(continueBook.key);
       const progPct = Math.round(getBookProgressRatio(prog) * 100);
-      const chapterLabel = prog && prog.chapterIdx >= 0 ? `Chapter ${prog.chapterIdx + 1}` : '';
+      const chapterLabel = prog && prog.chapterIdx >= 0 ? `${t('chapterWord')} ${prog.chapterIdx + 1}` : '';
       const coverInner = continueBook.cover
         ? `<img src="${continueBook.cover}" alt="">`
         : `<div class="book-cover-fallback">${escapeHtml(continueBook.title)}</div>`;
@@ -1530,7 +1716,7 @@
         <div class="continue-card" data-key="${continueBook.key}">
           <div class="cover-wrap">${coverInner}</div>
           <div class="continue-info">
-            <div class="continue-label">Continue reading</div>
+            <div class="continue-label">${escapeHtml(t('continueReading'))}</div>
             <div class="continue-title">${escapeHtml(continueBook.title)}</div>
             <div class="continue-chapter">${escapeHtml(chapterLabel)} · ${progPct}%</div>
             <div class="continue-progress"><div class="continue-progress-fill" style="width:${progPct}%"></div></div>
@@ -1541,11 +1727,12 @@
 
     container.innerHTML = `
       <div class="lib-controls">
-        <input type="text" class="lib-search" id="librarySearch" placeholder="Search library" value="${escapeHtml(librarySearch)}">
-        <button class="sort-btn" id="sortBtn">${Icons.sort}<span style="margin-left:6px;">${sortLabel}</span></button>
+        <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
+        <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('freeClassicsBtn'))}</button>
+        <button class="sort-btn" id="sortBtn">${Icons.sort}<span style="margin-left:6px;">${escapeHtml(sortLabel)}</span></button>
       </div>
       ${continueHtml}
-      <div class="library-title">All books</div>
+      <div class="library-title">${escapeHtml(t('allBooks'))}</div>
       <div class="book-grid" id="bookGrid"></div>`;
 
     const searchInput = el('librarySearch');
@@ -1554,6 +1741,7 @@
       renderLibraryGrid();
     });
     el('sortBtn').addEventListener('click', cycleSortOrder);
+    el('openClassicsTopBtn').addEventListener('click', openClassicsSheet);
 
     if (continueBook) {
       el('libraryContent').querySelector('.continue-card').addEventListener('click', (e) => {
@@ -1602,7 +1790,7 @@
 
     grid.innerHTML = '';
     if (!sorted.length) {
-      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: var(--text-dim);">No matches</div>';
+      grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: var(--text-dim);">${escapeHtml(t('noMatches'))}</div>`;
       return;
     }
 
@@ -1626,7 +1814,7 @@
         const deleteBtn = e.target.closest('.book-delete');
         if (deleteBtn) {
           e.stopPropagation();
-          if (confirm(`Remove "${bk.title}"?`)) deleteBook(bk.key);
+          if (confirm(t('removeConfirm')(bk.title))) deleteBook(bk.key);
           return;
         }
         openBook(bk.key);
@@ -1650,11 +1838,11 @@
 
   async function addBook(file) {
     try {
-      showToast('Loading book...');
+      showToast(settings.uiLang === 'en' ? 'Loading book…' : 'Kitap yükleniyor…');
       const arrayBuffer = await file.arrayBuffer();
       const hash = await hashBuffer(arrayBuffer);
       const existing = state.library.find(b => b.key === hash);
-      if (existing) { showToast('Already in library'); openBook(hash); return; }
+      if (existing) { showToast(settings.uiLang === 'en' ? 'Already in library' : 'Zaten kütüphanede'); openBook(hash); return; }
 
       const book = ePub(arrayBuffer);
       await book.ready;
@@ -1675,7 +1863,7 @@
       state.library.unshift({ key: hash, title, author, cover: coverUrl, addedAt: Date.now() });
       saveLibrary();
       renderLibrary();
-      showToast('Book added');
+      showToast(settings.uiLang === 'en' ? 'Book added' : 'Kitap eklendi');
       openBook(hash);
     } catch (err) {
       console.error(err);
@@ -1754,7 +1942,7 @@
       await state.bookInstance.ready;
       const nav = await state.bookInstance.loaded.navigation;
       const toc = nav.toc && nav.toc.length ? nav.toc : state.bookInstance.spine.items.map((s, i) => ({
-        href: s.href, label: `Chapter ${i + 1}`
+        href: s.href, label: `${t('chapterWord')} ${i + 1}`
       }));
       state.chapters = flattenToc(toc);
       renderBookPage();
@@ -1778,6 +1966,7 @@
 
   function renderBookPage() {
     const bk = state.currentBook;
+    if (!bk) return;
     const coverEl = el('bookPageCover');
     coverEl.innerHTML = bk.cover ?
       `<img src="${bk.cover}" alt="">` :
@@ -1792,7 +1981,7 @@
       li.style.paddingLeft = `${16 + (ch.depth || 0) * 12}px`;
       li.innerHTML = `
         <div class="chapter-num">${i + 1}</div>
-        <div class="chapter-label">${escapeHtml(ch.label || `Chapter ${i + 1}`)}</div>
+        <div class="chapter-label">${escapeHtml(ch.label || `${t('chapterWord')} ${i + 1}`)}</div>
       `;
       li.addEventListener('click', () => openChapter(i));
       list.appendChild(li);
@@ -1801,10 +1990,10 @@
     const prog = loadProgress(bk.key);
     const btn = el('playBookBtn');
     if (prog && prog.chapterIdx >= 0) {
-      btn.textContent = `Resume chapter ${prog.chapterIdx + 1}`;
+      btn.textContent = t('resumeChapter')(prog.chapterIdx + 1);
       btn.onclick = () => openChapter(prog.chapterIdx, prog.sentence || 0);
     } else {
-      btn.textContent = 'Play from start';
+      btn.textContent = t('playFromStart');
       btn.onclick = () => openChapter(0, 0);
     }
   }
@@ -3503,10 +3692,16 @@
     }
   });
 
-  // Menu settings toggles for summary
+  // Menu settings toggles for summary & language
   function updateMenuStates() {
     el('autoSummaryState').textContent = settings.autoSummary ? 'On' : 'Off';
     el('summaryLangState').textContent = settings.summaryLang || 'Turkish';
+    if (el('uiLangState')) {
+      el('uiLangState').textContent = settings.uiLang === 'en' ? '🇬🇧 English' : '🇹🇷 Türkçe';
+    }
+    if (el('vocabCountState')) {
+      el('vocabCountState').textContent = String(loadVocab().length);
+    }
   }
   el('summarizeNowBtn').addEventListener('click', () => {
     if (state.currentChapterIdx < 0) {
@@ -3637,11 +3832,98 @@
   el('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
   el('chatBtn').addEventListener('click', () => { closeMenuSheet(); openChatSheet(); });
 
-  // === Word definition & translation (double-tap/long-press word) ===
+  // === Word definition, pronunciation & vocabulary notebook ===
+  const VOCAB_KEY = 'bookvoice.vocab.v1';
+  let currentDefinedWordObj = null;
+
+  function loadVocab() {
+    try { return JSON.parse(localStorage.getItem(VOCAB_KEY) || '[]'); } catch { return []; }
+  }
+  function saveVocab(list) {
+    localStorage.setItem(VOCAB_KEY, JSON.stringify(list));
+    if (el('vocabCountState')) el('vocabCountState').textContent = String(list.length);
+  }
+  function isWordSaved(word) {
+    const norm = String(word || '').toLowerCase().trim();
+    return loadVocab().some(item => String(item.word || '').toLowerCase().trim() === norm);
+  }
+  function updateDefineSaveBtnState() {
+    const btn = el('defineSaveWordBtn');
+    if (!btn || !currentDefinedWordObj) return;
+    const saved = isWordSaved(currentDefinedWordObj.word);
+    btn.textContent = saved ? '★' : '☆';
+    btn.style.color = saved ? 'var(--accent)' : 'var(--text)';
+  }
+
+  async function speakWordOrPhrase(textToSpeak) {
+    const clean = (textToSpeak || '').trim();
+    if (!clean) return;
+    try {
+      if (settings.engine === 'cloud') {
+        const res = await fetchCloudAudioWithRetry(clean, settings.cloudVoice);
+        if (res && res.blob) {
+          if (testAudio._lastUrl) URL.revokeObjectURL(testAudio._lastUrl);
+          const url = URL.createObjectURL(res.blob);
+          testAudio._lastUrl = url;
+          testAudio.src = url;
+          testAudio.playbackRate = 1.0;
+          await testAudio.play();
+          return;
+        }
+      }
+    } catch {}
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = /[çğıöşüÇĞİÖŞÜ]/.test(clean) ? 'tr-TR' : 'en-US';
+      window.speechSynthesis.speak(u);
+    } catch {}
+  }
+
+  el('defineSpeakBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (currentDefinedWordObj?.word) speakWordOrPhrase(currentDefinedWordObj.word);
+  });
+
+  el('defineSaveWordBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!currentDefinedWordObj || !currentDefinedWordObj.word) return;
+    const list = loadVocab();
+    const norm = currentDefinedWordObj.word.toLowerCase().trim();
+    const idx = list.findIndex(item => String(item.word || '').toLowerCase().trim() === norm);
+    if (idx >= 0) {
+      list.splice(idx, 1);
+      saveVocab(list);
+      updateDefineSaveBtnState();
+      showToast(settings.uiLang === 'en' ? 'Removed from vocabulary' : 'Kelime defterinden çıkarıldı');
+    } else {
+      list.unshift({
+        word: currentDefinedWordObj.word,
+        translation: currentDefinedWordObj.translation || '',
+        definition: currentDefinedWordObj.definition || '',
+        sentence: currentDefinedWordObj.sentence || '',
+        bookTitle: state.currentBook?.title || '',
+        addedAt: Date.now()
+      });
+      saveVocab(list);
+      updateDefineSaveBtnState();
+      showToast(settings.uiLang === 'en' ? '★ Saved to vocabulary' : '★ Kelime defterine eklendi');
+    }
+  });
+
   async function defineWord(word, context) {
     const cleanWord = word.replace(/^['’"“”«».,!?;:()]+|['’"“”«».,!?;:()]+$/g, '').trim() || word.trim();
+    const cleanCtx = (context || '').replace(/\s+/g, ' ').trim();
+    currentDefinedWordObj = {
+      word: cleanWord,
+      translation: '',
+      definition: '',
+      sentence: cleanCtx,
+      bookTitle: state.currentBook?.title || ''
+    };
     el('defineWord').textContent = cleanWord;
-    el('defineContent').textContent = 'Çevriliyor…';
+    updateDefineSaveBtnState();
+    el('defineContent').textContent = settings.uiLang === 'en' ? 'Looking up…' : 'Çevriliyor…';
     el('defineBackdrop').classList.add('open');
     el('defineSheet').classList.add('open');
     try {
@@ -3654,7 +3936,6 @@
       const tl = LANG_CODES[targetLang] || 'tr';
 
       const wordUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(tl)}&dt=t&dt=bd&dt=md&q=${encodeURIComponent(cleanWord)}`;
-      const cleanCtx = (context || '').replace(/\s+/g, ' ').trim();
       const ctxUrl = (cleanCtx && cleanCtx.toLowerCase() !== cleanWord.toLowerCase())
         ? `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(cleanCtx)}`
         : null;
@@ -3723,9 +4004,22 @@
         } catch {}
       }
 
+      if (currentDefinedWordObj && currentDefinedWordObj.word === cleanWord) {
+        currentDefinedWordObj.translation = translation || (dictGroups[0]?.terms || '');
+        currentDefinedWordObj.definition = definition;
+        // If already saved, update stored translation
+        const list = loadVocab();
+        const existingIdx = list.findIndex(item => String(item.word || '').toLowerCase() === cleanWord.toLowerCase());
+        if (existingIdx >= 0) {
+          list[existingIdx].translation = currentDefinedWordObj.translation;
+          list[existingIdx].definition = currentDefinedWordObj.definition;
+          saveVocab(list);
+        }
+      }
+
       const dictHtml = dictGroups.length > 0
         ? `<div style="margin-bottom:12px;">
-             <span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">Sözlük Anlamları</span>
+             <span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">${settings.uiLang === 'en' ? 'Dictionary Meanings' : 'Sözlük Anlamları'}</span>
              <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">
                ${dictGroups.map(g => `<div>${g.pos ? `<b style="color:var(--accent); font-size:12px; text-transform:capitalize;">${escapeHtml(g.pos)}:</b> ` : ''}${escapeHtml(g.terms)}</div>`).join('')}
              </div>
@@ -3733,14 +4027,14 @@
         : '';
 
       el('defineContent').innerHTML = `
-        ${translation ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">Çeviri</span><div style="font-size:20px; font-weight:700; margin-top:4px; color:var(--text);">${escapeHtml(translation)}</div></div>` : ''}
+        ${translation ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">${settings.uiLang === 'en' ? 'Translation' : 'Çeviri'}</span><div style="font-size:20px; font-weight:700; margin-top:4px; color:var(--text);">${escapeHtml(translation)}</div></div>` : ''}
         ${dictHtml}
-        ${definition ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">Tanım (Definition)</span><div style="margin-top:4px;">${escapeHtml(definition)}</div></div>` : ''}
-        ${example ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">Örnek</span><div style="margin-top:4px; font-style:italic;">"${escapeHtml(example)}"</div></div>` : ''}
-        ${contextTranslation ? `<div style="padding-top:10px; border-top:1px solid var(--border);"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">Kitaptaki Cümle Çevirisi</span><div style="margin-top:4px; font-size:14px; color:var(--text);">${escapeHtml(contextTranslation)}</div></div>` : ''}
+        ${definition ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">${settings.uiLang === 'en' ? 'Definition' : 'Tanım (Definition)'}</span><div style="margin-top:4px;">${escapeHtml(definition)}</div></div>` : ''}
+        ${example ? `<div style="margin-bottom:12px;"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">${settings.uiLang === 'en' ? 'Example' : 'Örnek'}</span><div style="margin-top:4px; font-style:italic;">"${escapeHtml(example)}"</div></div>` : ''}
+        ${contextTranslation ? `<div style="padding-top:10px; border-top:1px solid var(--border);"><span style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">${settings.uiLang === 'en' ? 'Sentence Translation' : 'Kitaptaki Cümle Çevirisi'}</span><div style="margin-top:4px; font-size:14px; color:var(--text);">${escapeHtml(contextTranslation)}</div></div>` : ''}
       `;
     } catch (e) {
-      el('defineContent').textContent = 'Çeviri alınamadı: ' + e.message;
+      el('defineContent').textContent = (settings.uiLang === 'en' ? 'Lookup failed: ' : 'Çeviri alınamadı: ') + e.message;
     }
   }
   function closeDefineSheet() {
@@ -4081,6 +4375,507 @@
   el('ambientBackdrop').addEventListener('click', closeAmbientSheet);
   el('ambientBtn').addEventListener('click', () => { closeMenuSheet(); openAmbientSheet(); });
 
+  // === 1. Vocabulary Notebook Sheet ===
+  function openVocabSheet() {
+    renderVocabList();
+    el('vocabBackdrop').classList.add('open');
+    el('vocabSheet').classList.add('open');
+  }
+  function closeVocabSheet() {
+    el('vocabBackdrop').classList.remove('open');
+    el('vocabSheet').classList.remove('open');
+  }
+  function renderVocabList() {
+    const container = el('vocabListContainer');
+    if (!container) return;
+    const list = loadVocab();
+    if (!list.length) {
+      container.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-dim); font-size:14px;">${escapeHtml(t('vocabEmpty'))}</div>`;
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.style.cssText = 'padding:14px; background:var(--surface-2); border-radius:12px; display:flex; flex-direction:column; gap:6px;';
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <span style="font-size:16px; font-weight:700; color:var(--text);">${escapeHtml(item.word || '')}</span>
+            ${item.bookTitle ? `<span class="voice-badge">${escapeHtml(item.bookTitle)}</span>` : ''}
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="voice-test-btn vocab-speak-btn" data-word="${escapeHtml(item.word || '')}" aria-label="Listen">${Icons.volume}</button>
+            <button class="voice-test-btn vocab-del-btn" data-idx="${idx}" aria-label="Delete">${Icons.close}</button>
+          </div>
+        </div>
+        ${item.translation ? `<div style="font-size:15px; font-weight:600; color:var(--accent);">${escapeHtml(item.translation)}</div>` : ''}
+        ${item.definition ? `<div style="font-size:13px; color:var(--text-dim);">${escapeHtml(item.definition)}</div>` : ''}
+        ${item.sentence ? `<div style="font-size:13px; color:var(--text-dim); font-style:italic; border-top:1px solid var(--border); padding-top:6px; margin-top:2px;">"${escapeHtml(item.sentence)}"</div>` : ''}
+      `;
+      card.querySelector('.vocab-speak-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakWordOrPhrase(item.word);
+      });
+      card.querySelector('.vocab-del-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cur = loadVocab();
+        cur.splice(idx, 1);
+        saveVocab(cur);
+        renderVocabList();
+      });
+      container.appendChild(card);
+    });
+  }
+  el('vocabBtn')?.addEventListener('click', () => { closeMenuSheet(); openVocabSheet(); });
+  el('vocabSheetClose')?.addEventListener('click', closeVocabSheet);
+  el('vocabBackdrop')?.addEventListener('click', closeVocabSheet);
+
+  // === 3. In-Book Search Sheet ===
+  function openSearchSheet() {
+    if (!state.currentBookKey) return;
+    el('searchBackdrop').classList.add('open');
+    el('searchSheet').classList.add('open');
+    runBookSearch(false);
+    setTimeout(() => el('bookSearchInput')?.focus(), 200);
+  }
+  function closeSearchSheet() {
+    el('searchBackdrop').classList.remove('open');
+    el('searchSheet').classList.remove('open');
+  }
+  function highlightSearchSnippet(text, query) {
+    const safe = escapeHtml(text);
+    if (!query) return safe;
+    const escapedQ = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return safe.replace(new RegExp(`(${escapedQ})`, 'gi'), '<mark style="background:var(--accent-soft); color:var(--accent); padding:0 2px; border-radius:3px; font-weight:600;">$1</mark>');
+  }
+  async function runBookSearch(allChapters = false) {
+    const resultsEl = el('bookSearchResults');
+    const q = (el('bookSearchInput')?.value || '').trim();
+    if (!resultsEl) return;
+    if (!q || q.length < 2) {
+      resultsEl.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:13px;">${settings.uiLang === 'en' ? 'Type at least 2 characters to search in the book.' : 'Kitap içinde aramak için en az 2 harf yazın.'}</div>`;
+      return;
+    }
+    const qLower = q.toLowerCase();
+    const matches = [];
+    if (!allChapters && state.sentences.length > 0) {
+      const chLabel = state.chapters[state.currentChapterIdx]?.label || `${t('chapterWord')} ${state.currentChapterIdx + 1}`;
+      state.sentences.forEach((s, sIdx) => {
+        if (s.toLowerCase().includes(qLower) && matches.length < 50) {
+          matches.push({ chIdx: state.currentChapterIdx, chLabel, sIdx, text: s });
+        }
+      });
+    } else {
+      resultsEl.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:13px;">${settings.uiLang === 'en' ? 'Searching all chapters…' : 'Tüm bölümler taranıyor…'}</div>`;
+      for (let cIdx = 0; cIdx < state.chapters.length; cIdx++) {
+        if (matches.length >= 60) break;
+        try {
+          const chText = (cIdx === state.currentChapterIdx && state.sentences.length)
+            ? null
+            : await loadChapterText(cIdx);
+          const sents = (cIdx === state.currentChapterIdx && state.sentences.length)
+            ? state.sentences
+            : splitSentences(chText);
+          const chLabel = state.chapters[cIdx]?.label || `${t('chapterWord')} ${cIdx + 1}`;
+          sents.forEach((s, sIdx) => {
+            if (s.toLowerCase().includes(qLower) && matches.length < 60) {
+              matches.push({ chIdx: cIdx, chLabel, sIdx, text: s });
+            }
+          });
+        } catch {}
+      }
+    }
+
+    if (!matches.length) {
+      resultsEl.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:14px;">${settings.uiLang === 'en' ? 'No matches found.' : 'Sonuç bulunamadı.'}</div>`;
+      return;
+    }
+
+    resultsEl.innerHTML = '';
+    matches.forEach(m => {
+      const item = document.createElement('button');
+      item.style.cssText = 'text-align:left; padding:12px 14px; background:var(--surface-2); border:none; border-radius:12px; color:var(--text); cursor:pointer; display:flex; flex-direction:column; gap:4px;';
+      item.innerHTML = `
+        <div style="font-size:11px; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em;">${escapeHtml(m.chLabel)} · #${m.sIdx + 1}</div>
+        <div style="font-size:14px; line-height:1.45;">${highlightSearchSnippet(m.text, q)}</div>
+      `;
+      item.addEventListener('click', async () => {
+        closeSearchSheet();
+        if (m.chIdx !== state.currentChapterIdx) {
+          await openChapter(m.chIdx, m.sIdx);
+        } else {
+          state.currentSentence = m.sIdx;
+          haltActiveAudio();
+          highlightSentence(m.sIdx);
+          saveProgress();
+          if (state.playing) speakCurrent();
+        }
+      });
+      resultsEl.appendChild(item);
+    });
+  }
+  el('readerSearchBtn')?.addEventListener('click', openSearchSheet);
+  el('searchSheetClose')?.addEventListener('click', closeSearchSheet);
+  el('searchBackdrop')?.addEventListener('click', closeSearchSheet);
+  el('bookSearchInput')?.addEventListener('input', () => runBookSearch(false));
+  el('searchAllChBtn')?.addEventListener('click', () => runBookSearch(true));
+
+  // === 6. Free Classics Catalog (Turkish & English) ===
+  const FREE_CLASSICS_CATALOG = [
+    {
+      id: 'tr-omer-seyfettin',
+      lang: 'tr',
+      badge: '🇹🇷 Türkçe Klasik',
+      title: 'Seçme Hikâyeler (Kaşağı, Falaka, Yüksek Ökçeler)',
+      author: 'Ömer Seyfettin',
+      desc: 'Türk edebiyatının en sevilen klasik öykülerinden seçmeler.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Kaşağı',
+          paragraphs: [
+            'Ahırın avlusunda oynarken aşağıda, gümüş söğütler altında görünmeyen derenin hüzünlü şırıltısını duyardık. Evimiz iç çitin büyük kestane ağaçları arkasında kaybolmuş gibiydi. Annem İstanbul’a gittiği için benden bir yaş küçük olan kardeşim Hasan’la artık Dadaruh’un yanından hiç ayrılmıyorduk.',
+            'Bu, babamın seyisi, yaşlı bir adamdı. Sabahleyin erkenden ahıra koşuyorduk. En sevdiğimiz şey atlardı. Dadaruh’la birlikte onları suya götürmek, çıplak sırtlarına binmek, ne doyulmaz bir zevkti! Hasan korkar, yalnız binemezdi. Dadaruh onu kendi önüne alırdı.',
+            'Torbalara arpa koymak, yemliklere ot doldurmak, gübreleri kaldırmak eğlenceli bir oyundan daha çok hoşumuza gidiyordu. Hele tımar. Bu en zevkli şeydi. Dadaruh eline kaşağıyı alıp işe başladı mı, tıkı, tık, tıkı, tık, tıpkı bir saat gibi yerinde duramazdım. Ben de yapacağım! diye tuttururdum.',
+            'Bir gün yalnız başıma kaldım. Hasan’la Dadaruh dere kenarına inmişlerdi. İçimden bir tımar etmek hırsı uyandı. Kaşağıyı aradım, bulamadım. Annemin İstanbul’dan gönderdiği hediyeler içinde çıkan fakfon kaşağı, pırıl pırıl parlıyordu. Hemen kaptım, Tosun’un karnına sürtmeye başladım. Keskin dişleri hayvanın derisine batınca Tosun ürktü. Öfkelendim, kaşağının dişlerini taşta kırıp yalağın içine attım.',
+            'Ertesi sabah babam kırık kaşağıyı yalakta görünce çok kızdı. Hasan’a ve bana sordu. Korkudan dilim tutuldu ve kaşağıyı Hasan’ın kırdığını söyledim. Zavallı kardeşim ağlayarak suçsuz olduğunu söylese de babam inanmadı ve ona eve girme cezası verdi.',
+            'Kış geldiğinde Hasan kuşpalazı hastalığına yakalandı. Geceleri uyuyamıyor, vicdan azabıyla kıvranıyordum. Babama gerçeği söyleyip kardeşimden af dilemeye karar verdiğim gece, ne yazık ki çok geç kalmıştım.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Falaka',
+          paragraphs: [
+            'Her sabah çantamı boynuma asar, güle oynaya mahalle mektebine giderdim. Mektebimiz dar, gölgeli bir sokağın köşesinde, ahşap ve şirin bir binaydı. İçeri girince hep bir ağızdan derslerimizi tekrarlar, sallana sallana okurduk.',
+            'Hoca Efendi sert görünüşlü ama aslında kalbi pamuk gibi bir ihtiyardı. Duvarda asılı duran falaka hepimizi korkuturdu ama Hoca Efendi onu neredeyse hiç kullanmaz, sadece yaramazlık yaptığımızda gösterip gözdağı verirdi.',
+            'Bir gün ilçeye yeni gelen kaymakam mektebi teftiş etmeye geldi. Bizlerin ne kadar neşeli ama biraz da gürültücü olduğumuzu görünce, Hoca Efendi yaşlılığından dolayı mahcup oldu. Çocukluğun verdiği saflıkla öğrendiğimiz her kelimeyi hevesle okuduk ve misafirlerin yüzünde tatlı bir tebessüm bıraktık.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Yüksek Ökçeler',
+          paragraphs: [
+            'Hatice Hanım, genç yaşında dul kalmış, oldukça zengin, titiz ve düzen meraklısı bir kadındı. Göztepe’deki köşkünde hizmetçileriyle birlikte yaşıyor, temizlik ve dürüstlük konusunda kılı kırk yarıyordu.',
+            'Boyu biraz kısa olduğu için evin içinde bile hep yüksek ökçeli terlikler giyerdi. Bu yüksek ökçelerin parkeler üzerinde çıkardığı tıkır tıkır sesler sayesinde evdeki herkes onun nereye geldiğini önceden duyar ve işinin başında hazır bulunurdu.',
+            'Bir gün başı döndüğü için doktor ona yüksek ökçeli terlikleri yasakladı ve yumuşak, sessiz patikler giymesini tavsiye etti. Hatice Hanım sessiz patiklerle evin içinde dolaşmaya başlayınca, yıllardır çok güvendiği çalışanlarının aslında o yokken nasıl davrandıklarını kendi gözleriyle gördü. Huzurunun bozulduğunu anlayınca, "Varsın başım dönsün ama gönlüm rahat olsun!" diyerek yeniden yüksek ökçeli terliklerini giydi.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-kucuk-prens',
+      lang: 'tr',
+      badge: '🇹🇷 Türkçe Klasik',
+      title: 'Küçük Prens (Seçme Bölümler)',
+      author: 'Antoine de Saint-Exupéry',
+      desc: 'Çölde başlayan dostluğun, B-612 asteroidinin ve Tilki’nin unutulmaz hikâyesi.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Çölde Karşılaşma ve Koyun Resmi',
+          paragraphs: [
+            'Altı yaşımdayken, Balta Girmemiş Ormanlar üzerine yazılmış, Gerçek Öyküler adlı bir kitapta muhteşem bir resim görmüştüm. Bir boa yılanı bir vahşi hayvanı yutuyordu. Ben de elime kalemi alıp ilk resmimi çizdim. Büyükler resmime baktıklarında bunun bir şapka olduğunu söylediler. Oysa bu, bir fili yutmuş olan bir boa yılanıydı.',
+            'Büyükler hiçbir şeyi tek başlarına anlayamıyorlar; çocuklar için de onlara durmadan açıklamalar yapmak çok yorucu oluyor. Ben de kendime başka bir meslek seçmek zorunda kaldım ve pilot oldum.',
+            'Altı yıl önce Sahra Çölü’nde uçağım arıza yapınca yapayalnız kaldım. İlk gece kumların üzerinde uyudum. Gün doğarken incecik, tuhaf bir ses beni uyandırdı: "Lütfen... Bana bir koyun çiz!"',
+            'Gözlerimi ovuşturup baktığımda karşımda altın sarısı saçlarıyla küçük bir çocuk duruyordu. Ona şaşkınlıkla baktım ve sonunda bir kutu çizip, "İşte istediğin koyun bu kutunun içinde," dedim. Küçük Prens’in yüzü aydınlandı: "Tam istediğim gibi! Sence bu koyuna çok ot gerekir mi?" İşte Küçük Prens ile böyle tanıştım.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: B-612 Asteroidi ve Eşsiz Gül',
+          paragraphs: [
+            'Küçük Prens’in geldiği gezegenin bir evden bile küçük olduğunu öğrenmem uzun sürmedi. Bu gezegen B-612 asteroidiydi. Orada üç küçük yanardağ ve Küçük Prens’in özenle koruduğu bir çiçek vardı.',
+            'Bir gün gezegeninde daha önce hiç görmediği bir tohum filizlendi. Çok geçmeden büyüleyici güzellikte ama bir o kadar da nazlı ve gururlu bir gül açtı. Gül, "Kaplanlar pençeleriyle gelebilir ama ben onlardan korkmam, yalnızca hava akımından hoşlanmam, beni bir fanusun altına alır mısın?" diyordu.',
+            'Küçük Prens gülünü çok sevmesine rağmen onun kaprisli sözlerini fazla ciddiye almış ve hüzünlenmişti. Gezegeninden ayrılırken gülünü son kez suladı; gül ise ilk kez gururunu bir kenara bırakıp ona, "Evet, seni seviyorum. Burada mutlu olmanı istiyorum," diye fısıldadı.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Tilki ve Evcilleştirmenin Sırrı',
+          paragraphs: [
+            'Dünya’ya gelen Küçük Prens, binlerce gülün bulunduğu bir bahçeyle karşılaşınca çok üzüldü; çünkü kendi gülünün evrende tek olduğunu sanıyordu. Çimenlerin üzerine uzanıp ağlarken ortaya bir tilki çıktı.',
+            '"Benimle oynar mısın?" diye sordu Küçük Prens. "Çok üzgünüm." Tilki, "Seninle oynayamam," dedi. "Çünkü henüz evcilleştirilmedim. Evcilleştirmek, bağ kurmak demektir. Şu an sen benim için yüz binlerce küçük oğlandan farksızsın. Ama beni evcilleştirirsen birbirimiz için dünyada tek oluruz."',
+            'Küçük Prens tilkiyi sabırla evcilleştirdi. Ayrılık vakti geldiğinde tilki ona sırrını armağan etti: "İşte sırrım, çok basit: İnsan ancak yüreğiyle baktığı zaman doğruyu görebilir. Gerçeğin mayası gözle görülmez. Gülünü senin için bu kadar önemli kılan, ona harcadığın zamandır."'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-kafka-donusum',
+      lang: 'tr',
+      badge: '🇹🇷 Türkçe Klasik',
+      title: 'Dönüşüm (Seçme Bölümler)',
+      author: 'Franz Kafka',
+      desc: 'Gregor Samsa’nın bir sabah uyanışıyla başlayan sarsıcı edebiyat klasiği.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Huzursuz Düşlerden Uyanış',
+          paragraphs: [
+            'Gregor Samsa bir sabah huzursuz düşlerden uyandığında, kendini yatağında dev bir böceğe dönüşmüş olarak buldu. Zırh gibi sertleşmiş sırtüstü yatıyor, başını biraz kaldırdığında yay biçiminde çizgilerle bölünmüş kahverengi karnını görüyordu.',
+            '"Bana ne oldu böyle?" diye düşündü. Bu bir düş değildi. Küçük ama tanıdık odası dört duvar arasında sessizce duruyordu. Masanın üzerinde, gezici kumaş pazarlamacısı olarak çalıştığı işinden getirdiği kumaş örnekleri seriliydi.',
+            'Pencereye baktığında puslu havayı ve çinkolara çarpan yağmur damlalarını gördü. Biraz daha uyuyup bütün bu tuhaflıkları unutmak istedi ama alışık olduğu gibi sağ tarafına dönemedi. Saate baktığında sabah trenini çoktan kaçırdığını fark etti.',
+            'Az sonra kapı yavaşça tıklatıldı ve annesinin şefkatli sesi duyuldu: "Gregor, saat yediyi çeyrek geçiyor, yola çıkmayacak mıydın?" Gregor cevap vermek istediğinde kendi sesini tanıyamadı; sözcükleri anlaşılır olsa da alttan ince bir ciyaklama sesi karışıyordu.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Kapının Ardındaki Yeni Hayat',
+          paragraphs: [
+            'Günler geçtikçe Gregor yeni bedenine ve odasının loş sessizliğine alışmaya çalıştı. Ailesini korkutmamak için ne zaman odasına biri girecek olsa kanepenin altına saklanıyor, pencereden dışarıdaki gri sokağı seyrederek vakit geçiriyordu.',
+            'Kız kardeşi Grete her sabah ve akşam odasına girip ona yiyecek bırakıyor, odasını havalandırıyordu. Gregor, kardeşinin bu inceliğini gördükçe ona karşı derin bir minnet duyuyor, bir gün onu konservatuvara gönderebilme hayalini içten içe hatırlıyordu.',
+            'Ancak zamanla ailenin geçim sıkıntısı arttı. Babası yeniden çalışmaya başladı ve evin içindeki eski neşeli konuşmaların yerini yorgun bir sessizlik aldı.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Keman Sesi ve Sessiz Veda',
+          paragraphs: [
+            'Bir akşam kız kardeşi Grete salonda keman çalmaya başladı. Gregor, müziğin büyüleyici sesine kapılarak farkında olmadan odasının kapısından başını uzattı. Kendisine bu kadar dokunan bu müzik karşısında "Acaba gerçekten duygusuz bir yaratık mıyım?" diye düşündü.',
+            'Salondaki kargaşadan sonra odasına geri dönen Gregor, ailesine duyduğu sevgiyi ve şefkati son kez yüreğinde hissetti. Sabahın ilk ışıkları pencereden süzülürken başını yavaşça yere bıraktı ve derin bir huzura kavuştu.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'en-pride-prejudice',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: 'Pride and Prejudice',
+      author: 'Jane Austen',
+      desc: 'Full classic novel of Elizabeth Bennet and Mr. Darcy.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1342.epub.noimages'
+    },
+    {
+      id: 'en-sherlock-holmes',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: 'The Adventures of Sherlock Holmes',
+      author: 'Arthur Conan Doyle',
+      desc: 'Twelve famous detective stories featuring Sherlock Holmes & Dr. Watson.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1661.epub.noimages'
+    },
+    {
+      id: 'en-alice-wonderland',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: "Alice's Adventures in Wonderland",
+      author: 'Lewis Carroll',
+      desc: 'The beloved classic journey down the rabbit-hole.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/11.epub.noimages'
+    },
+    {
+      id: 'en-dorian-gray',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: 'The Picture of Dorian Gray',
+      author: 'Oscar Wilde',
+      desc: 'Oscar Wilde’s philosophical gothic masterpiece.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/174.epub.noimages'
+    },
+    {
+      id: 'en-frankenstein',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: 'Frankenstein',
+      author: 'Mary Wollstonecraft Shelley',
+      desc: 'The original gothic science-fiction classic.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/84.epub.noimages'
+    },
+    {
+      id: 'en-romeo-juliet',
+      lang: 'en',
+      badge: '🇬🇧 English Classic',
+      title: 'Romeo and Juliet',
+      author: 'William Shakespeare',
+      desc: 'Shakespeare’s timeless tragedy of two star-crossed lovers.',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1513.epub.noimages'
+    }
+  ];
+
+  async function buildEpubFileFromChapters(item) {
+    const zip = new JSZip();
+    zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+    zip.file('META-INF/container.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+    const manifestItems = [];
+    const spineItems = [];
+    const navPoints = [];
+
+    item.chapters.forEach((ch, idx) => {
+      const id = `ch${idx + 1}`;
+      const filename = `${id}.xhtml`;
+      const parasHtml = ch.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('\n    ');
+      zip.file(`OEBPS/${filename}`, `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${item.lang || 'tr'}">
+<head><title>${escapeHtml(ch.title)}</title></head>
+<body>
+  <h2>${escapeHtml(ch.title)}</h2>
+  ${parasHtml}
+</body>
+</html>`);
+      manifestItems.push(`<item id="${id}" href="${filename}" media-type="application/xhtml+xml"/>`);
+      spineItems.push(`<itemref idref="${id}"/>`);
+      navPoints.push(`<navPoint id="navPoint-${idx + 1}" playOrder="${idx + 1}">
+      <navLabel><text>${escapeHtml(ch.title)}</text></navLabel>
+      <content src="${filename}"/>
+    </navPoint>`);
+    });
+
+    zip.file('OEBPS/toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="urn:uuid:${item.id}"/></head>
+  <docTitle><text>${escapeHtml(item.title)}</text></docTitle>
+  <navMap>
+    ${navPoints.join('\n    ')}
+  </navMap>
+</ncx>`);
+
+    zip.file('OEBPS/content.opf', `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>${escapeHtml(item.title)}</dc:title>
+    <dc:creator>${escapeHtml(item.author)}</dc:creator>
+    <dc:language>${item.lang || 'tr'}</dc:language>
+    <dc:identifier id="BookId">urn:uuid:${item.id}</dc:identifier>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    ${manifestItems.join('\n    ')}
+  </manifest>
+  <spine toc="ncx">
+    ${spineItems.join('\n    ')}
+  </spine>
+</package>`);
+
+    const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+    return new File([blob], `${item.id}.epub`, { type: 'application/epub+zip' });
+  }
+
+  let activeClassicsFilter = 'all';
+  function openClassicsSheet() {
+    renderClassicsList();
+    el('classicsBackdrop').classList.add('open');
+    el('classicsSheet').classList.add('open');
+  }
+  function closeClassicsSheet() {
+    el('classicsBackdrop').classList.remove('open');
+    el('classicsSheet').classList.remove('open');
+  }
+  function renderClassicsList() {
+    const container = el('classicsListContainer');
+    if (!container) return;
+    document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cfilter === activeClassicsFilter);
+    });
+    const filtered = FREE_CLASSICS_CATALOG.filter(c => activeClassicsFilter === 'all' || c.lang === activeClassicsFilter);
+    container.innerHTML = '';
+    filtered.forEach(item => {
+      const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:14px; background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;';
+      row.innerHTML = `
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px;">
+            <span class="voice-badge">${escapeHtml(item.badge)}</span>
+            <span style="font-size:15px; font-weight:600; color:var(--text);">${escapeHtml(item.title)}</span>
+          </div>
+          <div style="font-size:13px; color:var(--text-dim); margin-bottom:4px;">${escapeHtml(item.author)}</div>
+          <div style="font-size:12px; color:var(--text-dim); line-height:1.35;">${escapeHtml(item.desc)}</div>
+        </div>
+        <button class="primary-btn classic-add-btn" style="padding:8px 14px; font-size:13px; white-space:nowrap;">${escapeHtml(alreadyInLib ? t('inLibraryBadge') : t('addClassicBtn'))}</button>
+      `;
+      const btn = row.querySelector('.classic-add-btn');
+      btn.addEventListener('click', async () => {
+        const existing = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+        if (existing) {
+          closeClassicsSheet();
+          openBook(existing.key);
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          let file;
+          if (item.chapters) {
+            file = await buildEpubFileFromChapters(item);
+          } else if (item.epubUrl) {
+            const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(item.epubUrl));
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const blob = await resp.blob();
+            file = new File([blob], `${item.id}.epub`, { type: 'application/epub+zip' });
+          }
+          closeClassicsSheet();
+          await addBook(file);
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = t('addClassicBtn');
+          showToast('Hata: ' + err.message);
+        }
+      });
+      container.appendChild(row);
+    });
+  }
+  document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeClassicsFilter = btn.dataset.cfilter || 'all';
+      renderClassicsList();
+    });
+  });
+  el('classicsMenuBtn')?.addEventListener('click', () => { closeMenuSheet(); openClassicsSheet(); });
+  el('classicsSheetClose')?.addEventListener('click', closeClassicsSheet);
+  el('classicsBackdrop')?.addEventListener('click', closeClassicsSheet);
+
+  // === 5. UI Language Switching (Türkçe 🇹🇷 / English 🇬🇧) ===
+  function applyUiLanguage() {
+    const isEn = settings.uiLang === 'en';
+    document.documentElement.lang = isEn ? 'en' : 'tr';
+    if (el('langToggleBtn')) el('langToggleBtn').textContent = isEn ? '🇬🇧 EN' : '🇹🇷 TR';
+    if (el('uiLangState')) el('uiLangState').textContent = isEn ? '🇬🇧 English' : '🇹🇷 Türkçe';
+    if (el('libraryHeaderTitle')) el('libraryHeaderTitle').textContent = t('libraryTitle');
+    if (el('bookPageHeaderTitle')) el('bookPageHeaderTitle').textContent = t('bookTitle');
+    if (el('chaptersSectionHeader')) el('chaptersSectionHeader').textContent = t('chaptersTitle');
+    if (el('menuSheetTitle')) el('menuSheetTitle').textContent = t('moreTitle');
+    if (el('lblUiLang')) el('lblUiLang').textContent = t('uiLangLabel');
+    if (el('lblVocabMenu')) el('lblVocabMenu').textContent = t('vocabMenuLabel');
+    if (el('lblClassicsMenu')) el('lblClassicsMenu').textContent = t('classicsMenuLabel');
+    if (el('lblChatMenu')) el('lblChatMenu').textContent = t('chatMenuLabel');
+    if (el('lblSummarizeMenu')) el('lblSummarizeMenu').textContent = t('summarizeMenuLabel');
+    if (el('lblRecommendMenu')) el('lblRecommendMenu').textContent = t('recommendMenuLabel');
+    if (el('lblAmbientMenu')) el('lblAmbientMenu').textContent = t('ambientMenuLabel');
+    if (el('lblUrlImportMenu')) el('lblUrlImportMenu').textContent = t('urlImportMenuLabel');
+    if (el('lblAutoSummaryMenu')) el('lblAutoSummaryMenu').textContent = t('autoSummaryMenuLabel');
+    if (el('lblSummaryLangMenu')) el('lblSummaryLangMenu').textContent = t('summaryLangMenuLabel');
+    if (el('lblExportMenu')) el('lblExportMenu').textContent = t('exportMenuLabel');
+    if (el('lblExportSub')) el('lblExportSub').textContent = t('exportSubLabel');
+    if (el('lblImportMenu')) el('lblImportMenu').textContent = t('importMenuLabel');
+    if (el('lblImportSub')) el('lblImportSub').textContent = t('importSubLabel');
+    if (el('lblStatsMenu')) el('lblStatsMenu').textContent = t('statsMenuLabel');
+    if (el('backToCurrentBtn')) el('backToCurrentBtn').textContent = t('backToPlaying');
+    if (el('searchSheetTitle')) el('searchSheetTitle').textContent = t('searchInBookTitle');
+    if (el('bookSearchInput')) el('bookSearchInput').placeholder = t('searchInBookPlaceholder');
+    if (el('searchAllChBtn')) el('searchAllChBtn').textContent = t('searchAllChapters');
+    if (el('vocabSheetTitle')) el('vocabSheetTitle').textContent = t('vocabSheetTitle');
+    if (el('classicsSheetTitle')) el('classicsSheetTitle').textContent = t('classicsSheetTitle');
+    if (el('cfilterAll')) el('cfilterAll').textContent = t('cfilterAll');
+    if (el('cfilterTr')) el('cfilterTr').textContent = t('cfilterTr');
+    if (el('cfilterEn')) el('cfilterEn').textContent = t('cfilterEn');
+    if (el('voiceSearch')) el('voiceSearch').placeholder = t('searchVoices');
+    document.querySelectorAll('.sheet-header .close').forEach(b => { b.textContent = t('done'); });
+    const fpVoiceChip = el('fpVoiceBtn')?.querySelector('.label');
+    if (fpVoiceChip) fpVoiceChip.textContent = t('voiceChipLabel');
+    const fpSpeedChip = el('fpSpeedBtn')?.querySelector('.label');
+    if (fpSpeedChip) fpSpeedChip.textContent = t('speedChipLabel');
+    renderLibrary();
+    if (state.currentBook) renderBookPage();
+  }
+
+  function toggleUiLanguage() {
+    settings.uiLang = settings.uiLang === 'en' ? 'tr' : 'en';
+    saveSettings();
+    applyUiLanguage();
+    showToast(settings.uiLang === 'en' ? '🇬🇧 App language: English' : '🇹🇷 Uygulama dili: Türkçe', 1400);
+  }
+  el('langToggleBtn')?.addEventListener('click', toggleUiLanguage);
+  el('toggleUiLangBtn')?.addEventListener('click', toggleUiLanguage);
+
   // === Keyboard shortcuts (desktop) ===
   document.addEventListener('keydown', (e) => {
     if (e.target.matches('input, textarea')) return;
@@ -4160,8 +4955,9 @@
   }
 
   // Init
+  injectIcons();
   loadLibrary();
-  renderLibrary();
+  applyUiLanguage();
   showPage('library');
 
   // Handle app shortcuts (Android long-press menu / Windows taskbar)
