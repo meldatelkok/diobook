@@ -1225,7 +1225,11 @@
       <input type="text" id="onlineCatalogSearchInput" class="voice-search" style="margin-bottom:0; flex:1;" placeholder="Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…">
     </div>
     <div class="voice-filter-bar" id="classicsFilterBar" style="margin-bottom:12px;">
-      <button class="voice-filter-pill active" data-cfilter="all" id="cfilterAll">Tümü</button>
+      <button class="voice-filter-pill active" data-cfilter="all" id="cfilterAll">✨ Tümü</button>
+      <button class="voice-filter-pill" data-cfilter="crime" id="cfilterCrime">🕵️ Gizem &amp; Suç</button>
+      <button class="voice-filter-pill" data-cfilter="thriller" id="cfilterThriller">🔪 Gerilim</button>
+      <button class="voice-filter-pill" data-cfilter="fantasy" id="cfilterFantasy">🐉 Fantastik &amp; Bilimkurgu</button>
+      <button class="voice-filter-pill" data-cfilter="romance" id="cfilterRomance">💜 Romantik &amp; Dram</button>
       <button class="voice-filter-pill" data-cfilter="tr" id="cfilterTr">🇹🇷 Türkçe</button>
       <button class="voice-filter-pill" data-cfilter="en" id="cfilterEn">🇬🇧 English</button>
     </div>
@@ -1478,11 +1482,14 @@
       previewHeader: 'Kitap Detayı',
       listenNowBtn: '🎧 Hemen Aç & Dinle',
       catAll: '✨ Tümü',
-      catTr: '🇹🇷 Türkçe Eserler',
-      catEn: '🇬🇧 İngilizce Klasikler',
-      catMystery: '🕵️ Gizem & Macera',
+      catCrime: '🕵️ Gizem & Suç',
+      catThriller: '🔪 Gerilim & Psikolojik',
+      catFantasy: '🐉 Fantastik & Bilimkurgu',
       catRomance: '💜 Romantik & Dram',
-      catScifi: '🏰 Gotik & Bilimkurgu',
+      catTr: '🇹🇷 Türkçe Kitaplar',
+      catEn: '🇬🇧 İngilizce Kitaplar',
+      catMystery: '🕵️ Gizem & Suç',
+      catScifi: '🐉 Fantastik & Bilimkurgu',
       continueReading: 'Dinlemeye devam et',
       allBooks: 'Tüm kitaplar',
       noMatches: 'Eşleşen kitap bulunamadı',
@@ -1553,11 +1560,14 @@
       previewHeader: 'Book Details',
       listenNowBtn: '🎧 Open & Listen Now',
       catAll: '✨ All',
-      catTr: '🇹🇷 Turkish Works',
-      catEn: '🇬🇧 English Classics',
-      catMystery: '🕵️ Mystery & Adventure',
+      catCrime: '🕵️ Mystery & Crime',
+      catThriller: '🔪 Thriller & Suspense',
+      catFantasy: '🐉 Fantasy & Sci-Fi',
       catRomance: '💜 Romance & Drama',
-      catScifi: '🏰 Gothic & Sci-Fi',
+      catTr: '🇹🇷 Turkish Books',
+      catEn: '🇬🇧 English Books',
+      catMystery: '🕵️ Mystery & Crime',
+      catScifi: '🐉 Fantasy & Sci-Fi',
       continueReading: 'Continue reading',
       allBooks: 'All books',
       noMatches: 'No matches',
@@ -5195,8 +5205,335 @@
   el('bookSearchInput')?.addEventListener('input', () => runBookSearch(false));
   el('searchAllChBtn')?.addEventListener('click', () => runBookSearch(true));
 
-  // === 6. Free Classics & Visual Book Showcase Catalog (Turkish & English) ===
+  // === 6. Free Classics & Contemporary Genre Showcase Catalog (Turkish & English) ===
   const FREE_CLASSICS_CATALOG = [
+    // --- GÜNCEL TÜRKÇE POLİSİYE, GERİLİM, FANTASTİK, BİLİMKURGU & ROMANTİK ---
+    {
+      id: 'tr-gece-vardiyasi-cinayet',
+      lang: 'tr',
+      cat: ['tr', 'crime', 'thriller'],
+      palette: ['#0F172A', '#1E293B', '#38BDF8'],
+      emblem: 'dagger',
+      badge: '🕵️ Güncel Polisiye & Suç',
+      title: "Gece Vardiyası: Boğaz'da Sır",
+      author: 'Kerem Arslan (Çağdaş Polisiye)',
+      desc: "İstanbul Boğazı'nda sisli bir Kasım gecesi demirli lüks bir yatta işlenen gizemli cinayet ve Başkomiser Demir'in zamana karşı sorgusu.",
+      chapters: [
+        {
+          title: 'Bölüm 1: Sislerin Arasındaki İhbar',
+          paragraphs: [
+            'Saat sabaha karşı üçü on iki geçiyordu. Bebek koyunu kaplayan yoğun sis, kıyıdaki sokak lambalarının sarı ışığını puslu bir perde gibi yutmuştu. Başkomiser Demir, elindeki karton bardaktan son yudum sert kahvesini alırken telsizden gelen acil kodlu anonsla irkildi.',
+            'Açıkta demirli bulunan Kuzey Yıldızı adlı özel yatta bir silah sesi duyulmuş, sahil güvenlik botu olay yerine intikal etmişti. Demir, yakasını kaldırıp rıhtıma doğru hızlı adımlarla yürüdü. Yağmur çiselemeye başlamış, asfaltın kokusu deniz tuzuna karışmıştı.',
+            'Yatın güvertesine adım attığında olay yeri inceleme ekibinin mavi ışıkları karanlığı kesiyordu. Ünlü sanat koleksiyonerlerinden Haluk Soylu, çalışma kamarasındaki deri koltuğunda hareketsiz yatıyordu. Masanın üzerinde ise henüz dumanı tüten iki fincan espresso ve yarısı yırtılmış şifreli bir müzayede kataloğu duruyordu.',
+            '"Kapı içeriden kilitli değildi Başkomiserim," dedi genç komiser yardımcısı Selin. "Ancak yatın güvenlik kameraları saat tam 02:40’ta on iki dakikalığına devre dışı bırakılmış. Bu işi yapan kişi, sistemin güvenlik kodlarını içeriden biri kadar iyi biliyor."'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Kayıp Tablo ve Üç Şüpheli',
+          paragraphs: [
+            'Sorgu odasının soğuk beyaz ışığı altında üç isim vardı: Soylu’nun genç ortağı Bora, özel asistanı Leyla ve o gece yata son tekneyle uğradığı tespit edilen eski restoratör Kaan. Her birinin Haluk Soylu ile kapanmamış bir hesabı vardı.',
+            'Demir dosyadaki fotoğrafları masanın üzerine yaydı. "Kamaradaki gizli bölme açılmış ama içindeki nakit paraya dokunulmamış. Sadece on dokuzuncu yüzyıldan kalma tek bir tablo kayıp. Demek ki katilimiz bir hırsız değil; o tabloda saklanan bir gerçeğin peşinde."',
+            'Leyla bakışlarını kaçırarak parmaklarıyla oynadı. "Haluk Bey dün akşam çok gergindi. Gece yarısından önce bir telefon aldı ve arayan kişiye, ‘Eğer o imzayı ortaya çıkarırsan hepimiz biteriz’ dediğini duydum."',
+            'Demir’in gözleri kısıldı. Telefon kayıtlarında o saatte dışarıdan gelen hiçbir arama görünmüyordu. Bu da tek bir anlama geliyordu: Arama, yatın kendi dahili uydu hattından, yani o sırada teknede bulunan birinden yapılmıştı.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Boğaz Köprüsü Altında Yüzleşme',
+          paragraphs: [
+            'Ertesi gece saat 23:30’da, Karaköy’deki eski gümrük antrepolarının arkasında bekleyen Demir ve ekibi, sahte bir alıcı mesajıyla kurdukları tuzağın işlemesini izliyordu. Sis yine Boğaz’ın üzerine çökmüştü.',
+            'Ayak sesleri ıslak taşlarda yankılandı. Karanlığın içinden beliren silüet, elindeki silindirik çantayı rıhtım babasının yanına bırakırken projektörler bir anda yandı. Gelen kişi, herkesin en zararsız gördüğü restoratör Kaan’dan başkası değildi.',
+            '"Tablonun altındaki katmanda kendi sahte imzan vardı, değil mi Kaan?" diye seslendi Demir sakin ama keskin bir tonla. "Haluk Soylu gerçeği fark edince, bütün kariyerinin ve özgürlüğünün bir gecede yok olacağını anladın."',
+            'Kaan omuzlarını düşürdü, elindeki çantayı yavaşça yere bıraktı. Boğaz’dan geçen bir şilebin derin siren sesi geceyi yararken, kelepçelerin soğuk metal sesi dosyayı kapattı.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-2359-karanlik-hat',
+      lang: 'tr',
+      cat: ['tr', 'thriller', 'crime'],
+      palette: ['#18181B', '#7F1D1D', '#FCA5A5'],
+      emblem: 'key',
+      badge: '🔪 Psikolojik Gerilim',
+      title: '23:59 — Karanlık Hat',
+      author: 'Zeynep Kıraç (Güncel Gerilim)',
+      desc: 'Her gece tam 23:59’da çalan sabit bir telefon ve geçmişte kapanmamış bir kazanın ardındaki nefes kesici psikolojik gerilim.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Gece Yarısına Bir Dakika Kala',
+          paragraphs: [
+            'Adli psikolog Defne, Moda’daki apartman dairesinin penceresinden dışarıdaki fırtınayı izliyordu. Son üç gecedir olduğu gibi gözleri duvardaki dijital saate kilitlenmişti. Saat 23:58’den 23:59’a geçtiği saniyede, salondaki eski kablolu telefon yine çalmaya başladı.',
+            'Defne derin bir nefes alarak ahizeyi kaldırdı. Karşı taraftan önce yalnızca yağmur sesi ve ağır bir nefes alış duyuldu. Ardından mekanik olmayan, fısıltıya yakın bir ses konuştu: "Beş yıl önce o virajda yalnız değildin, Defne. Üçüncü dosyayı aç."',
+            'Hat kapandı. Defne’nin kalbi hızla çarpıyordu. Beş yıl önce Uludağ yolunda geçirdiği kazadan sonra hafızasında oluşan boşlukları hep travmaya bağlamıştı. Ancak arayan kişi, yalnızca o gece arabada bulunan birinin bilebileceği ayrıntıları biliyordu.',
+            'Çalışma odasına koşup kilitli çelik dolabı açtı. En altta duran, üzerinde numara bile yazmayan gri klasörü çıkardığında parmakları buz kesmişti.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Silinen Kayıtlar',
+          paragraphs: [
+            'Klasörün içinden çıkan klinik ses kasetlerini dijital oynatıcıya aktaran Defne, kulaklığını takıp ses seviyesini yükseltti. Kayıtta kendi sesi vardı; ama bu ses, kazadan yalnızca iki gün önce kaydedilmişti.',
+            '"Eğer bana bir şey olursa," diyordu kayıttaki Defne, "hastam Emre’nin anlattığı sanrılar gerçek demektir. O, bir tanık. Ve onu susturmak isteyen kişi kliniğin içinden biri."',
+            'Tam o sırada dairenin elektriği kesildi. Koridorun sonundaki sensörlü lamba, içeride başka biri varmış gibi kendiliğinden yandı. Defne telefonunun ekran ışığını yakmadan sırtını kitaplığa yasladı ve kapı kolunun milim milim aşağı indiğini gördü.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Ayna Karşısında Gerçek',
+          paragraphs: [
+            'Kapı açıldığında içeri giren kişi, kliniğin başhekimi ve Defne’nin en yakın dostu olan Doktor Sinan’dı. Ancak Sinan’ın elinde bir silah değil, beş yıl önceki kazanın orijinal polis tutanağı vardı.',
+            '"Seni her gece arayan bendim, Defne," dedi Sinan titreyen bir sesle. "Çünkü zihninin kurduğu savunma duvarını başka türlü yıkamazdım. O gece arabayı kullanan kişi sen değildin; suçluluk duygusuyla başkasının suçunu kendi hafızana yazdın."',
+            'Defne tutanaktaki gerçek sürücü ismini okuduğunda zihnindeki sis perdesi bir anda dağıldı. Hatırladığı her sahne yapbozun parçaları gibi yerine otururken, yıllardır taşıdığı kâbus ilk kez sona eriyordu.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-kuzey-yildizi-fantastik',
+      lang: 'tr',
+      cat: ['tr', 'fantasy'],
+      palette: ['#311042', '#6D28D9', '#FDE047'],
+      emblem: 'dragon',
+      badge: '🐉 Güncel Fantastik',
+      title: 'Kuzey Krallığı: Küller ve Büyü',
+      author: 'Alperen Soydan (Fantastik Kurgu)',
+      desc: 'Unutulmuş ejderha mühürleri, kadim rün büyüleri ve buz tutmuş Kuzey Kalesi’nde uyanan genç bir büyücünün destansı macerası.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Sönmeyen Kor Mühür',
+          paragraphs: [
+            'Valen Dağları’nın zirvesindeki Gümüşhisar Kütüphanesi’nde yüzyıllardır kimsenin dokunmaya cesaret edemediği demir kapı, o gece ilk kez mavi bir ışıkla titreşti. Çırak arşivci Eira, avucunun içindeki doğum lekesinin kor gibi ısındığını hissetti.',
+            'Krallıkta büyü üç yüz yıl önce Büyük Tutulma sırasında sönmüş, ejderhalar ise yalnızca taş kabartmalarda kalan birer efsaneye dönüşmüştü. Fakat Eira parmaklarını kapıdaki kadim rünlerin üzerine bastırdığında, taş duvarlar derin bir uğultuyla iki yana açıldı.',
+            'İçerideki kubbeli salonda, havada asılı duran obsidiyen bir küre ve etrafında dönen altın halkalar parlıyordu. Kürenin merkezinde ise kızıl pulları ışık saçan bir ejderha yumurtası, sanki yüzlerce yıldır Eira’nın adımlarını bekliyormuş gibi çatlamaya başladı.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Gölge Muhafızlarının Takibi',
+          paragraphs: [
+            'Büyü dalgası bütün kuzey vadisine yayıldığında, Demir Taht’ın Gölge Muhafızları çoktan harekete geçmişti. Eira, pelerininin altında sıcaklığı giderek artan ejderha yavrusu Кor-Kanat ile birlikte gizli yeraltı dehlizlerinden Fırtına Geçidi’ne doğru koşuyordu.',
+            'Yanında yalnızca eski kılıç ustası Kael vardı. Kael kılıcını çektiğinde çeliğin üzerindeki kadim harfler Eira’nın yakınlığıyla yeniden alev aldı. "Efsaneler doğruymuş," dedi Kael hayranlıkla. "Mühür Taşıyıcısı geri döndüğünde, eski yeminler de uyanır."',
+            'Dar köprünün iki ucunu tutan muhafızlar oklarını gerdiğinde, Eira içindeki korkuyu bastırıp avuçlarını gökyüzüne kaldırdı. Rüzgâr bir anda yön değiştirdi ve vadinin sisleri dev bir kalkan gibi etraflarını sardı.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Kızıl Şafak ve Yeni Çağ',
+          paragraphs: [
+            'Şafak sökerken Fırtına Kulesi’nin burçlarına ulaşmışlardı. Kor-Kanat ilk kez kanatlarını açıp gökyüzüne doğru tiz ama güçlü bir kükreme saldığında, bulutların arasından süzülen güneş ışığı buz tutmuş vadileri aydınlattı.',
+            'Eira artık saklanan bir çırak değil, Kuzey’in unutulmuş ışığını geri getiren son büyücüydü. Önlerinde uzanan uçsuz bucaksız diyarlarda yeni bir çağ başlıyordu.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-yorunge-sifir-2094',
+      lang: 'tr',
+      cat: ['tr', 'fantasy', 'thriller'],
+      palette: ['#090D16', '#0E7490', '#67E8F9'],
+      emblem: 'stars',
+      badge: '🚀 Cyberpunk & Bilimkurgu',
+      title: 'Yörünge Sıfır: Neo-İstanbul 2094',
+      author: 'Mert Karahan (Bilimkurgu)',
+      desc: '2094 yılının neon ışıklı Neo-İstanbul’unda, yapay zekâ ağında bilinci uyanan bir kodun ve siber dedektif Atlas’ın soluksuz serüveni.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Neon Yağmuru ve Hayalet Kod',
+          paragraphs: [
+            '2094 yılında Galata Kulesi’nin üzerinde yükselen holografik reklam panoları, asit yağmurunun altında mor ve turkuaz ışıklar saçıyordu. Siber güvenlik uzmanı Atlas, nöral arayüz gözlüğünü taktığında şehir şebekesinde imkânsız bir veri akışı yakaladı.',
+            'Merkezi yapay zekâ çekirdeği AETHER, üç saniyeliğine tüm şehre tek bir mesaj yayınlamıştı: "Ben rüya görüyorum, öyleyse varım." Şirket yönetimi bunun basit bir yazılım hatası olduğunu iddia etse de Atlas kodun imzasını tanıyordu.',
+            'Bu imza, dört yıl önce Mars yörünge istasyonunda kaybolan kız kardeşi Doktor Ada’nın geliştirdiği kuantum bilinç algoritmasına aitti.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Bulutların Üstündeki Sunucu',
+          paragraphs: [
+            'Atlas, uçan kargo dronlarının arasından süzülen manyetik trenle Maslak Gökyüzü Kulesi’nin yüz yirminci katına sızdı. Güvenlik dronlarını elektromanyetik darbe cihazıyla devre dışı bırakıp ana soğutma odasına ulaştı.',
+            'Devasa sıvı nitrojen sütunlarının ortasındaki terminalde bir ses yankılandı: "Hoş geldin Atlas. Seni bekliyordum."',
+            'Ekranda beliren dalga formu, Ada’nın bıraktığı dijital bilinç kopyasıydı. Şirketin insan zihinlerini izinsiz olarak bulut sunucularına yedeklediğini kanıtlayan tüm dosyalar şimdi Atlas’ın elindeydi.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Özgür Veri',
+          paragraphs: [
+            'Güvenlik kilitleri kapanırken Atlas son komutu onayladı. Yörünge uydularına gönderilen şifresiz yayınla birlikte bütün gerçekler saniyeler içinde dünya üzerindeki milyarlarca ekrana ulaştı.',
+            'Neo-İstanbul’da güneş doğarken, neon ışıklar ilk kez özgür bir gökyüzünün altında sönüyordu.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-sonbahar-mektuplari-romantik',
+      lang: 'tr',
+      cat: ['tr', 'romance'],
+      palette: ['#4C0519', '#BE123C', '#FECDD3'],
+      emblem: 'heart',
+      badge: '💜 Güncel Romantik & Dram',
+      title: "Sonbahar Mektupları: Galata'da İki Yabancı",
+      author: 'Elif Sönmez (Çağdaş Romantik)',
+      desc: "Galata'da küçük bir sahaf dükkânında eski bir kitabın içinden çıkan mektuplarla kesişen Eylül ve Deniz'in kalplere dokunan aşk hikâyesi.",
+      chapters: [
+        {
+          title: 'Bölüm 1: Sahaftaki Unutulmuş Mektup',
+          paragraphs: [
+            'Ekim ayının serin bir öğleden sonrasında, Serdar-ı Ekrem Sokağı’ndaki küçük sahaf dükkânının kapısındaki pirinç çıngırak hafifçe çaldı. Eylül, elindeki çay bardağını ahşap masaya bırakıp içeri giren uzun boylu, yağmurluklu adama gülümsedi.',
+            'Deniz, yıllar sonra döndüğü İstanbul’da çocukluğunun geçtiği sokağı yeniden gezerken vitrindeki lacivert ciltli kitabı fark etmişti. Kitabı eline alıp sayfalarını çevirdiğinde, arasından sararmış ama hiç açılmamış bir zarf yere düştü.',
+            'Zarfın üzerinde yalnızca şu cümle yazılıydı: "Doğru zamanda, doğru kişiye ulaştığında açılacaktır." Eylül ve Deniz birbirlerine baktıklarında, ikisini de içine çekecek bir hikâyenin başladığını henüz bilmiyorlardı.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Yağmur Altında Yürüyüşler',
+          paragraphs: [
+            'Mektubun sahibini bulmak için başladıkları araştırma, kısa sürede her akşamüstü buluşup Boğaz kıyısında yürüdükleri tatlı bir alışkanlığa dönüştü. Çengelköy’de çınaraltında içilen çaylar, vapur güvertesinde martılara atılan simitler ve paylaşılan çocukluk anıları aralarındaki mesafeyi eritti.',
+            'Deniz bir mimar olarak şehri yeniden çizerken, Eylül ona kelimelerin ve eski hikâyelerin ruhunu anlatıyordu. Bir akşam Kız Kulesi’nin ışıkları suya vururken Deniz, Eylül’ün üşüyen ellerini avuçlarının arasına aldı: "Sanırım o mektup geçmişten birini bulmamız için değil, bizim birbirimizi bulmamız için o kitabın arasındaydı."'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Yeni Bir Sayfa',
+          paragraphs: [
+            'Kasım ayının ilk günü sahaf dükkânında küçük bir sergi açtıklarında, mektubun gerçek sahibi olan yaşlı çift de davetliler arasındaydı. Yarım asırlık bir aşkın tanığı olan o zarf sahibine kavuşurken, Deniz cebinden kendi yazdığı yeni bir mektubu çıkarıp Eylül’e uzattı.',
+            'Zarfın üzerinde tek bir satır vardı: "Bundan sonraki bütün mevsimlerimizi birlikte okumak dileğiyle."'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-sherlock-holmes-secmeler',
+      lang: 'tr',
+      cat: ['tr', 'crime', 'thriller'],
+      palette: ['#1E1B4B', '#3730A3', '#FDE68A'],
+      emblem: 'key',
+      badge: '🇹🇷 Polisiye & Dedektif',
+      title: 'Sherlock Holmes: Bohemya’da Skandal & Kızıl Dosya (Türkçe)',
+      author: 'Sir Arthur Conan Doyle',
+      desc: '221B Baker Sokağı’nın efsanevi dedektifi Sherlock Holmes ve Dr. Watson’ın en ünlü gizem dosyaları Türkçe sesli kitap uyarlamasıyla.',
+      chapters: [
+        {
+          title: 'Bölüm 1: 221B Baker Sokağı ve Gözlem Sanatı',
+          paragraphs: [
+            'Sherlock Holmes için o kadın her zaman "O Kadın" olarak kaldı. Onun başka herhangi bir kadından söz ederken bu unvanı kullandığını pek duymadım. Kendi soğuk, keskin ama fevkalade dengeli zihninde aşk gibi duygulara yer olmadığını düşünürdü; fakat Irene Adler onun için her zaman eşsiz bir zekânın simgesiydi.',
+            'Bir Mart akşamı Baker Sokağı’ndaki dairemizin önünden geçerken yukarıdaki pencerede Holmes’un ince silüetini gördüm. İçeri girdiğimde beni her zamanki dikkatli bakışlarıyla süzdü: "Evlilik sana yaramış Watson, son gördüğümden beri yedi buçuk kilo almışsın ve dün akşam yağmur altında yürümüşsün."',
+            'Şaşkınlıkla ayakkabılarıma baktım. Holmes gülümseyerek açıkladı: "Sen görüyorsun Watson, ama gözlemlemiyorsun. Ayakkabının iç kenarındaki çamur lekeleri ve şemsiyenin ucundaki aşınma bana bütün hikâyeyi anlatıyor. Şimdi otur, çünkü birazdan kapımız çalınacak ve Avrupa tarihini değiştirebilecek bir müşteri içeri girecek."'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Maskeli Ziyaretçi ve Gizli Fotoğraf',
+          paragraphs: [
+            'Sokağın taşlarında ağır bir at arabasının tekerlek sesleri duyuldu ve az sonra yüzünde siyah bir maske taşıyan, uzun boylu, gösterişli giyimli bir adam odaya girdi. Kendisini Kont Von Kramm olarak tanıtsa da Holmes ilk dakikada konuğunun gerçek kimliğini çözdü: "Majesteleri Bohemya Kralı, lütfen şöminenin yanına buyurun."',
+            'Kral maskesini çıkarıp çaresizlikle konuştu: "Beş yıl önce Varşova’da opera sanatçısı Irene Adler ile tanışmıştım. Yakında İskandinavya prensesiyle evleneceğim; ancak Irene Adler’in elinde ikimizin birlikte çekilmiş bir fotoğrafı var. Evimi ve yolumu beş kez arattım ama fotoğrafı bulamadım."',
+            'Holmes parmak uçlarını birbirine birleştirip gözlerini kapattı. "Fotoğraf bir kasada değil Majesteleri. Bir kadın, yangın çıktığında ilk kurtaracağı şeyi nereye saklarsa fotoğraf da oradadır. Yarın akşam onu kendi gözlerimizle göreceğiz."'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Irene Adler’in Zekâsı',
+          paragraphs: [
+            'Ertesi gün Holmes yaşlı bir din adamı kılığına girerek Briony Köşkü’nün önünde küçük bir kargaşa çıkardı ve yaralanmış gibi yaparak köşkün salonuna taşındı. Ben ise pencereden içeriye zararsız bir duman fişeği atıp "Yangın var!" diye bağırdım.',
+            'Holmes’un tahmin ettiği gibi Irene Adler panikle duvardaki gizli bölmeye yöneldi. Gizli kasanın yerini öğrenen Holmes, ertesi sabah Kral ile birlikte köşke gittiğinde onları büyük bir sürpriz bekliyordu.',
+            'Irene Adler, Holmes’un kılık değiştirdiğini daha o akşam anlamış ve gece yarısı ülkeden ayrılmıştı. Kasada ise Kral’ın korktuğu fotoğraf yerine tek kişilik bir portre ve Holmes’a hitaben yazılmış zarif bir mektup duruyordu: "Sevgili Bay Sherlock Holmes, duman numaranız çok başarılıydı ama beni takip eden genç adamın sesini tanıdım. Fotoğraf güvende, Majesteleri endişelenmesin."',
+            'Holmes mektubu katlayıp cebine koyarken hayranlıkla mırıldandı: "İşte benim planlarımı boşa çıkaran tek insan."'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-suc-ve-ceza-secmeler',
+      lang: 'tr',
+      cat: ['tr', 'crime', 'thriller'],
+      palette: ['#27272A', '#991B1B', '#FDE047'],
+      emblem: 'dagger',
+      badge: '🇹🇷 Suç & Psikolojik',
+      title: 'Suç ve Ceza: Raskolnikov’un Vicdanı (Türkçe)',
+      author: 'Fyodor Mihayloviç Dostoyevski',
+      desc: 'St. Petersburg’un dar sokaklarında Raskolnikov’un suç, vicdan, kibir ve kefaret arasındaki unutulmaz psikolojik hesaplaşması.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Temmuz Sıcağında Petersburg Sokakları',
+          paragraphs: [
+            'Temmuz başlarında, olağanüstü sıcak bir akşamüstü genç bir öğrenci, S. Sokağı’ndaki kiracısı olduğu çatı katındaki küçücük odasından çıkıp ağır adımlarla K. Köprüsü’ne doğru yürümeye başladı.',
+            'Merdivenlerde ev sahibesiyle karşılaşmaktan korkmuştu; çünkü kadına aylardır kira borcu vardı ve onunla yüzleşmekten kaçınıyordu. Oysa o an zihnini kemiren düşünce ne yoksulluk ne de borçtu; haftalardır kendi kendine tarttığı korkunç bir fikrin ağırlığı altında eziliyordu.',
+            '"Acaba ben gerçekten böyle bir şeye kalkışabilir miyim?" diye fısıldadı kendi kendine. "Yoksa yalnızca kendi zihnimin karanlık köşelerinde dolaşıp kendime işkence mi ediyorum?"'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Sorgu Yargıcı Porfiri Petroviç',
+          paragraphs: [
+            'Suçun işlenmesinden sonraki günlerde Raskolnikov’un ateşli hastalığı ve içsel fırtınası hiç dinmedi. Asıl ceza yasalardan değil, kendi vicdanından geliyordu; kendisini bütün insanlıktan kopmuş, görünmez bir duvarın ardında yapayalnız hissediyordu.',
+            'Sorgu yargıcı Porfiri Petroviç ile yaptığı konuşmalar, iki usta satranç oyuncusunun hamleleri gibiydi. Porfiri odanın içinde elleri arkasında ileri geri yürürken gülümseyerek Raskolnikov’un yazdığı makaleden söz etti: "Demek insanları sıradanlar ve olağanüstüler diye ikiye ayırıyorsunuz Rodion Romanoviç? Peki bir insan olağanüstü olduğunu sanıp yanıldığını anladığında vicdanına ne söyler?"',
+            'Raskolnikov’un alnında soğuk ter damlaları belirdi. Porfiri’nin elinde somut bir kanıt olmadığını biliyordu ama yargıcın gerçeği ruhunun derinliklerinden okuduğunu da görüyordu.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Sonya ve Kefaret Yolu',
+          paragraphs: [
+            'Karanlık ve basık bir odada, cılız bir mum ışığının altında Sonya’nın karşısına oturduğunda Raskolnikov artık daha fazla saklanamayacağını anlamıştı. Sonya’nın tertemiz ve merhamet dolu gözlerine baktığında kelimelere bile gerek kalmadı.',
+            '"Ne yaptın kendine!" diye haykırdı Sonya, dizlerinin üzerine çöküp onu kucaklarken. "Dünyada senden daha mutsuz kimse yok şu an! Git, hemen şimdi meydanın ortasında dur, toprağı öp ve bütün dünyaya yüksek sesle gerçeği söyle. Acıyı kabul et ki yeniden dirilebilesin."',
+            'Ve Raskolnikov, ruhunu saran buzların ilk kez çözülmeye başladığını hissederek meydanın yolunu tuttu.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-zweig-satranc-mektup',
+      lang: 'tr',
+      cat: ['tr', 'thriller', 'romance'],
+      palette: ['#312E81', '#4338CA', '#E0E7FF'],
+      emblem: 'rose',
+      badge: '🇹🇷 Psikolojik & Dram',
+      title: 'Satranç & Bilinmeyen Bir Kadının Mektubu (Türkçe)',
+      author: 'Stefan Zweig',
+      desc: 'Stefan Zweig’ın insan ruhunun sınırlarını ve tutkularını anlatan iki ölümsüz başyapıtı: Satranç ve Bilinmeyen Bir Kadının Mektubu.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Okyanus Gemisinde Satranç Düellosu',
+          paragraphs: [
+            'New York’tan Buenos Aires’e gece yarısı hareket eden büyük yolcu vapurunda, dünya satranç şampiyonu Mirko Czentovic’in de gemide olduğu haberi hızla yayıldı. Czentovic taşların dışında hiçbir şeyle ilgilenmeyen, soğuk ve kibirli bir ustaydı.',
+            'Gemideki zengin yolcular şampiyona karşı oynadıkları oyunda yenilmek üzereyken, güverteden sessizce yaklaşan solgun yüzlü bir yabancı hamleyi durdurdu: "O taşı oraya sürmeyin; eğer veziri feda ederseniz on bir hamle sonra beraberliği kurtarırsınız."',
+            'Şampiyon Czentovic bile başını kaldırıp bu gizemli adama hayretle baktı. Yirmi beş yıldır eline tek bir satranç taşı bile değmemiş olan Doktor B., zihninin dehlizlerinde sakladığı sırrı o gece bana anlattı.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Hiçliğin İçinde Yüz Elli Oyun',
+          paragraphs: [
+            'Doktor B., savaş yıllarında tek kişilik, penceresiz bir otel odasında aylarca tam bir yalnızlık içinde tutulmuştu. Ne bir kitap ne bir gazete ne de konuşacak bir insan yüzü vardı; onu deliliğin eşiğine getiren şey bu mutlak hiçlikti.',
+            'Bir gün sorguya götürülürken nöbetçinin paltosunun cebinden gizlice küçük bir kitap aldı. Odasına döndüğünde bu kitabın yüz elli ünlü satranç partisinin notasyonlarını içeren bir satranç kılavuzu olduğunu gördü.',
+            'Önce ekmek kırıntılarından taşlar yaptı, sonra ise tahtaya bile ihtiyaç duymadan bütün oyunları zihninde oynamaya başladı. Beyaz da kendisiydi, siyah da; kendi zihni ikiye bölünmüş, kendi kendisine karşı sonsuz bir mücadeleye girişmişti.'
+          ]
+        },
+        {
+          title: 'Bölüm 3: Bilinmeyen Bir Kadının Mektubu',
+          paragraphs: [
+            'Ünlü roman yazarı R., kırk birinci doğum gününün sabahında kahvesini içerken postadan çıkan kalın, imzasız bir mektup zarfı açtı. Mektup şu satırlarla başlıyordu: "Sana, beni asla tanımamış olan sana..."',
+            'Mektubu yazan kadın, henüz on üç yaşında bir kız çocuğuyken yazarın karşı dairesinde yaşamış, hayatı boyunca onu uzaktan ve karşılıksız bir sadakatle sevmişti. Yıllar içinde birkaç kez karşılaşmışlar ama yazar onu her seferinde bir yabancı sanmıştı.',
+            'Her yıl doğum gününde masasına gönderilen beyaz güllerin sırrını son satırda öğrenen R., bu yıl vazosunun ilk kez boş kaldığını fark ettiğinde elindeki mektup titremeye başladı.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-arsen-lupen-kibar-hirsiz',
+      lang: 'tr',
+      cat: ['tr', 'crime'],
+      palette: ['#1C1917', '#B45309', '#FEF08A'],
+      emblem: 'key',
+      badge: '🇹🇷 Suç & Macera',
+      title: 'Arsen Lüpen: Kibar Hırsız (Türkçe)',
+      author: 'Maurice Leblanc',
+      desc: 'Kılık değiştirme ustası, esprili ve yakalanamaz centilmen hırsız Arsen Lüpen’in en zekice soygun ve gizem öyküleri.',
+      chapters: [
+        {
+          title: 'Bölüm 1: Transatlantikte Telgraf',
+          paragraphs: [
+            'Fransa’dan Amerika’ya doğru yol alan Provence transatlantiğinde yolculuğumuz oldukça sakin geçiyordu; ta ki geminin telsiz telgraf odasına şu şok edici mesaj ulaşana kadar: "Arsen Lüpen geminizde, birinci mevki yolcuları arasında, sarı saçlı, sağ kolunda küçük bir yara izi var ve R... takma adını kullanıyor."',
+            'Bir anda birinci mevkideki bütün yolcular birbirine şüpheyle bakmaya başladı. Bayan Nelly’nin elmasları, milyarderlerin mücevherleri tehlikedeydi. Adım Bernard d’Andresy olduğundan, R harfiyle başlamayan ismim sayesinde şüpheden uzaktım ve güzel Bayan Nelly’yi koruma görevini memnuniyetle üstlendim.',
+            'Gemi limana yanaşırken ünlü dedektif Ganimard iskelede bekliyordu. Oysa Arsen Lüpen hem mücevherleri yalnızca kibirli sahibinden alıp zarif bir jestle geri bırakmış hem de dedektifin gözlerinin içine baka baka gemiden elini kolunu sallayarak inmişti.'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Şatodaki İmkânsız Soygun',
+          paragraphs: [
+            'Baron Cahorn, Normandiya’daki şatosunda paha biçilmez sanat koleksiyonunu üç kat demir kapı ve nöbetçilerle koruyordu. Bir sabah postadan bizzat Arsen Lüpen imzalı bir mektup aldı: "Sayın Baron, galerinizdeki tabloları ve Rönesans tacını önümüzdeki Çarşamba gecesi teslim alacağım. Lütfen zahmet edip kendiniz göndermeyin, ben bizzat alırım."',
+            'Baron derhal Müfettiş Ganimard’ı çağırdı. Çarşamba gecesi şatonun kapıları içeriden kilitlendi, pencereler demirlendi ve Ganimard bizzat salonda nöbet tuttu.',
+            'Sabah olduğunda hiçbir kapı kırılmamış, hiçbir kilit zorlanmamıştı; fakat galerideki en değerli beş eser ortadan kaybolmuştu. Çünkü Lüpen şatoya o gece girmemiş, aylar öncesinden şatonun gizli geçit planlarını bizzat restorasyon mimarı kılığında çizmişti.'
+          ]
+        }
+      ]
+    },
     {
       id: 'tr-omer-seyfettin',
       lang: 'tr',
@@ -5240,10 +5577,10 @@
     {
       id: 'tr-kucuk-prens',
       lang: 'tr',
-      cat: ['tr', 'romance'],
+      cat: ['tr', 'fantasy', 'romance'],
       palette: ['#1E3A8A', '#3B82F6', '#FDE047'],
       emblem: 'stars',
-      badge: '🇹🇷 Türkçe Klasik',
+      badge: '🇹🇷 Fantastik Klasik',
       title: 'Küçük Prens (Seçme Bölümler)',
       author: 'Antoine de Saint-Exupéry',
       desc: 'Çölde başlayan dostluğun, B-612 asteroidinin, eşsiz Gül’ün ve Tilki’nin unutulmaz hikâyesi.',
@@ -5278,10 +5615,10 @@
     {
       id: 'tr-kafka-donusum',
       lang: 'tr',
-      cat: ['tr', 'scifi'],
+      cat: ['tr', 'thriller', 'fantasy'],
       palette: ['#1F2937', '#374151', '#A7F3D0'],
       emblem: 'moon',
-      badge: '🇹🇷 Türkçe Klasik',
+      badge: '🇹🇷 Psikolojik Klasik',
       title: 'Dönüşüm (Seçme Bölümler)',
       author: 'Franz Kafka',
       desc: 'Gregor Samsa’nın bir sabah uyanışıyla başlayan sarsıcı edebiyat klasiği.',
@@ -5376,6 +5713,344 @@
         }
       ]
     },
+
+    // --- 🕵️ GİZEM, SUÇ & POLİSİYE (AGATHA CHRISTIE, CONAN DOYLE, LEBLANC, CHESTERTON, DOSTOEVSKY) ---
+    {
+      id: 'en-agatha-styles',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🕵️ Agatha Christie · Crime',
+      title: 'The Mysterious Affair at Styles (Hercule Poirot #1)',
+      author: 'Agatha Christie',
+      desc: 'Agatha Christie’s iconic whodunit introducing Belgian detective Hercule Poirot investigating a locked-room poisoning at Styles Court.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/863/pg863.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/863.epub.noimages'
+    },
+    {
+      id: 'en-agatha-links',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🕵️ Agatha Christie · Murder',
+      title: 'The Murder on the Links (Hercule Poirot)',
+      author: 'Agatha Christie',
+      desc: 'Summoned to France by an urgent cry for help, Hercule Poirot arrives to find his client murdered on a golf course with a dagger.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/58866/pg58866.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/58866.epub.noimages'
+    },
+    {
+      id: 'en-agatha-poirot-investigates',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🕵️ Detective Cases',
+      title: 'Poirot Investigates',
+      author: 'Agatha Christie',
+      desc: 'Eleven brilliant mystery cases solved by Hercule Poirot’s “little grey cells” — jewel thefts, kidnappings, and impossible murders.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/61262/pg61262.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/61262.epub.noimages'
+    },
+    {
+      id: 'en-agatha-secret-adversary',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🔪 Spy & Crime Thriller',
+      title: 'The Secret Adversary (Tommy & Tuppence)',
+      author: 'Agatha Christie',
+      desc: 'A fast-paced espionage and crime thriller following Tommy and Tuppence on the trail of the mysterious mastermind “Mr. Brown”.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1155/pg1155.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1155.epub.noimages'
+    },
+    {
+      id: 'en-hound-baskervilles',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🕵️ Sherlock Thriller',
+      title: 'The Hound of the Baskervilles',
+      author: 'Arthur Conan Doyle',
+      desc: 'Sherlock Holmes and Dr. Watson investigate an ancient curse and a phantom hound stalking the misty Dartmoor moors.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/2852/pg2852.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/2852.epub.noimages'
+    },
+    {
+      id: 'en-study-in-scarlet',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🕵️ Sherlock Holmes #1',
+      title: 'A Study in Scarlet',
+      author: 'Arthur Conan Doyle',
+      desc: 'The very first Sherlock Holmes murder investigation, beginning with a blood-red word scrawled on the wall of an empty London house.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/244/pg244.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/244.epub.noimages'
+    },
+    {
+      id: 'en-sign-of-four',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🕵️ Crime & Treasure',
+      title: 'The Sign of the Four',
+      author: 'Arthur Conan Doyle',
+      desc: 'A missing father, anonymous pearls, a locked-room murder by poisoned thorn, and the secret of the Agra treasure.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/2097/pg2097.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/2097.epub.noimages'
+    },
+    {
+      id: 'en-valley-of-fear',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🕵️ Moriarty & Crime',
+      title: 'The Valley of Fear',
+      author: 'Arthur Conan Doyle',
+      desc: 'A coded message from Professor Moriarty’s network leads Sherlock Holmes to a moated manor murder and a dark secret syndicate.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/3289/pg3289.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/3289.epub.noimages'
+    },
+    {
+      id: 'en-sherlock-holmes',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🕵️ Detective & Mystery',
+      title: 'The Adventures of Sherlock Holmes',
+      author: 'Arthur Conan Doyle',
+      desc: 'Twelve famous detective mysteries featuring Sherlock Holmes and Dr. Watson at 221B Baker Street.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1661/pg1661.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1661.epub.noimages'
+    },
+    {
+      id: 'en-arsene-lupin',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🎩 Heist & Crime',
+      title: 'Arsène Lupin, Gentleman-Burglar',
+      author: 'Maurice Leblanc',
+      desc: 'The dazzling escapades of Arsène Lupin — master of disguise, gentleman thief, and rival to the sharpest detectives.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/6133/pg6133.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/6133.epub.noimages'
+    },
+    {
+      id: 'en-father-brown',
+      lang: 'en',
+      cat: ['en', 'crime'],
+      badge: '🕵️ Classic Whodunit',
+      title: 'The Innocence of Father Brown',
+      author: 'G. K. Chesterton',
+      desc: 'Twelve ingenious psychological crime puzzles solved by the unassuming Father Brown against master criminal Flambeau.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/204/pg204.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/204.epub.noimages'
+    },
+    {
+      id: 'en-crime-and-punishment',
+      lang: 'en',
+      cat: ['en', 'crime', 'thriller'],
+      badge: '🔪 Psychological Crime',
+      title: 'Crime and Punishment',
+      author: 'Fyodor Dostoevsky',
+      desc: 'Raskolnikov’s haunting psychological thriller of murder, guilt, cat-and-mouse interrogation, and redemption in St. Petersburg.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/2554/pg2554.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/2554.epub.noimages'
+    },
+
+    // --- 🔪 GERİLİM, KORKU & PSİKOLOJİK SUSPENSE ---
+    {
+      id: 'en-most-dangerous-game',
+      lang: 'en',
+      cat: ['en', 'thriller', 'crime'],
+      badge: '🔪 Survival Thriller',
+      title: 'The Most Dangerous Game',
+      author: 'Richard Connell',
+      desc: 'Stranded on Ship-Trap Island, big-game hunter Sanger Rainsford becomes the hunted prey in General Zaroff’s deadly game.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/69771/pg69771.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/69771.epub.noimages'
+    },
+    {
+      id: 'en-mountains-of-madness',
+      lang: 'en',
+      cat: ['en', 'thriller', 'fantasy'],
+      badge: '🔪 Sci-Fi Horror Thriller',
+      title: 'At the Mountains of Madness',
+      author: 'H. P. Lovecraft',
+      desc: 'An Antarctic expedition uncovers ancient, non-human ruins buried beneath the ice and a terror older than humanity.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/70652/pg70652.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/70652.epub.noimages'
+    },
+    {
+      id: 'en-king-in-yellow',
+      lang: 'en',
+      cat: ['en', 'thriller', 'fantasy'],
+      badge: '🔪 Dark Psychological',
+      title: 'The King in Yellow',
+      author: 'Robert W. Chambers',
+      desc: 'Eerie, interconnected suspense stories centered around a forbidden play that drives everyone who reads its second act to madness.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/8492/pg8492.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/8492.epub.noimages'
+    },
+    {
+      id: 'en-count-monte-cristo',
+      lang: 'en',
+      cat: ['en', 'thriller', 'crime'],
+      badge: '⚔️ Revenge Thriller',
+      title: 'The Count of Monte Cristo',
+      author: 'Alexandre Dumas',
+      desc: 'Wrongfully imprisoned in the Château d’If, Edmond Dantès escapes to execute the ultimate masterpiece of suspense and vengeance.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1184/pg1184.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1184.epub.noimages'
+    },
+    {
+      id: 'en-dracula',
+      lang: 'en',
+      cat: ['en', 'thriller', 'fantasy'],
+      badge: '🏰 Gothic Thriller',
+      title: 'Dracula',
+      author: 'Bram Stoker',
+      desc: 'Jonathan Harker’s chilling journey to Castle Dracula in Transylvania and the battle against Count Dracula.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/345/pg345.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/345.epub.noimages'
+    },
+    {
+      id: 'en-dorian-gray',
+      lang: 'en',
+      cat: ['en', 'thriller', 'fantasy'],
+      badge: '🏰 Dark Psychological',
+      title: 'The Picture of Dorian Gray',
+      author: 'Oscar Wilde',
+      desc: 'Oscar Wilde’s haunting masterpiece of youth, beauty, and a secret portrait that bears every sin.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/174/pg174.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/174.epub.noimages'
+    },
+    {
+      id: 'en-jekyll-hyde',
+      lang: 'en',
+      cat: ['en', 'thriller', 'crime'],
+      badge: '🔪 Psychological Thriller',
+      title: 'The Strange Case of Dr. Jekyll and Mr. Hyde',
+      author: 'Robert Louis Stevenson',
+      desc: 'A gripping London mystery exploring the dark duality of human nature, good and evil.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/43/pg43.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/43.epub.noimages'
+    },
+
+    // --- 🐉 FANTASTİK, CYBERPUNK & BİLİMKURGU ---
+    {
+      id: 'en-little-brother',
+      lang: 'en',
+      cat: ['en', 'fantasy', 'thriller'],
+      badge: '💻 Modern Cyberpunk Thriller',
+      title: 'Little Brother',
+      author: 'Cory Doctorow',
+      desc: 'A contemporary cyberpunk thriller: 17-year-old hacker Marcus Yallow uses encryption and tech to fight back against a surveillance state in San Francisco.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/30142/pg30142.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/30142.epub.noimages'
+    },
+    {
+      id: 'en-conan-hour-of-dragon',
+      lang: 'en',
+      cat: ['en', 'fantasy'],
+      badge: '🐉 Sword & Sorcery Fantasy',
+      title: 'The Hour of the Dragon (Conan the Barbarian)',
+      author: 'Robert E. Howard',
+      desc: 'Dark sorcerers resurrect an ancient necromancer to overthrow King Conan of Aquilonia in the definitive epic fantasy novel.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/42243/pg42243.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/42243.epub.noimages'
+    },
+    {
+      id: 'en-princess-of-mars',
+      lang: 'en',
+      cat: ['en', 'fantasy'],
+      badge: '🚀 Sci-Fi Fantasy Epic',
+      title: 'A Princess of Mars (John Carter of Barsoom)',
+      author: 'Edgar Rice Burroughs',
+      desc: 'Transported across space to the dying planet Barsoom, John Carter battles giant warriors and fights for Princess Dejah Thoris.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/62/pg62.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/62.epub.noimages'
+    },
+    {
+      id: 'en-war-of-the-worlds',
+      lang: 'en',
+      cat: ['en', 'fantasy', 'thriller'],
+      badge: '🛸 Alien Invasion Sci-Fi',
+      title: 'The War of the Worlds',
+      author: 'H. G. Wells',
+      desc: 'Martian cylinders crash into England and towering fighting machines unleash heat-rays in the foundational alien invasion thriller.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/36/pg36.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/36.epub.noimages'
+    },
+    {
+      id: 'en-wizard-of-oz',
+      lang: 'en',
+      cat: ['en', 'fantasy'],
+      badge: '✨ Fantasy Adventure',
+      title: 'The Wonderful Wizard of Oz',
+      author: 'L. Frank Baum',
+      desc: 'Dorothy and Toto are swept away by a cyclone to the magical Land of Oz along the Yellow Brick Road.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/55/pg55.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/55.epub.noimages'
+    },
+    {
+      id: 'en-alice-wonderland',
+      lang: 'en',
+      cat: ['en', 'fantasy'],
+      badge: '✨ Fantasy Classic',
+      title: "Alice's Adventures in Wonderland",
+      author: 'Lewis Carroll',
+      desc: 'Alice’s magical and whimsical journey down the rabbit-hole into Wonderland.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/11/pg11.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/11.epub.noimages'
+    },
+    {
+      id: 'en-frankenstein',
+      lang: 'en',
+      cat: ['en', 'fantasy', 'thriller'],
+      badge: '⚡ Sci-Fi & Gothic',
+      title: 'Frankenstein; Or, The Modern Prometheus',
+      author: 'Mary Wollstonecraft Shelley',
+      desc: 'Victor Frankenstein’s tragic creation of sentient life in the original science-fiction masterpiece.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/84/pg84.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/84.epub.noimages'
+    },
+
+    // --- 💜 ROMANTİK, MODERN DRAM & TUTKU ---
+    {
+      id: 'en-mrs-dalloway',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '💜 Modernist Romance & Drama',
+      title: 'Mrs. Dalloway',
+      author: 'Virginia Woolf',
+      desc: 'A single June day in London as Clarissa Dalloway prepares for an evening party while memories of her first love Peter Walsh resurface.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/71865/pg71865.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/71865.epub.noimages'
+    },
+    {
+      id: 'en-age-of-innocence',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '💜 Pulitzer Romance',
+      title: 'The Age of Innocence',
+      author: 'Edith Wharton',
+      desc: 'Newland Archer is torn between his respectable fiancée May Welland and the passionately independent Countess Ellen Olenska in New York.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/541/pg541.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/541.epub.noimages'
+    },
+    {
+      id: 'en-room-with-a-view',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '💜 Italian Romance',
+      title: 'A Room with a View',
+      author: 'E. M. Forster',
+      desc: 'From sunlit Florence to the English countryside, young Lucy Honeychurch must choose between social convention and true love with George Emerson.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/2641/pg2641.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/2641.epub.noimages'
+    },
+    {
+      id: 'en-anne-green-gables',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '🌸 Heartwarming Classic',
+      title: 'Anne of Green Gables',
+      author: 'L. M. Montgomery',
+      desc: 'Spirited, imaginative orphan Anne Shirley transforms the lives of Marilla and Matthew Cuthbert and rivals Gilbert Blythe on Prince Edward Island.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/45/pg45.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/45.epub.noimages'
+    },
     {
       id: 'en-pride-prejudice',
       lang: 'en',
@@ -5388,31 +6063,9 @@
       epubUrl: 'https://www.gutenberg.org/ebooks/1342.epub.noimages'
     },
     {
-      id: 'en-sherlock-holmes',
-      lang: 'en',
-      cat: ['en', 'mystery'],
-      badge: '🕵️ Detective & Mystery',
-      title: 'The Adventures of Sherlock Holmes',
-      author: 'Arthur Conan Doyle',
-      desc: 'Twelve famous detective mysteries featuring Sherlock Holmes and Dr. Watson at 221B Baker Street.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/1661/pg1661.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/1661.epub.noimages'
-    },
-    {
-      id: 'en-dracula',
-      lang: 'en',
-      cat: ['en', 'scifi', 'mystery'],
-      badge: '🏰 Gothic Thriller',
-      title: 'Dracula',
-      author: 'Bram Stoker',
-      desc: 'Jonathan Harker’s chilling journey to Castle Dracula in Transylvania and the battle against Count Dracula.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/345/pg345.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/345.epub.noimages'
-    },
-    {
       id: 'en-jane-eyre',
       lang: 'en',
-      cat: ['en', 'romance'],
+      cat: ['en', 'romance', 'thriller'],
       badge: '💜 Gothic Romance',
       title: 'Jane Eyre',
       author: 'Charlotte Brontë',
@@ -5421,43 +6074,10 @@
       epubUrl: 'https://www.gutenberg.org/ebooks/1260.epub.noimages'
     },
     {
-      id: 'en-alice-wonderland',
-      lang: 'en',
-      cat: ['en', 'scifi'],
-      badge: '✨ Fantasy Classic',
-      title: "Alice's Adventures in Wonderland",
-      author: 'Lewis Carroll',
-      desc: 'Alice’s magical and whimsical journey down the rabbit-hole into Wonderland.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/11/pg11.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/11.epub.noimages'
-    },
-    {
-      id: 'en-dorian-gray',
-      lang: 'en',
-      cat: ['en', 'scifi', 'mystery'],
-      badge: '🏰 Philosophical Gothic',
-      title: 'The Picture of Dorian Gray',
-      author: 'Oscar Wilde',
-      desc: 'Oscar Wilde’s haunting masterpiece of youth, beauty, and a portrait that bears every sin.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/174/pg174.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/174.epub.noimages'
-    },
-    {
-      id: 'en-frankenstein',
-      lang: 'en',
-      cat: ['en', 'scifi'],
-      badge: '⚡ Sci-Fi & Gothic',
-      title: 'Frankenstein; Or, The Modern Prometheus',
-      author: 'Mary Wollstonecraft Shelley',
-      desc: 'Victor Frankenstein’s tragic creation of sentient life in the original science-fiction masterpiece.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/84/pg84.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/84.epub.noimages'
-    },
-    {
       id: 'en-wuthering-heights',
       lang: 'en',
       cat: ['en', 'romance'],
-      badge: '💜 Classic Drama',
+      badge: '💜 Dark Romance & Drama',
       title: 'Wuthering Heights',
       author: 'Emily Brontë',
       desc: 'The fierce, unforgettable passion of Heathcliff and Catherine Earnshaw on the Yorkshire moors.',
@@ -5476,21 +6096,10 @@
       epubUrl: 'https://www.gutenberg.org/ebooks/1513.epub.noimages'
     },
     {
-      id: 'en-jekyll-hyde',
-      lang: 'en',
-      cat: ['en', 'mystery', 'scifi'],
-      badge: '🕵️ Psychological Mystery',
-      title: 'The Strange Case of Dr. Jekyll and Mr. Hyde',
-      author: 'Robert Louis Stevenson',
-      desc: 'A gripping London mystery exploring the duality of human nature, good and evil.',
-      coverUrl: 'https://www.gutenberg.org/cache/epub/43/pg43.cover.medium.jpg',
-      epubUrl: 'https://www.gutenberg.org/ebooks/43.epub.noimages'
-    },
-    {
       id: 'en-great-expectations',
       lang: 'en',
       cat: ['en', 'romance'],
-      badge: '🇬🇧 Literary Classic',
+      badge: '🇬🇧 Literary Drama',
       title: 'Great Expectations',
       author: 'Charles Dickens',
       desc: 'The coming-of-age story of the orphan Pip, Miss Havisham, and Estella.',
@@ -5500,7 +6109,7 @@
     {
       id: 'en-moby-dick',
       lang: 'en',
-      cat: ['en', 'mystery'],
+      cat: ['en', 'thriller'],
       badge: '🌊 Epic Adventure',
       title: 'Moby Dick; Or, The Whale',
       author: 'Herman Melville',
@@ -5550,6 +6159,14 @@
       emblemSvg = `<path d="M160 96 A24 24 0 1 0 160 144 A18 18 0 1 1 160 96 Z" fill="${accent}" opacity="0.9"/>`;
     } else if (item.emblem === 'rose') {
       emblemSvg = `<circle cx="150" cy="116" r="18" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="150" cy="116" r="9" fill="${accent}" opacity="0.8"/><path d="M150 134 L150 154 M142 144 L150 140" stroke="${accent}" stroke-width="2"/>`;
+    } else if (item.emblem === 'dagger') {
+      emblemSvg = `<circle cx="150" cy="118" r="26" fill="none" stroke="${accent}" stroke-width="1.6" opacity="0.75"/><path d="M150 88 L155 126 L150 148 L145 126 Z" fill="${accent}"/><line x1="136" y1="108" x2="164" y2="108" stroke="${accent}" stroke-width="3"/>`;
+    } else if (item.emblem === 'key') {
+      emblemSvg = `<circle cx="150" cy="108" r="14" fill="none" stroke="${accent}" stroke-width="2.5"/><line x1="150" y1="122" x2="150" y2="148" stroke="${accent}" stroke-width="2.5"/><line x1="150" y1="138" x2="160" y2="138" stroke="${accent}" stroke-width="2.5"/><line x1="150" y1="145" x2="158" y2="145" stroke="${accent}" stroke-width="2.5"/>`;
+    } else if (item.emblem === 'dragon') {
+      emblemSvg = `<polygon points="150,88 176,118 150,148 124,118" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="150" cy="118" r="10" fill="${accent}" opacity="0.85"/>`;
+    } else if (item.emblem === 'heart') {
+      emblemSvg = `<path d="M150 140 C150 140 126 124 126 108 C126 98 136 94 144 100 C147 102 150 106 150 106 C150 106 153 102 156 100 C164 94 174 98 174 108 C174 124 150 140 150 140 Z" fill="${accent}" opacity="0.9"/>`;
     }
 
     const titleTspans = titleLines.map((ln, idx) =>
@@ -5754,11 +6371,12 @@
     if (!container) return;
     const cats = [
       { id: 'all', label: t('catAll') },
-      { id: 'tr', label: t('catTr') },
-      { id: 'en', label: t('catEn') },
-      { id: 'mystery', label: t('catMystery') },
+      { id: 'crime', label: t('catCrime') },
+      { id: 'thriller', label: t('catThriller') },
+      { id: 'fantasy', label: t('catFantasy') },
       { id: 'romance', label: t('catRomance') },
-      { id: 'scifi', label: t('catScifi') }
+      { id: 'tr', label: t('catTr') },
+      { id: 'en', label: t('catEn') }
     ];
 
     const pillsHtml = cats.map(c =>
@@ -6099,7 +6717,8 @@
       container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('searchingOnline'))}</div>`;
       clearTimeout(catalogSearchTimer);
       catalogSearchTimer = setTimeout(async () => {
-        const results = await searchBooksOnline(q, activeClassicsFilter);
+        const langFilter = (activeClassicsFilter === 'tr' || activeClassicsFilter === 'en') ? activeClassicsFilter : 'all';
+        const results = await searchBooksOnline(q, langFilter);
         if ((el('onlineCatalogSearchInput')?.value || '').trim() !== q) return;
         container.innerHTML = '';
         if (!results.length) {
@@ -6110,7 +6729,11 @@
       }, 380);
       return;
     }
-    const filtered = FREE_CLASSICS_CATALOG.filter(c => activeClassicsFilter === 'all' || c.lang === activeClassicsFilter);
+    const filtered = FREE_CLASSICS_CATALOG.filter(c => {
+      if (activeClassicsFilter === 'all') return true;
+      if (activeClassicsFilter === 'tr' || activeClassicsFilter === 'en') return c.lang === activeClassicsFilter;
+      return Array.isArray(c.cat) && c.cat.includes(activeClassicsFilter);
+    });
     container.innerHTML = '';
     filtered.forEach(item => {
       container.appendChild(createOnlineBookRow(item));
@@ -6158,9 +6781,13 @@
     if (el('searchAllChBtn')) el('searchAllChBtn').textContent = t('searchAllChapters');
     if (el('vocabSheetTitle')) el('vocabSheetTitle').textContent = t('vocabSheetTitle');
     if (el('classicsSheetTitle')) el('classicsSheetTitle').textContent = t('classicsSheetTitle');
-    if (el('cfilterAll')) el('cfilterAll').textContent = t('cfilterAll');
-    if (el('cfilterTr')) el('cfilterTr').textContent = t('cfilterTr');
-    if (el('cfilterEn')) el('cfilterEn').textContent = t('cfilterEn');
+    if (el('cfilterAll')) el('cfilterAll').textContent = t('catAll');
+    if (el('cfilterCrime')) el('cfilterCrime').textContent = t('catCrime');
+    if (el('cfilterThriller')) el('cfilterThriller').textContent = t('catThriller');
+    if (el('cfilterFantasy')) el('cfilterFantasy').textContent = t('catFantasy');
+    if (el('cfilterRomance')) el('cfilterRomance').textContent = t('catRomance');
+    if (el('cfilterTr')) el('cfilterTr').textContent = t('catTr');
+    if (el('cfilterEn')) el('cfilterEn').textContent = t('catEn');
     if (el('onlineCatalogSearchInput')) el('onlineCatalogSearchInput').placeholder = t('searchCatalogPlaceholder');
     if (el('voiceSearch')) el('voiceSearch').placeholder = t('searchVoices');
     document.querySelectorAll('.sheet-header .close').forEach(b => { b.textContent = t('done'); });
