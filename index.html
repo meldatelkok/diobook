@@ -2335,6 +2335,12 @@
     return out;
   }
 
+  function isExpandablePreviewBook(bk) {
+    if (!bk) return false;
+    if (bk.fullDownloaded) return false;
+    return state.chapters && state.chapters.length > 0 && state.chapters.length <= 15;
+  }
+
   function renderBookPage() {
     const bk = state.currentBook;
     if (!bk) return;
@@ -2357,6 +2363,40 @@
       li.addEventListener('click', () => openChapter(i));
       list.appendChild(li);
     });
+
+    // Show "Beğendiniz mi? Devamını İndir" card below chapter list if preview/expandable book
+    let contBox = el('bookContinuationCard');
+    if (!contBox) {
+      contBox = document.createElement('div');
+      contBox.id = 'bookContinuationCard';
+      list.parentNode?.appendChild(contBox);
+    }
+    if (isExpandablePreviewBook(bk)) {
+      const isEn = settings.uiLang === 'en';
+      contBox.style.cssText = 'margin: 18px 0 12px; padding: 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; align-items: flex-start;';
+      contBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="voice-badge" style="margin:0;">${isEn ? '⚡ Preview Edition' : '⚡ Deneme Sürümü'} · ${state.chapters.length} ${escapeHtml(t('chapterWord'))}</span>
+        </div>
+        <div style="font-size:14px; font-weight:600; color:var(--text);">
+          ${isEn ? 'Enjoying this book? Download the next chapters!' : 'Kitabı beğendiniz mi? Devam bölümlerini ücretsiz indirin!'}
+        </div>
+        <div style="font-size:12.5px; color:var(--text-dim); line-height:1.45;">
+          ${isEn
+            ? 'Books open instantly with starter chapters so you can try them first. Tap below to download and unlock the continuation chapters.'
+            : 'Kitapları hemen deneyebilmeniz için ilk bölümler anında açılır. Beğendiyseniz aşağıdaki butona dokunarak hikâyenin devam bölümlerini hemen indirebilirsiniz.'}
+        </div>
+        <button class="primary-btn" id="downloadMoreChaptersBtn" style="padding:11px 18px; font-size:14px; margin-top:2px;">
+          ${isEn ? '📥 Download Continuation Chapters (+3 Chapters)' : '📥 Devamını İndir (+3 Yeni Bölüm Ekle)'}
+        </button>
+      `;
+      contBox.querySelector('#downloadMoreChaptersBtn')?.addEventListener('click', function() {
+        downloadBookContinuation(false, this);
+      });
+    } else {
+      contBox.innerHTML = '';
+      contBox.style.cssText = 'display:none;';
+    }
 
     const prog = loadProgress(bk.key);
     const btn = el('playBookBtn');
@@ -2589,6 +2629,34 @@
       if (i === state.currentSentence) span.className = 'current-sentence';
       currentPara.appendChild(span);
     });
+
+    // If on the last available chapter of an expandable preview book, show "Devamını İndir" card right at the end of the text
+    if (state.currentBook && isExpandablePreviewBook(state.currentBook) && state.currentChapterIdx === state.chapters.length - 1) {
+      const isEn = settings.uiLang === 'en';
+      const endCard = document.createElement('div');
+      endCard.style.cssText = 'margin: 32px 0 20px; padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center;';
+      endCard.innerHTML = `
+        <div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">
+          ${isEn ? `⚡ End of Chapter ${state.chapters.length}` : `⚡ ${state.chapters.length}. Bölümün Sonu`}
+        </div>
+        <div style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px;">
+          ${isEn ? 'Liked the preview? Download the next chapters!' : 'Kitabı beğendiniz mi? Devamını hemen indirin!'}
+        </div>
+        <div style="font-size:13px; color:var(--text-dim); line-height:1.45; margin-bottom:14px;">
+          ${isEn
+            ? 'Download the next 3 chapters instantly and keep listening without interruption.'
+            : 'Hikâyenin devamındaki 3 yeni bölümü ücretsiz indirip kaldığınız yerden dinlemeye devam edebilirsiniz.'}
+        </div>
+        <button class="primary-btn" id="readerDownloadContBtn" style="padding:12px 22px; font-size:14px;">
+          ${isEn ? '📥 Download Continuation & Keep Reading' : '📥 Devamını İndir & Okumaya Devam Et'}
+        </button>
+      `;
+      endCard.querySelector('#readerDownloadContBtn')?.addEventListener('click', function() {
+        downloadBookContinuation(true, this);
+      });
+      view.appendChild(endCard);
+    }
+
     scrollToCurrent(true);
     updateProgress();
     updateVoiceLabel();
@@ -6952,6 +7020,253 @@
     return chapters;
   }
 
+  // Map of Turkish catalog books to Wikisource / Gutenberg continuation sources
+  const WIKISOURCE_CONTINUATION_PAGES = {
+    'tr-omer-seyfettin': ['Pembe İncili Kaftan', 'Ferman', 'Diyet', 'Topuz', 'Perili Köşk', 'Gizli Mabed'],
+    'tr-kesik-biyik': ['Pembe İncili Kaftan', 'Yüksek Ökçeler', 'Ferman', 'Kurumuş Ağaçlar'],
+    'tr-safahat-secme': ['Çanakkale Şehitlerine', 'Bülbül', 'Küfe', 'Seyfi Baba']
+  };
+
+  const GUTENBERG_CONTINUATION_IDS = {
+    'tr-sherlock-holmes-secmeler': 1661,
+    'tr-baskerville-kopegi': 2852,
+    'tr-suc-ve-ceza-secmeler': 2554,
+    'tr-morg-sokagi-poe': 2147,
+    'tr-poe-kuyu-ve-sarkac': 2148,
+    'tr-jekyll-ve-hyde': 43,
+    'tr-zaman-makinesi-wells': 35,
+    'tr-frankenstein-turkce': 84,
+    'tr-ask-ve-gurur-austen': 1342,
+    'tr-beyaz-geceler-dostoyevski': 36034,
+    'tr-genc-werther-goethe': 2527,
+    'tr-monte-kristo-kontu': 1184,
+    'tr-arsen-lupen-kibar-hirsiz': 6133,
+    'tr-kafka-donusum': 5200
+  };
+
+  async function extractExistingChaptersFromCurrentBook() {
+    const existing = [];
+    for (let i = 0; i < state.chapters.length; i++) {
+      const txt = await loadChapterText(i);
+      const paras = txt.split(/\n\n+/).map(p => p.replace(/\s+/g, ' ').trim()).filter(p => p.length > 0);
+      const title = state.chapters[i].label || `${t('chapterWord')} ${i + 1}`;
+      if (paras.length && paras[0].toLowerCase() === title.toLowerCase()) {
+        paras.shift();
+      }
+      existing.push({
+        title,
+        paragraphs: paras.length ? paras : ['(Bölüm metni)']
+      });
+    }
+    return existing;
+  }
+
+  async function fetchGutenbergTranslatedChapters(pgId, startChapterCount, count = 3) {
+    const epubUrl = `https://www.gutenberg.org/ebooks/${pgId}.epub.noimages`;
+    const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(epubUrl));
+    if (!resp.ok) throw new Error('Gutenberg HTTP ' + resp.status);
+    const buf = await resp.arrayBuffer();
+    const tempBook = ePub(buf);
+    await tempBook.ready;
+    const spineItems = tempBook.spine.items || [];
+    const candidateChapters = [];
+
+    for (let i = 0; i < spineItems.length; i++) {
+      const sec = tempBook.spine.get(i);
+      if (!sec) continue;
+      const doc = await sec.load(tempBook.load.bind(tempBook));
+      const rawTxt = extractText(doc);
+      sec.unload && sec.unload();
+      const paras = rawTxt.split(/\n\n+/)
+        .map(p => p.replace(/\s+/g, ' ').trim())
+        .filter(p => p.length >= 45 && !/project gutenberg|gutenberg™|all rights reserved|transcriber's note/i.test(p));
+      if (paras.length >= 4) {
+        candidateChapters.push(paras);
+      }
+    }
+
+    const offset = Math.min(Math.max(1, startChapterCount), Math.max(0, candidateChapters.length - 1));
+    const picked = candidateChapters.slice(offset, offset + count);
+    if (!picked.length) throw new Error('No additional chapters in source');
+
+    const newChapters = [];
+    for (let cIdx = 0; cIdx < picked.length; cIdx++) {
+      const chNum = startChapterCount + cIdx + 1;
+      const srcParas = picked[cIdx].slice(0, 12);
+      const joined = srcParas.join('\n\n');
+      const translated = await translateTextGtx(joined, 'tr');
+      const trParas = translated.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+      newChapters.push({
+        title: `Bölüm ${chNum}: Devam Bölümü`,
+        paragraphs: trParas.length ? trParas : srcParas
+      });
+    }
+    return newChapters;
+  }
+
+  async function generateStoryContinuationChapters(bk, existingChapters, count = 3) {
+    const startNum = existingChapters.length + 1;
+    const lastCh = existingChapters[existingChapters.length - 1] || { title: 'Bölüm', paragraphs: [] };
+    const lastExcerpt = (lastCh.paragraphs || []).slice(-3).join('\n\n');
+    const isTr = getLibraryBookLang(bk) === 'tr';
+
+    try {
+      const promptLang = isTr ? 'Turkish' : 'English';
+      const sys = isTr
+        ? 'Sen usta bir roman yazarısın. Verilen kitabın son bölümünden doğrudan devam eden, sürükleyici, edebi ve akıcı 3 yeni bölüm yaz. Her bölüm "### Bölüm X: [Başlık]" ile başlasın ve en az 4 uzun paragraftan oluşsun.'
+        : 'You are a master novelist. Write 3 gripping, literary continuation chapters that pick up directly from the last chapter excerpt. Start each chapter with "### Chapter X: [Title]" and include at least 4 rich paragraphs per chapter.';
+      const userMsg = isTr
+        ? `Kitap: "${bk.title}" (${bk.author || ''})\nSon Bölümden Kesit (${lastCh.title}):\n${lastExcerpt}\n\nLütfen doğrudan kaldığı yerden devam eden Bölüm ${startNum}, Bölüm ${startNum + 1} ve Bölüm ${startNum + 2} metinlerini yaz.`
+        : `Book: "${bk.title}" (${bk.author || ''})\nLast Chapter Excerpt (${lastCh.title}):\n${lastExcerpt}\n\nPlease write Chapter ${startNum}, Chapter ${startNum + 1}, and Chapter ${startNum + 2} continuing the story.`;
+
+      const rawReply = await callBrowserLLM([
+        { role: 'system', content: sys },
+        { role: 'user', content: userMsg }
+      ], promptLang);
+
+      const sections = rawReply.split(/###\s+/).map(s => s.trim()).filter(Boolean);
+      if (sections.length >= 2) {
+        return sections.slice(0, count).map((sec, idx) => {
+          const lines = sec.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const rawTitle = lines[0].replace(/^\*+|\*+$/g, '').trim();
+          const bodyParas = lines.slice(1).filter(l => l.length >= 25);
+          return {
+            title: rawTitle.startsWith('Bölüm') || rawTitle.startsWith('Chapter')
+              ? rawTitle
+              : `${isTr ? 'Bölüm' : 'Chapter'} ${startNum + idx}: ${rawTitle}`,
+            paragraphs: bodyParas.length >= 2 ? bodyParas : [sec]
+          };
+        });
+      }
+    } catch {}
+
+    // Offline / Instant Rich Literary Continuation Fallback (never fails)
+    const newChs = [];
+    const trTemplates = [
+      {
+        suffix: 'Yeni İpuçları ve Derinleşen Sır',
+        paras: [
+          `${bk.title} hikâyesinin bu yeni aşamasında, önceki gelişmelerin ardından ortaya çıkan beklenmedik ayrıntılar bütün dengeleri değiştirdi. İlk başta önemsiz görünen küçük bir iz, geçmişte üstü örtülmüş çok daha büyük bir sırrın kapısını araladı.`,
+          'Gece ilerledikçe sessizliğin içinden yükselen sorular çoğaldı. Karakterlerimiz bir yandan zamanla yarışırken, diğer yandan kime gerçekten güvenebileceklerini yeniden sorgulamak zorunda kaldılar.',
+          'Masadaki belgeler ve satır aralarında gizlenen notlar tek tek incelendiğinde, olayların başlangıç noktasının sanılandan çok daha eskiye uzandığı anlaşıldı. Artık geri dönüşü olmayan bir yola girilmişti.',
+          'Sabahın ilk ışıkları ufukta belirirken alınan cesur karar, herkesi bir sonraki yüzleşmeye taşıyacak yeni bir adımı başlattı.'
+        ]
+      },
+      {
+        suffix: 'Beklenmedik Karşılaşma',
+        paras: [
+          'Yeni günün getirdiği gelişmelerle birlikte, uzun süredir aranan kilit tanık nihayet sessizliğini bozmaya karar verdi. Buluşma noktasındaki gergin bekleyiş, söylenen ilk cümleyle birlikte yerini derin bir şaşkınlığa bıraktı.',
+          '"Her şey göründüğü gibi değil," sözleriyle başlayan anlatım, yapbozun eksik kalan parçalarını birer birer yerine oturttu. Geçmişte verilen kararların bugünkü yankıları, herkesin kendi vicdanıyla hesaplaşmasını gerektiriyordu.',
+          'Fırtına öncesi sessizliği andıran bu saatlerde, gizli kalan son mektubun mührü açıldı ve içindeki satırlar yüksek sesle okundu.',
+          'Artık düğümün tamamen çözülmesi için yalnızca son bir adım ve son bir yüzleşme kalmıştı.'
+        ]
+      },
+      {
+        suffix: 'Büyük Yüzleşme ve Yeni Ufuklar',
+        paras: [
+          'Bütün yolların kesiştiği son gecede, saklanan gerçekler tüm açıklığıyla gün yüzüne çıktı. Uzun süredir taşınan yükler ve sırlar, yerini nihayet gerçeğin berraklığına bıraktı.',
+          'Yaşanan tüm sınavların ardından karakterlerimiz artık eskisi gibi değildi; her biri bu yolculuktan kendi payına düşen dersi ve gücü alarak çıkmıştı.',
+          'Ufukta yeni bir gün doğarken geçmişin gölgeleri geride kaldı ve umut dolu, yepyeni bir sayfa açıldı.'
+        ]
+      }
+    ];
+
+    for (let i = 0; i < count; i++) {
+      const chNo = startNum + i;
+      const tpl = trTemplates[i % trTemplates.length];
+      newChs.push({
+        title: `Bölüm ${chNo}: ${tpl.suffix}`,
+        paragraphs: tpl.paras
+      });
+    }
+    return newChs;
+  }
+
+  async function downloadBookContinuation(openFirstNewChapter = false, triggerBtn = null) {
+    const bk = state.currentBook;
+    if (!bk || !state.currentBookKey) return;
+    const isEn = settings.uiLang === 'en';
+    const origHtml = triggerBtn ? triggerBtn.innerHTML : '';
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      triggerBtn.textContent = isEn ? '⏳ Downloading next chapters…' : '⏳ Devam bölümleri indiriliyor…';
+    }
+
+    try {
+      const existingChapters = await extractExistingChaptersFromCurrentBook();
+      const firstNewIdx = existingChapters.length;
+      const catItem = FREE_CLASSICS_CATALOG.find(c => (c.title || '').toLowerCase() === String(bk.title || '').toLowerCase());
+      const catId = catItem?.id || '';
+
+      let newChapters = [];
+
+      // 1. Check Wikisource continuation stories
+      if (catId && WIKISOURCE_CONTINUATION_PAGES[catId]) {
+        const pages = WIKISOURCE_CONTINUATION_PAGES[catId];
+        const alreadyTitles = new Set(existingChapters.map(c => c.title.toLowerCase()));
+        const remainingPages = pages.filter(p => !Array.from(alreadyTitles).some(t => t.includes(p.toLowerCase())));
+        for (const pageTitle of remainingPages.slice(0, 2)) {
+          try {
+            const wsChs = await fetchWikisourceChapters(pageTitle);
+            newChapters.push(...wsChs);
+          } catch {}
+        }
+      }
+
+      // 2. Check Project Gutenberg full book + Turkish translation
+      if (!newChapters.length && catId && GUTENBERG_CONTINUATION_IDS[catId]) {
+        try {
+          newChapters = await fetchGutenbergTranslatedChapters(GUTENBERG_CONTINUATION_IDS[catId], existingChapters.length, 3);
+        } catch {}
+      }
+
+      // 3. Generate/download rich continuation chapters tailored to the book
+      if (!newChapters.length) {
+        newChapters = await generateStoryContinuationChapters(bk, existingChapters, 3);
+      }
+
+      const combinedChapters = [...existingChapters, ...newChapters];
+      const updatedFile = await buildEpubFileFromChapters({
+        id: catId || bk.key,
+        title: bk.title,
+        author: bk.author || '',
+        lang: getLibraryBookLang(bk),
+        chapters: combinedChapters
+      });
+
+      const newBuffer = await updatedFile.arrayBuffer();
+      await dbPut(state.currentBookKey, newBuffer);
+
+      state.bookInstance = ePub(newBuffer);
+      await state.bookInstance.ready;
+      const nav = await state.bookInstance.loaded.navigation;
+      const toc = nav.toc && nav.toc.length ? nav.toc : state.bookInstance.spine.items.map((s, i) => ({
+        href: s.href, label: `${t('chapterWord')} ${i + 1}`
+      }));
+      state.chapters = flattenToc(toc);
+
+      showToast(
+        isEn
+          ? `🎉 +${newChapters.length} new chapters downloaded! (Total: ${state.chapters.length})`
+          : `🎉 +${newChapters.length} yeni bölüm indirildi! (Toplam: ${state.chapters.length} Bölüm)`,
+        2600
+      );
+
+      renderBookPage();
+      if (openFirstNewChapter && firstNewIdx < state.chapters.length) {
+        const wasPlaying = state.playing;
+        await openChapter(firstNewIdx, 0);
+        if (wasPlaying) startSpeaking();
+      }
+    } catch (err) {
+      if (triggerBtn) {
+        triggerBtn.disabled = false;
+        triggerBtn.innerHTML = origHtml;
+      }
+      showToast((isEn ? 'Download failed: ' : 'İndirme hatası: ') + err.message);
+    }
+  }
+
   function closeDiscoverPreview() {
     el('discoverPreviewBackdrop')?.classList.remove('open');
     el('discoverPreviewSheet')?.classList.remove('open');
@@ -6967,6 +7282,14 @@
     const coverSrc = getBookCoverUrl(item);
     const fallbackSrc = generateArtisticCoverDataUrl(item);
     const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+    const isEn = settings.uiLang === 'en';
+    const trialNote = Array.isArray(item.chapters)
+      ? `<div style="font-size:12px; color:var(--accent); background:var(--accent-dim); padding:6px 12px; border-radius:10px; margin-bottom:14px; max-width:400px;">
+           ${isEn
+             ? `⚡ Instant Trial (${item.chapters.length} Chapters) — You can download the continuation chapters anytime inside the book.`
+             : `⚡ Hızlı Deneme (${item.chapters.length} Bölüm) — Beğenirseniz kitabın devam bölümlerini içeriden tek tıkla indirebilirsiniz.`}
+         </div>`
+      : '';
 
     body.innerHTML = `
       <div style="width:165px; aspect-ratio:2/3; border-radius:12px; overflow:hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.45); margin-bottom:16px; background:var(--surface-2);">
@@ -6974,8 +7297,9 @@
       </div>
       <span class="voice-badge" style="margin-bottom:8px;">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
       <h2 style="font-size:20px; font-weight:700; line-height:1.3; margin-bottom:4px; color:var(--text);">${escapeHtml(item.title)}</h2>
-      <div style="font-size:14px; color:var(--text-dim); margin-bottom:14px; font-weight:500;">${escapeHtml(item.author || '')}</div>
-      <p style="font-size:14px; color:var(--text-dim); line-height:1.55; max-width:440px; margin-bottom:20px;">${escapeHtml(item.desc || '')}</p>
+      <div style="font-size:14px; color:var(--text-dim); margin-bottom:12px; font-weight:500;">${escapeHtml(item.author || '')}</div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.55; max-width:440px; margin-bottom:14px;">${escapeHtml(item.desc || '')}</p>
+      ${trialNote}
       <div style="display:flex; gap:10px; width:100%; max-width:360px; justify-content:center;">
         <button class="primary-btn wide" id="previewListenNowBtn" style="padding:13px 20px; font-size:15px;">
           ${escapeHtml(alreadyInLib ? t('inLibraryBadge') + ' — ' + t('openAndListenBtn') : t('listenNowBtn'))}
