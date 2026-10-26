@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="116" fill="#FFFFFF"/>
+  <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#0A0A0A" stroke-opacity="0.12" stroke-width="3"/>
+
+  <!-- White Version of #4: Concentric Acoustic Arcs + Flowing Book Pages -->
+  <path d="M196 224 A76 76 0 0 1 316 224" fill="none" stroke="#0A0A0A" stroke-width="18" stroke-linecap="round"/>
+  <path d="M158 178 A124 124 0 0 1 354 178" fill="none" stroke="#0A0A0A" stroke-width="18" stroke-linecap="round" opacity="0.65"/>
+  <path d="M120 132 A172 172 0 0 1 392 132" fill="none" stroke="#0A0A0A" stroke-width="18" stroke-linecap="round" opacity="0.32"/>
+
+  <circle cx="256" cy="268" r="14" fill="#0A0A0A"/>
+  <path d="M116 308 C166 308, 214 332, 256 370 C298 332, 346 308, 396 308" fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M142 360 C182 360, 222 376, 256 406 C290 376, 330 360, 370 360" fill="none" stroke="#0A0A0A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+</svg>

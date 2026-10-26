@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="116" fill="#0A0A0A"/>
+  <rect x="14" y="14" width="484" height="484" rx="104" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
+
+  <!-- Vinyl / Sound Disc Grooves Rising from Book (Dark Bauhaus #4 + #5 Fusion) -->
+  <path d="M136 266 A120 120 0 0 1 376 266" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M172 266 A84 84 0 0 1 340 266" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.72"/>
+  <circle cx="256" cy="266" r="44" fill="#FFFFFF"/>
+  <circle cx="256" cy="266" r="14" fill="#0A0A0A"/>
+
+  <!-- Bold Geometric Open Book Base -->
+  <path d="M108 286 L256 338 L404 286 L404 388 L256 420 L108 388 Z" fill="#FFFFFF"/>
+  <line x1="256" y1="330" x2="256" y2="422" stroke="#0A0A0A" stroke-width="12"/>
+</svg>

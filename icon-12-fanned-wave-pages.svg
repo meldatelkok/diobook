@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="116" fill="#FFFFFF"/>
+  <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#0A0A0A" stroke-opacity="0.12" stroke-width="3"/>
+
+  <!-- Fanned Origami Book Pages Doubling as Sound Waves (Minimalist Editorial) -->
+  <path d="M256 384 L122 296 C152 272, 204 280, 256 326 Z" fill="#0A0A0A"/>
+  <path d="M256 384 L390 296 C360 272, 308 280, 256 326 Z" fill="#0A0A0A"/>
+
+  <path d="M256 346 L146 232 C178 210, 220 226, 256 278 Z" fill="#0A0A0A" opacity="0.72"/>
+  <path d="M256 346 L366 232 C334 210, 292 226, 256 278 Z" fill="#0A0A0A" opacity="0.72"/>
+
+  <path d="M256 302 L182 172 C208 156, 236 172, 256 222 Z" fill="#0A0A0A" opacity="0.4"/>
+  <path d="M256 302 L330 172 C304 156, 276 172, 256 222 Z" fill="#0A0A0A" opacity="0.4"/>
+
+  <circle cx="256" cy="134" r="16" fill="#0A0A0A"/>
+</svg>

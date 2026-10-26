@@ -954,7 +954,7 @@
   <div id="libraryPage">
     <div class="topbar">
       <button id="brandIconBtn" title="Uygulama Simgesini Değiştir / Change App Icon" style="background:none; border:none; padding:0; margin-right:4px; cursor:pointer; display:flex; align-items:center; flex-shrink:0;">
-        <img id="appBrandIcon" src="icon-1-violet-soundbook.svg" alt="DioBook" style="width:30px; height:30px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.35);">
+        <img id="appBrandIcon" src="icon-4-minimal-ivory.svg" alt="DioBook" style="width:30px; height:30px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.35);">
       </button>
       <h1 id="libraryHeaderTitle">Kütüphane</h1>
       <button class="icon-btn" id="langToggleBtn" title="Dil / Language" style="font-size:12px; font-weight:700; width:auto; padding:0 10px; border-radius:16px;">🇹🇷 TR</button>
@@ -7836,54 +7836,75 @@
   el('langToggleBtn')?.addEventListener('click', toggleUiLanguage);
   el('toggleUiLangBtn')?.addEventListener('click', toggleUiLanguage);
 
-  // === 7. App Icon Designs & Interactive Switcher (6 Minimalist Black & White Icons) ===
+  // === 7. App Icon Designs & Interactive Switcher (9 Curated Minimalist Black & White Icons) ===
   const APP_ICONS = [
     {
-      id: 'icon-1-violet-soundbook.svg',
-      titleTr: '1. Siyah Zemin · Kitap & Ses',
-      titleEn: '1. Matte Black · Book & Wave',
-      subTr: 'Minimalist beyaz kitap çizgisi ve 5 ses barı',
-      subEn: 'Minimal white book outline & 5 sound bars'
+      id: 'icon-4-minimal-ivory.svg',
+      titleTr: '★ Akustik Sayfalar (Siyah)',
+      titleEn: '★ Acoustic Page Arcs (Black)',
+      subTr: 'Sayfalardan yükselen eşmerkezli ses halkaları (#4)',
+      subEn: 'Concentric sound arcs rising from curved pages (#4)'
     },
     {
       id: 'icon-2-golden-classic.svg',
-      titleTr: '2. Beyaz Zemin · Kulaklık & Kitap',
-      titleEn: '2. Pure White · Headphone & Book',
-      subTr: 'Beyaz zemin üzerinde siyah çizgisel kitap ve kulaklık',
-      subEn: 'Clean black line-art book & headphones on white'
-    },
-    {
-      id: 'icon-3-neon-playwave.svg',
-      titleTr: '3. Monogram "D" & Oynat',
-      titleEn: '3. Monogram "D" & Play',
-      subTr: 'Siyah zemin, kitap sırtı ve negatif alan ▶ üçgeni',
-      subEn: 'Book spine + D monogram with negative-space ▶'
-    },
-    {
-      id: 'icon-4-minimal-ivory.svg',
-      titleTr: '4. Siyah Zemin · Akustik Sayfalar',
-      titleEn: '4. Acoustic Page Arcs',
-      subTr: 'Sayfalardan yükselen yalın eşmerkezli ses halkaları',
-      subEn: 'Minimal concentric sound arcs rising from pages'
+      titleTr: '★ Kulaklık & Kitap (Beyaz)',
+      titleEn: '★ Headphone & Book (White)',
+      subTr: 'Beyaz zemin üzerinde çizgisel kitap ve kulaklık (#2)',
+      subEn: 'Clean black line-art book & headphones on white (#2)'
     },
     {
       id: 'icon-5-cosmic-moon.svg',
-      titleTr: '5. Bauhaus Geometrik (Beyaz)',
-      titleEn: '5. Bauhaus Geometric (White)',
-      subTr: 'Beyaz zemin üzerinde geometrik siyah kitap ve ses diski',
-      subEn: 'Stark black geometric book & audio disc on white'
+      titleTr: '★ Bauhaus Plak & Kitap (Beyaz)',
+      titleEn: '★ Bauhaus Disc & Book (White)',
+      subTr: 'Geometrik siyah kitap ve ses plağı (#5)',
+      subEn: 'Geometric black book & audio disc on white (#5)'
     },
     {
-      id: 'icon-6-emerald-studio.svg',
-      titleTr: '6. Minimal Cilt & Ses Nabzı',
-      titleEn: '6. Minimal Spine & Pulse',
-      subTr: 'Siyah zemin üzerinde tek çizgi kitap ve ses dalgası',
-      subEn: 'Single-line hardcover outline with audio waveform'
+      id: 'icon-7-continuous-line.svg',
+      titleTr: 'Yeni 1 · Tek Çizgi Kulaklık & Kitap',
+      titleEn: 'New 1 · Continuous Line Book',
+      subTr: 'Siyah zeminde tek kesintisiz çizgiyle kitap ve kulaklık',
+      subEn: 'Single unbroken white line forming book & headphones'
+    },
+    {
+      id: 'icon-8-vinyl-pages.svg',
+      titleTr: 'Yeni 2 · Bauhaus Siyah Plak & Kitap',
+      titleEn: 'New 2 · Dark Bauhaus Vinyl Book',
+      subTr: '4 ve 5’in birleşimi: Siyah zeminde plak halkaları ve kitap',
+      subEn: 'Fusion of #4 & #5: Vinyl grooves rising from white book'
+    },
+    {
+      id: 'icon-9-split-duality.svg',
+      titleTr: 'Yeni 3 · İki Yarı (Kontrast Siyah/Beyaz)',
+      titleEn: 'New 3 · Split Contrast B&W',
+      subTr: 'Yarısı siyah yarısı beyaz zemin üzerinde akustik kitap',
+      subEn: 'Half-black, half-white split acoustic book emblem'
+    },
+    {
+      id: 'icon-10-white-acoustic-pages.svg',
+      titleTr: 'Yeni 4 · Akustik Sayfalar (Beyaz)',
+      titleEn: 'New 4 · Acoustic Pages (White)',
+      subTr: '4 numaralı tasarımın saf beyaz zeminli versiyonu',
+      subEn: 'Pure white background edition of design #4'
+    },
+    {
+      id: 'icon-11-zen-halo-book.svg',
+      titleTr: 'Yeni 5 · Zen Ses Çemberi & Kitap',
+      titleEn: 'New 5 · Zen Sound Halo & Book',
+      subTr: 'Tam daire ses halkası içinde yükselen açık sayfalar',
+      subEn: 'Full circular acoustic halo cradling open book pages'
+    },
+    {
+      id: 'icon-12-fanned-wave-pages.svg',
+      titleTr: 'Yeni 6 · Yelpaze Sayfalar (Beyaz)',
+      titleEn: 'New 6 · Fanned Wave Pages (White)',
+      subTr: 'Ses dalgası gibi katmanlı açılan minimalist sayfalar',
+      subEn: 'Layered book pages fanning upward like sound waves'
     }
   ];
 
   function applySelectedAppIcon() {
-    const chosenId = settings.appIcon || 'icon-1-violet-soundbook.svg';
+    const chosenId = settings.appIcon || 'icon-4-minimal-ivory.svg';
     const iconObj = APP_ICONS.find(i => i.id === chosenId) || APP_ICONS[0];
     const brandImg = el('appBrandIcon');
     if (brandImg) brandImg.src = iconObj.id;
@@ -7905,7 +7926,7 @@
     const grid = el('iconPickerGrid');
     if (!grid) return;
     const isEn = settings.uiLang === 'en';
-    const currentId = settings.appIcon || 'icon-1-violet-soundbook.svg';
+    const currentId = settings.appIcon || 'icon-4-minimal-ivory.svg';
     if (el('iconPickerHeader')) {
       el('iconPickerHeader').textContent = isEn ? '🎨 Choose App Icon' : '🎨 Uygulama Simgesi Seç';
     }

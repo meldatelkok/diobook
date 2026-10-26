@@ -2,16 +2,13 @@
   <rect width="512" height="512" rx="116" fill="#0A0A0A"/>
   <rect x="14" y="14" width="484" height="484" rx="104" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
 
-  <!-- Minimalist 5-Bar Soundwave -->
-  <g fill="#FFFFFF">
-    <rect x="180" y="182" width="14" height="48" rx="7"/>
-    <rect x="215" y="146" width="14" height="84" rx="7"/>
-    <rect x="249" y="118" width="14" height="112" rx="7"/>
-    <rect x="283" y="146" width="14" height="84" rx="7"/>
-    <rect x="318" y="182" width="14" height="48" rx="7"/>
-  </g>
+  <!-- Concentric Acoustic Waves Rising from Book Pages -->
+  <path d="M196 226 A76 76 0 0 1 316 226" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M162 184 A120 120 0 0 1 350 184" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" opacity="0.65"/>
+  <path d="M128 142 A164 164 0 0 1 384 142" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" opacity="0.35"/>
 
-  <!-- Minimalist Open Book Outline -->
-  <path d="M256 292 C214 268, 158 268, 116 284 L116 382 C158 366, 214 366, 256 390 C298 366, 354 366, 396 382 L396 284 C354 268, 298 268, 256 292 Z" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
-  <line x1="256" y1="292" x2="256" y2="390" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <!-- Minimalist Book Spine & Pages -->
+  <path d="M120 310 C168 310, 216 332, 256 368 C296 332, 344 310, 392 310" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M144 358 C184 358, 222 374, 256 402 C290 374, 328 358, 368 358" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+  <circle cx="256" cy="268" r="12" fill="#FFFFFF"/>
 </svg>

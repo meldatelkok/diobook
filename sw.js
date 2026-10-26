@@ -1,5 +1,5 @@
 // DioBook Service Worker
-const CACHE_VERSION = 'diobook-v21';
+const CACHE_VERSION = 'diobook-v22';
 const APP_SHELL = [
   './',
   './index.html',
@@ -11,6 +11,12 @@ const APP_SHELL = [
   './icon-4-minimal-ivory.svg',
   './icon-5-cosmic-moon.svg',
   './icon-6-emerald-studio.svg',
+  './icon-7-continuous-line.svg',
+  './icon-8-vinyl-pages.svg',
+  './icon-9-split-duality.svg',
+  './icon-10-white-acoustic-pages.svg',
+  './icon-11-zen-halo-book.svg',
+  './icon-12-fanned-wave-pages.svg',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
   'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js'
 ];

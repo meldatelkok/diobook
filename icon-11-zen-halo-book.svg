@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="116" fill="#0A0A0A"/>
+  <rect x="14" y="14" width="484" height="484" rx="104" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
+
+  <!-- Zen Sound Halo Ring Framing an Open Book -->
+  <circle cx="256" cy="246" r="136" fill="none" stroke="#FFFFFF" stroke-width="16"/>
+
+  <!-- Inner Acoustic Wave -->
+  <path d="M204 206 A64 64 0 0 1 308 206" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="256" cy="236" r="11" fill="#FFFFFF"/>
+
+  <!-- Open Book Cradle Cutting Across Bottom of Halo -->
+  <path d="M132 302 C178 282, 220 294, 256 324 C292 294, 334 282, 380 302 L380 374 C334 354, 292 366, 256 396 C220 366, 178 354, 132 374 Z" fill="#0A0A0A"/>
+  <path d="M132 306 C178 286, 220 298, 256 328 C292 298, 334 286, 380 306" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M152 352 C190 336, 224 346, 256 372 C288 346, 322 336, 360 352" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
