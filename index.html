@@ -1060,19 +1060,22 @@
   </div>
 </div>
 
-<!-- Free Classics Catalog sheet -->
+<!-- Free Classics & Online Book Search sheet -->
 <div class="sheet-backdrop" id="classicsBackdrop"></div>
-<div class="sheet" id="classicsSheet" style="max-height: 85vh;">
+<div class="sheet" id="classicsSheet" style="max-height: 88vh;">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <h3 id="classicsSheetTitle">📚 Ücretsiz Klasikler</h3>
+    <h3 id="classicsSheetTitle">📚 Online Kitap Ara &amp; Klasikler</h3>
     <button class="close" id="classicsSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <input type="text" id="onlineCatalogSearchInput" class="voice-search" style="margin-bottom:0; flex:1;" placeholder="Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…">
+    </div>
     <div class="voice-filter-bar" id="classicsFilterBar" style="margin-bottom:12px;">
       <button class="voice-filter-pill active" data-cfilter="all" id="cfilterAll">Tümü</button>
-      <button class="voice-filter-pill" data-cfilter="tr" id="cfilterTr">🇹🇷 Türkçe Klasikler</button>
-      <button class="voice-filter-pill" data-cfilter="en" id="cfilterEn">🇬🇧 English Classics</button>
+      <button class="voice-filter-pill" data-cfilter="tr" id="cfilterTr">🇹🇷 Türkçe</button>
+      <button class="voice-filter-pill" data-cfilter="en" id="cfilterEn">🇬🇧 English</button>
     </div>
     <div id="classicsListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
@@ -1289,8 +1292,13 @@
       emptyTitle: 'Kütüphaneniz boş',
       emptySub: 'Bir EPUB dosyası ekleyin veya ücretsiz klasiklerden hemen seçip dinleyin.',
       addBookBtn: '+ Kitap ekle',
-      freeClassicsBtn: '📚 Ücretsiz Klasikler',
-      searchLibrary: 'Kütüphanede ara…',
+      freeClassicsBtn: '🔍 Kitap Ara / Klasikler',
+      searchLibrary: 'Kitap veya yazar ara (kütüphanede ve internette)…',
+      onlineResultsTitle: '🌐 İnternette Bulunan Kitaplar (Eklemeden Hemen Aç & Dinle)',
+      searchingOnline: '🌐 İnternette kitaplar aranıyor…',
+      noOnlineResults: 'İnternette eşleşen ücretsiz tam metin kitap bulunamadı.',
+      openAndListenBtn: '▶ Aç & Dinle',
+      searchCatalogPlaceholder: 'Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…',
       continueReading: 'Dinlemeye devam et',
       allBooks: 'Tüm kitaplar',
       noMatches: 'Eşleşen kitap bulunamadı',
@@ -1348,8 +1356,13 @@
       emptyTitle: 'Your library is empty',
       emptySub: 'Add an EPUB file or pick from free classics to start listening.',
       addBookBtn: '+ Add book',
-      freeClassicsBtn: '📚 Free Classics',
-      searchLibrary: 'Search library…',
+      freeClassicsBtn: '🔍 Search Books / Classics',
+      searchLibrary: 'Search books or authors (in library & online)…',
+      onlineResultsTitle: '🌐 Books Found Online (Open & Listen Without Uploading)',
+      searchingOnline: '🌐 Searching online books…',
+      noOnlineResults: 'No matching free full-text books found online.',
+      openAndListenBtn: '▶ Open & Listen',
+      searchCatalogPlaceholder: 'Search book or author (e.g. Sherlock, Omer Seyfettin, Dracula)…',
       continueReading: 'Continue reading',
       allBooks: 'All books',
       noMatches: 'No matches',
@@ -1674,11 +1687,17 @@
 
   // Library rendering
   let librarySearch = '';
+  let libraryOnlineSearchTimer = null;
   function renderLibrary() {
     const container = el('libraryContent');
     if (!state.library.length) {
       container.innerHTML = `
-        <div class="empty-state">
+        <div class="lib-controls" style="margin-bottom:14px;">
+          <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
+          <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('freeClassicsBtn'))}</button>
+        </div>
+        <div id="libraryOnlineResults" style="margin-bottom:16px;"></div>
+        <div class="empty-state" id="emptyLibraryCard">
           <div class="empty-icon" style="color: var(--accent);">${Icons.bookEmpty}</div>
           <h2>${escapeHtml(t('emptyTitle'))}</h2>
           <p>${escapeHtml(t('emptySub'))}</p>
@@ -1689,6 +1708,13 @@
         </div>`;
       el('emptyAddBtn').addEventListener('click', () => el('fileInput').click());
       el('emptyClassicsBtn').addEventListener('click', () => openClassicsSheet());
+      el('openClassicsTopBtn').addEventListener('click', () => openClassicsSheet());
+      const searchInput = el('librarySearch');
+      searchInput.addEventListener('input', (e) => {
+        librarySearch = e.target.value;
+        triggerLibraryOnlineSearch(librarySearch);
+      });
+      if (librarySearch.trim().length >= 2) triggerLibraryOnlineSearch(librarySearch);
       return;
     }
 
@@ -1733,37 +1759,43 @@
       </div>
       ${continueHtml}
       <div class="library-title">${escapeHtml(t('allBooks'))}</div>
-      <div class="book-grid" id="bookGrid"></div>`;
+      <div class="book-grid" id="bookGrid"></div>
+      <div id="libraryOnlineResults" style="margin-top:20px;"></div>`;
 
     const searchInput = el('librarySearch');
     searchInput.addEventListener('input', (e) => {
       librarySearch = e.target.value;
       renderLibraryGrid();
+      triggerLibraryOnlineSearch(librarySearch);
     });
     el('sortBtn').addEventListener('click', cycleSortOrder);
     el('openClassicsTopBtn').addEventListener('click', openClassicsSheet);
 
-    if (continueBook) {
-      el('libraryContent').querySelector('.continue-card').addEventListener('click', (e) => {
-        const key = e.currentTarget.dataset.key || continueBook.key;
-        if (e.target.closest('.continue-play')) {
-          e.stopPropagation();
-          if (settings.engine === 'cloud') unlockCloudAudio();
-          openBook(key).then(() => {
-            const prog = loadProgress(key);
-            if (prog && prog.chapterIdx >= 0) {
-              openChapter(prog.chapterIdx, prog.sentence || 0).then(() => startSpeaking());
-            } else {
-              openChapter(0, 0).then(() => startSpeaking());
-            }
-          });
-        } else {
-          openBook(key);
-        }
-      });
+    if (continueBook && !librarySearch) {
+      const contCard = el('libraryContent').querySelector('.continue-card');
+      if (contCard) {
+        contCard.addEventListener('click', (e) => {
+          const key = e.currentTarget.dataset.key || continueBook.key;
+          if (e.target.closest('.continue-play')) {
+            e.stopPropagation();
+            if (settings.engine === 'cloud') unlockCloudAudio();
+            openBook(key).then(() => {
+              const prog = loadProgress(key);
+              if (prog && prog.chapterIdx >= 0) {
+                openChapter(prog.chapterIdx, prog.sentence || 0).then(() => startSpeaking());
+              } else {
+                openChapter(0, 0).then(() => startSpeaking());
+              }
+            });
+          } else {
+            openBook(key);
+          }
+        });
+      }
     }
 
     renderLibraryGrid();
+    if (librarySearch.trim().length >= 2) triggerLibraryOnlineSearch(librarySearch);
   }
 
   function renderLibraryGrid() {
@@ -4750,10 +4782,271 @@
   }
 
   let activeClassicsFilter = 'all';
+  let catalogSearchTimer = null;
+
+  async function fetchWikisourceChapters(pageTitle) {
+    const url = 'https://tr.wikisource.org/w/api.php?action=parse&page=' + encodeURIComponent(pageTitle) + '&prop=text&format=json&origin=*';
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const rawHtml = data?.parse?.text?.['*'] || '';
+    if (!rawHtml) throw new Error('Metin alınamadı');
+    const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
+    doc.querySelectorAll('style, script, table, .ws-noexport, .mw-editsection, .navbox, .headertemplate, .sisterproject').forEach(n => n.remove());
+    const blocks = [];
+    doc.querySelectorAll('p, .poem, blockquote, li').forEach(node => {
+      const txt = (node.textContent || '').replace(/\[\d+\]/g, '').replace(/\s+/g, ' ').trim();
+      if (txt.length >= 20) blocks.push(txt);
+    });
+    if (!blocks.length) {
+      const fallbackText = (doc.body?.textContent || '').replace(/\s+/g, ' ').trim();
+      if (fallbackText.length >= 40) blocks.push(fallbackText);
+    }
+    if (!blocks.length) throw new Error('Bu sayfada okunabilir tam metin bulunamadı');
+    // Split into chapters of ~25 paragraphs if long
+    const chapters = [];
+    const chunkSize = 25;
+    for (let i = 0; i < blocks.length; i += chunkSize) {
+      const slice = blocks.slice(i, i + chunkSize);
+      chapters.push({
+        title: blocks.length > chunkSize ? `${pageTitle} - Bölüm ${Math.floor(i / chunkSize) + 1}` : pageTitle,
+        paragraphs: slice
+      });
+    }
+    return chapters;
+  }
+
+  async function openOnlineBookItem(item, btn) {
+    const existing = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+    if (existing) {
+      closeClassicsSheet();
+      openBook(existing.key);
+      return;
+    }
+    const origText = btn ? btn.textContent : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳…';
+    }
+    try {
+      let file;
+      if (item.chapters) {
+        file = await buildEpubFileFromChapters(item);
+      } else if (item.wikisourceTitle) {
+        const chapters = await fetchWikisourceChapters(item.wikisourceTitle);
+        file = await buildEpubFileFromChapters({
+          id: item.id || ('ws-' + Date.now()),
+          title: item.title,
+          author: item.author || 'Türkçe Vikikaynak',
+          lang: 'tr',
+          chapters
+        });
+      } else if (item.epubUrl) {
+        const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(item.epubUrl));
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const blob = await resp.blob();
+        file = new File([blob], `${item.id || ('book-' + Date.now())}.epub`, { type: 'application/epub+zip' });
+      }
+      closeClassicsSheet();
+      await addBook(file);
+      const added = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase()) || state.library[state.library.length - 1];
+      if (added) {
+        openBook(added.key);
+      }
+    } catch (err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+      showToast('Hata: ' + err.message);
+    }
+  }
+
+  function createOnlineBookRow(item) {
+    const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:14px; background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;';
+    row.innerHTML = `
+      <div style="min-width:0; flex:1;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px;">
+          <span class="voice-badge">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
+          <span style="font-size:15px; font-weight:600; color:var(--text);">${escapeHtml(item.title)}</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-dim); margin-bottom:4px;">${escapeHtml(item.author || '')}</div>
+        ${item.desc ? `<div style="font-size:12px; color:var(--text-dim); line-height:1.35;">${escapeHtml(item.desc)}</div>` : ''}
+      </div>
+      <button class="primary-btn classic-add-btn" style="padding:8px 14px; font-size:13px; white-space:nowrap;">${escapeHtml(alreadyInLib ? t('inLibraryBadge') : t('openAndListenBtn'))}</button>
+    `;
+    const btn = row.querySelector('.classic-add-btn');
+    btn.addEventListener('click', () => openOnlineBookItem(item, btn));
+    return row;
+  }
+
+  async function searchBooksOnline(query, langFilter = 'all') {
+    const q = (query || '').trim();
+    if (q.length < 2) return [];
+    const qLower = q.toLowerCase();
+    const results = [];
+    const seenTitles = new Set();
+
+    // 1. Local built-in catalog matches
+    FREE_CLASSICS_CATALOG.forEach(c => {
+      if (langFilter !== 'all' && c.lang !== langFilter) return;
+      if (c.title.toLowerCase().includes(qLower) || c.author.toLowerCase().includes(qLower) || (c.desc || '').toLowerCase().includes(qLower)) {
+        seenTitles.add(c.title.toLowerCase());
+        results.push(c);
+      }
+    });
+
+    const tasks = [];
+
+    // 2. Türkçe Vikikaynak (Turkish full-text stories, poems, classics)
+    if (langFilter === 'all' || langFilter === 'tr') {
+      tasks.push((async () => {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 5500);
+        try {
+          const url = 'https://tr.wikisource.org/w/api.php?action=query&list=search&srsearch=' + encodeURIComponent(q) + '&srlimit=8&utf8=1&format=json&origin=*';
+          const resp = await fetch(url, { signal: ctrl.signal });
+          if (!resp.ok) return [];
+          const data = await resp.json();
+          const items = data?.query?.search || [];
+          return items
+            .filter(it => it.title && !it.title.includes(':') && !it.title.startsWith('Kişi:'))
+            .map(it => {
+              const cleanSnippet = (it.snippet || '').replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').trim();
+              return {
+                id: 'ws-tr-' + it.pageid,
+                lang: 'tr',
+                badge: '🇹🇷 Türkçe · Vikikaynak',
+                title: it.title,
+                author: 'Türkçe Eser / Hikaye',
+                desc: cleanSnippet ? (cleanSnippet.slice(0, 120) + '…') : 'Ücretsiz Türkçe tam metin eser.',
+                wikisourceTitle: it.title
+              };
+            });
+        } catch {
+          return [];
+        } finally {
+          clearTimeout(tid);
+        }
+      })());
+    }
+
+    // 3. Project Gutenberg direct search + OpenLibrary Gutenberg IDs (English & world books)
+    if (langFilter === 'all' || langFilter === 'en') {
+      tasks.push((async () => {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 6500);
+        try {
+          const pgSearchUrl = 'https://www.gutenberg.org/ebooks/search/?query=' + encodeURIComponent(q) + '&submit_search=Go%21';
+          const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(pgSearchUrl), { signal: ctrl.signal });
+          if (!resp.ok) return [];
+          const html = await resp.text();
+          const regex = /<li class="booklink"[\s\S]*?<a class="link" href="\/ebooks\/(\d+)"[\s\S]*?<span class="title">([^<]+)<\/span>(?:[\s\S]*?<span class="subtitle">([^<]+)<\/span>)?/g;
+          const found = [];
+          let m;
+          while ((m = regex.exec(html)) !== null && found.length < 8) {
+            const pgId = m[1];
+            const title = m[2].replace(/\r|\n/g, ' ').trim();
+            const author = (m[3] || 'Project Gutenberg').replace(/\r|\n/g, ' ').trim();
+            found.push({
+              id: 'pg-' + pgId,
+              lang: 'en',
+              badge: '🌐 Gutenberg EPUB',
+              title,
+              author,
+              desc: 'Full book from Project Gutenberg (instant EPUB).',
+              epubUrl: `https://www.gutenberg.org/ebooks/${pgId}.epub.noimages`
+            });
+          }
+          return found;
+        } catch {
+          return [];
+        } finally {
+          clearTimeout(tid);
+        }
+      })());
+
+      tasks.push((async () => {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 5500);
+        try {
+          const olUrl = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(q) + '&fields=key,title,author_name,id_project_gutenberg,first_publish_year&limit=12';
+          const resp = await fetch(olUrl, { signal: ctrl.signal });
+          if (!resp.ok) return [];
+          const data = await resp.json();
+          const docs = (data.docs || []).filter(d => Array.isArray(d.id_project_gutenberg) && d.id_project_gutenberg.length > 0);
+          return docs.slice(0, 6).map(d => {
+            const pgId = d.id_project_gutenberg[0];
+            return {
+              id: 'ol-pg-' + pgId,
+              lang: 'en',
+              badge: '🇬🇧 OpenLibrary · EPUB',
+              title: d.title || 'Untitled',
+              author: (d.author_name && d.author_name[0]) || 'Unknown Author',
+              desc: d.first_publish_year ? `First published in ${d.first_publish_year}. Instant full EPUB.` : 'Instant full EPUB book.',
+              epubUrl: `https://www.gutenberg.org/ebooks/${pgId}.epub.noimages`
+            };
+          });
+        } catch {
+          return [];
+        } finally {
+          clearTimeout(tid);
+        }
+      })());
+    }
+
+    const settled = await Promise.all(tasks);
+    settled.flat().forEach(item => {
+      const key = (item.title || '').toLowerCase();
+      if (key && !seenTitles.has(key)) {
+        seenTitles.add(key);
+        results.push(item);
+      }
+    });
+
+    return results;
+  }
+
+  function triggerLibraryOnlineSearch(query) {
+    clearTimeout(libraryOnlineSearchTimer);
+    const box = el('libraryOnlineResults');
+    const emptyCard = el('emptyLibraryCard');
+    if (!box) return;
+    const q = (query || '').trim();
+    if (q.length < 2) {
+      box.innerHTML = '';
+      if (emptyCard) emptyCard.style.display = '';
+      return;
+    }
+    if (emptyCard) emptyCard.style.display = 'none';
+    box.innerHTML = `<div style="padding:14px; color:var(--text-dim); font-size:14px; text-align:center;">${escapeHtml(t('searchingOnline'))}</div>`;
+    libraryOnlineSearchTimer = setTimeout(async () => {
+      const results = await searchBooksOnline(q, 'all');
+      if ((el('librarySearch')?.value || '').trim() !== q) return;
+      box.innerHTML = '';
+      const header = document.createElement('div');
+      header.className = 'library-title';
+      header.style.marginBottom = '10px';
+      header.textContent = t('onlineResultsTitle');
+      box.appendChild(header);
+      if (!results.length) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'padding:18px; color:var(--text-dim); font-size:14px; text-align:center; background:var(--surface-2); border-radius:12px;';
+        emptyMsg.textContent = t('noOnlineResults');
+        box.appendChild(emptyMsg);
+        return;
+      }
+      results.forEach(item => box.appendChild(createOnlineBookRow(item)));
+    }, 420);
+  }
+
   function openClassicsSheet() {
     renderClassicsList();
     el('classicsBackdrop').classList.add('open');
     el('classicsSheet').classList.add('open');
+    setTimeout(() => el('onlineCatalogSearchInput')?.focus(), 120);
   }
   function closeClassicsSheet() {
     el('classicsBackdrop').classList.remove('open');
@@ -4765,54 +5058,29 @@
     document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.cfilter === activeClassicsFilter);
     });
+    const q = (el('onlineCatalogSearchInput')?.value || '').trim();
+    if (q.length >= 2) {
+      container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('searchingOnline'))}</div>`;
+      clearTimeout(catalogSearchTimer);
+      catalogSearchTimer = setTimeout(async () => {
+        const results = await searchBooksOnline(q, activeClassicsFilter);
+        if ((el('onlineCatalogSearchInput')?.value || '').trim() !== q) return;
+        container.innerHTML = '';
+        if (!results.length) {
+          container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('noOnlineResults'))}</div>`;
+          return;
+        }
+        results.forEach(item => container.appendChild(createOnlineBookRow(item)));
+      }, 380);
+      return;
+    }
     const filtered = FREE_CLASSICS_CATALOG.filter(c => activeClassicsFilter === 'all' || c.lang === activeClassicsFilter);
     container.innerHTML = '';
     filtered.forEach(item => {
-      const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:14px; background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;';
-      row.innerHTML = `
-        <div style="min-width:0; flex:1;">
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px;">
-            <span class="voice-badge">${escapeHtml(item.badge)}</span>
-            <span style="font-size:15px; font-weight:600; color:var(--text);">${escapeHtml(item.title)}</span>
-          </div>
-          <div style="font-size:13px; color:var(--text-dim); margin-bottom:4px;">${escapeHtml(item.author)}</div>
-          <div style="font-size:12px; color:var(--text-dim); line-height:1.35;">${escapeHtml(item.desc)}</div>
-        </div>
-        <button class="primary-btn classic-add-btn" style="padding:8px 14px; font-size:13px; white-space:nowrap;">${escapeHtml(alreadyInLib ? t('inLibraryBadge') : t('addClassicBtn'))}</button>
-      `;
-      const btn = row.querySelector('.classic-add-btn');
-      btn.addEventListener('click', async () => {
-        const existing = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
-        if (existing) {
-          closeClassicsSheet();
-          openBook(existing.key);
-          return;
-        }
-        btn.disabled = true;
-        btn.textContent = '…';
-        try {
-          let file;
-          if (item.chapters) {
-            file = await buildEpubFileFromChapters(item);
-          } else if (item.epubUrl) {
-            const resp = await fetch(CLOUD_TTS_URL + '/fetch?url=' + encodeURIComponent(item.epubUrl));
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
-            const blob = await resp.blob();
-            file = new File([blob], `${item.id}.epub`, { type: 'application/epub+zip' });
-          }
-          closeClassicsSheet();
-          await addBook(file);
-        } catch (err) {
-          btn.disabled = false;
-          btn.textContent = t('addClassicBtn');
-          showToast('Hata: ' + err.message);
-        }
-      });
-      container.appendChild(row);
+      container.appendChild(createOnlineBookRow(item));
     });
   }
+  el('onlineCatalogSearchInput')?.addEventListener('input', () => renderClassicsList());
   document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       activeClassicsFilter = btn.dataset.cfilter || 'all';
@@ -4857,6 +5125,7 @@
     if (el('cfilterAll')) el('cfilterAll').textContent = t('cfilterAll');
     if (el('cfilterTr')) el('cfilterTr').textContent = t('cfilterTr');
     if (el('cfilterEn')) el('cfilterEn').textContent = t('cfilterEn');
+    if (el('onlineCatalogSearchInput')) el('onlineCatalogSearchInput').placeholder = t('searchCatalogPlaceholder');
     if (el('voiceSearch')) el('voiceSearch').placeholder = t('searchVoices');
     document.querySelectorAll('.sheet-header .close').forEach(b => { b.textContent = t('done'); });
     const fpVoiceChip = el('fpVoiceBtn')?.querySelector('.label');
