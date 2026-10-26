@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#022C22"/>
+      <stop offset="55%" stop-color="#064E3B"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="mint6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A7F3D0"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg6)"/>
+
+  <!-- Studio Microphone Capsule -->
+  <rect x="212" y="108" width="88" height="142" rx="44" fill="url(#mint6)"/>
+  <line x1="212" y1="154" x2="300" y2="154" stroke="#022C22" stroke-width="6"/>
+  <line x1="212" y1="182" x2="300" y2="182" stroke="#022C22" stroke-width="6"/>
+  <path d="M180 184 L180 206 C180 248, 332 248, 332 206 L332 184" fill="none" stroke="#A7F3D0" stroke-width="14" stroke-linecap="round"/>
+  <line x1="256" y1="238" x2="256" y2="294" stroke="#A7F3D0" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Sound Waves Left & Right -->
+  <path d="M142 146 C122 172, 122 206, 142 232" fill="none" stroke="#34D399" stroke-width="10" stroke-linecap="round"/>
+  <path d="M370 146 C390 172, 390 206, 370 232" fill="none" stroke="#34D399" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Open Book Base -->
+  <path d="M256 310 C208 282, 146 282, 102 298 L102 396 C146 380, 208 380, 256 410 C304 380, 366 380, 410 396 L410 298 C366 282, 304 282, 256 310 Z" fill="#ECFDF5"/>
+  <line x1="256" y1="310" x2="256" y2="410" stroke="#064E3B" stroke-width="8"/>
+</svg>

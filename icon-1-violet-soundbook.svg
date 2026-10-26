@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#140B2E"/>
+      <stop offset="55%" stop-color="#2E1065"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="50%" cy="42%" r="48%">
+      <stop offset="0%" stop-color="#C084FC" stop-opacity="0.42"/>
+      <stop offset="60%" stop-color="#9333EA" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#140B2E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="waveGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="50%" stop-color="#EC4899"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E9D5FF"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle Background -->
+  <rect width="512" height="512" rx="116" fill="url(#bg1)"/>
+  <rect width="512" height="512" rx="116" fill="url(#glow1)"/>
+  <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#E9D5FF" stroke-opacity="0.16" stroke-width="3"/>
+
+  <!-- Headphone Halo Arc -->
+  <path d="M126 268 C126 162, 386 162, 386 268" fill="none" stroke="url(#waveGrad)" stroke-width="22" stroke-linecap="round"/>
+  <rect x="104" y="246" width="36" height="68" rx="18" fill="#EC4899"/>
+  <rect x="372" y="246" width="36" height="68" rx="18" fill="#38BDF8"/>
+
+  <!-- Equalizer Soundwaves Rising from Book -->
+  <g fill="url(#waveGrad)">
+    <rect x="176" y="210" width="16" height="68" rx="8"/>
+    <rect x="206" y="172" width="16" height="106" rx="8"/>
+    <rect x="236" y="140" width="18" height="138" rx="9"/>
+    <rect x="268" y="164" width="16" height="114" rx="8"/>
+    <rect x="298" y="196" width="16" height="82" rx="8"/>
+    <rect x="328" y="222" width="16" height="56" rx="8"/>
+  </g>
+
+  <!-- Open Book Base -->
+  <path d="M256 308 C212 282, 148 280, 108 294 L108 398 C148 384, 212 386, 256 414 C300 386, 364 384, 404 398 L404 294 C364 280, 300 282, 256 308 Z" fill="url(#pageGrad)"/>
+  <path d="M256 322 L256 412" stroke="#4C1D95" stroke-width="8" stroke-linecap="round"/>
+  <path d="M108 416 C152 400, 212 404, 256 432 C300 404, 360 400, 404 416" fill="none" stroke="#C084FC" stroke-width="10" stroke-linecap="round"/>
+</svg>
