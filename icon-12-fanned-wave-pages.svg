@@ -2,40 +2,15 @@
   <rect width="512" height="512" rx="116" fill="#FFFFFF"/>
   <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#0A0A0A" stroke-opacity="0.12" stroke-width="3"/>
 
-  <!-- Hardcover Base & Spine Cradle -->
-  <path d="M84 374 C144 358, 206 372, 256 404 C306 372, 368 358, 428 374"
-        fill="none" stroke="#0A0A0A" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Fanned Origami Book Pages Doubling as Sound Waves (Minimalist Editorial) -->
+  <path d="M256 384 L122 296 C152 272, 204 280, 256 326 Z" fill="#0A0A0A"/>
+  <path d="M256 384 L390 296 C360 272, 308 280, 256 326 Z" fill="#0A0A0A"/>
 
-  <!-- Outer Open Book Pages (Full Left & Right Pages with Vertical Side Edges) -->
-  <path d="M256 382
-           C210 350, 152 338, 100 350
-           L100 218
-           C152 206, 210 218, 256 250
-           C302 218, 360 206, 412 218
-           L412 350
-           C360 338, 302 350, 256 382 Z"
-        fill="#FFFFFF" stroke="#0A0A0A" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M256 346 L146 232 C178 210, 220 226, 256 278 Z" fill="#0A0A0A" opacity="0.72"/>
+  <path d="M256 346 L366 232 C334 210, 292 226, 256 278 Z" fill="#0A0A0A" opacity="0.72"/>
 
-  <!-- Second Layer Turning Pages (Left & Right) -->
-  <path d="M256 382
-           C220 344, 174 322, 132 324
-           L144 188
-           C184 186, 224 208, 256 246
-           C288 208, 328 186, 368 188
-           L380 324
-           C338 322, 292 344, 256 382 Z"
-        fill="#FFFFFF" stroke="#0A0A0A" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M256 302 L182 172 C208 156, 236 172, 256 222 Z" fill="#0A0A0A" opacity="0.4"/>
+  <path d="M256 302 L330 172 C304 156, 276 172, 256 222 Z" fill="#0A0A0A" opacity="0.4"/>
 
-  <!-- Inner Turning Pages Fanning Upward -->
-  <path d="M256 382 C232 336, 202 304, 174 294 L194 162 C218 170, 240 198, 256 240"
-        fill="none" stroke="#0A0A0A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M256 382 C280 336, 310 304, 338 294 L318 162 C294 170, 272 198, 256 240"
-        fill="none" stroke="#0A0A0A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- Center Book Spine Line -->
-  <line x1="256" y1="238" x2="256" y2="398" stroke="#0A0A0A" stroke-width="18" stroke-linecap="round"/>
-
-  <!-- Subtle Sound Wave Arcs Rising Above the Turning Pages -->
-  <path d="M216 130 A56 56 0 0 1 296 130" fill="none" stroke="#0A0A0A" stroke-width="15" stroke-linecap="round"/>
-  <path d="M188 98 A92 92 0 0 1 324 98" fill="none" stroke="#0A0A0A" stroke-width="13" stroke-linecap="round" opacity="0.5"/>
+  <circle cx="256" cy="134" r="16" fill="#0A0A0A"/>
 </svg>

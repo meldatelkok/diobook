@@ -2,40 +2,10 @@
   <rect width="512" height="512" rx="116" fill="#0A0A0A"/>
   <rect x="14" y="14" width="484" height="484" rx="104" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
 
-  <!-- Hardcover Base & Spine Cradle -->
-  <path d="M84 374 C144 358, 206 372, 256 404 C306 372, 368 358, 428 374"
-        fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Minimalist Closed Hardcover Book Outline -->
+  <rect x="148" y="108" width="216" height="296" rx="24" fill="none" stroke="#FFFFFF" stroke-width="18"/>
+  <line x1="190" y1="108" x2="190" y2="404" stroke="#FFFFFF" stroke-width="14"/>
 
-  <!-- Outer Open Book Pages (Full Left & Right Pages with Vertical Side Edges) -->
-  <path d="M256 382
-           C210 350, 152 338, 100 350
-           L100 218
-           C152 206, 210 218, 256 250
-           C302 218, 360 206, 412 218
-           L412 350
-           C360 338, 302 350, 256 382 Z"
-        fill="#0A0A0A" stroke="#FFFFFF" stroke-width="18" stroke-linejoin="round"/>
-
-  <!-- Second Layer Turning Pages (Left & Right) -->
-  <path d="M256 382
-           C220 344, 174 322, 132 324
-           L144 188
-           C184 186, 224 208, 256 246
-           C288 208, 328 186, 368 188
-           L380 324
-           C338 322, 292 344, 256 382 Z"
-        fill="#0A0A0A" stroke="#FFFFFF" stroke-width="16" stroke-linejoin="round"/>
-
-  <!-- Inner Turning Pages Fanning Upward -->
-  <path d="M256 382 C232 336, 202 304, 174 294 L194 162 C218 170, 240 198, 256 240"
-        fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M256 382 C280 336, 310 304, 338 294 L318 162 C294 170, 272 198, 256 240"
-        fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- Center Book Spine Line -->
-  <line x1="256" y1="238" x2="256" y2="398" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
-
-  <!-- Subtle Sound Wave Arcs Rising Above the Turning Pages -->
-  <path d="M216 130 A56 56 0 0 1 296 130" fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round"/>
-  <path d="M188 98 A92 92 0 0 1 324 98" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" opacity="0.5"/>
+  <!-- Clean Audio Pulse Line Across Center -->
+  <polyline points="214,256 236,256 248,216 266,296 284,196 302,282 314,256 338,256" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
