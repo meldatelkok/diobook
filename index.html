@@ -80,26 +80,27 @@
 
   /* Top bar */
   .topbar {
-    padding: 14px 20px 12px;
-    display: flex; align-items: center; gap: 12px;
-    min-height: 52px;
+    padding: 12px 16px 10px;
+    display: flex; align-items: center; gap: 6px;
+    min-height: 50px;
     flex-shrink: 0;
   }
   .topbar h1 {
-    font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
-    flex: 1;
+    font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .topbar .page-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .topbar .page-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
   .icon-btn {
-    background: var(--surface); border: none; color: var(--text);
-    width: 40px; height: 40px; border-radius: 20px;
+    background: transparent; border: none; color: var(--text-dim);
+    width: 36px; height: 36px; border-radius: 18px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 17px;
-    transition: background 0.15s;
+    cursor: pointer; font-size: 16px;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
   }
-  .icon-btn:active { background: var(--surface-2); }
-  .icon-btn.primary { background: var(--accent); }
-  .icon-btn.primary:active { background: var(--accent-hover); }
+  .icon-btn:hover, .icon-btn:active { background: var(--surface); color: var(--text); }
+  .icon-btn.primary { background: var(--accent); color: #fff; margin-left: 2px; }
+  .icon-btn.primary:hover, .icon-btn.primary:active { background: var(--accent-hover); color: #fff; }
 
   /* Main content */
   main {
@@ -352,11 +353,11 @@
   }
   .home-tabs {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     background: var(--surface);
-    padding: 5px;
-    border-radius: 14px;
-    margin-bottom: 18px;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 12px;
     border: 1px solid var(--border);
   }
   .home-tab-btn {
@@ -364,21 +365,47 @@
     border: none;
     background: transparent;
     color: var(--text-dim);
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 6px;
     transition: all 0.18s ease;
   }
   .home-tab-btn.active {
     background: var(--accent);
     color: #fff;
-    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  }
+  .lang-seg {
+    display: inline-flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .lang-seg-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .lang-seg-btn.active {
+    background: var(--accent-dim);
+    color: var(--accent);
   }
   .discover-card .book-cover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -388,42 +415,49 @@
   }
   .cover-badge-top {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(15, 15, 22, 0.78);
+    top: 7px;
+    left: 7px;
+    background: rgba(12, 12, 18, 0.72);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    color: #fff;
+    color: rgba(255, 255, 255, 0.95);
     font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 8px;
-    letter-spacing: 0.02em;
-    max-width: calc(100% - 16px);
+    font-weight: 600;
+    padding: 2.5px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.01em;
+    max-width: calc(100% - 14px);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .cover-play-fab {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
-    width: 34px;
-    height: 34px;
-    border-radius: 17px;
-    background: var(--accent);
+    bottom: 7px;
+    right: 7px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background: rgba(15, 15, 22, 0.74);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     color: #fff;
-    border: none;
+    border: 1px solid rgba(255,255,255,0.18);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     transition: transform 0.15s ease, background 0.15s ease;
   }
-  .cover-play-fab:hover {
+  .cover-play-fab svg {
+    width: 15px;
+    height: 15px;
+  }
+  .cover-play-fab:hover, .cover-play-fab:active {
     transform: scale(1.08);
-    background: var(--accent-hover);
+    background: var(--accent);
+    border-color: transparent;
   }
 
   /* Mini player */
@@ -1221,17 +1255,20 @@
     <button class="close" id="classicsSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
-    <div style="display:flex; gap:8px; margin-bottom:10px;">
-      <input type="text" id="onlineCatalogSearchInput" class="voice-search" style="margin-bottom:0; flex:1;" placeholder="Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…">
+    <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
+      <input type="text" id="onlineCatalogSearchInput" class="voice-search" style="margin-bottom:0; flex:1;" placeholder="Kitap veya yazar ara…">
+      <div class="lang-seg" id="classicsLangBar">
+        <button class="lang-seg-btn active" data-clang="all">Tümü</button>
+        <button class="lang-seg-btn" data-clang="tr">🇹🇷 TR</button>
+        <button class="lang-seg-btn" data-clang="en">🇬🇧 EN</button>
+      </div>
     </div>
     <div class="voice-filter-bar" id="classicsFilterBar" style="margin-bottom:12px;">
       <button class="voice-filter-pill active" data-cfilter="all" id="cfilterAll">✨ Tümü</button>
       <button class="voice-filter-pill" data-cfilter="crime" id="cfilterCrime">🕵️ Gizem &amp; Suç</button>
       <button class="voice-filter-pill" data-cfilter="thriller" id="cfilterThriller">🔪 Gerilim</button>
-      <button class="voice-filter-pill" data-cfilter="fantasy" id="cfilterFantasy">🐉 Fantastik &amp; Bilimkurgu</button>
-      <button class="voice-filter-pill" data-cfilter="romance" id="cfilterRomance">💜 Romantik &amp; Dram</button>
-      <button class="voice-filter-pill" data-cfilter="tr" id="cfilterTr">🇹🇷 Türkçe</button>
-      <button class="voice-filter-pill" data-cfilter="en" id="cfilterEn">🇬🇧 English</button>
+      <button class="voice-filter-pill" data-cfilter="fantasy" id="cfilterFantasy">🐉 Fantastik</button>
+      <button class="voice-filter-pill" data-cfilter="romance" id="cfilterRomance">💜 Romantik</button>
     </div>
     <div id="classicsListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
@@ -1470,24 +1507,25 @@
       emptySub: 'Bir EPUB dosyası ekleyin veya ücretsiz klasiklerden hemen seçip dinleyin.',
       addBookBtn: '+ Kitap ekle',
       freeClassicsBtn: '🔍 Kitap Ara / Klasikler',
-      searchLibrary: 'Kitap veya yazar ara (kütüphanede ve internette)…',
-      onlineResultsTitle: '🌐 İnternette Bulunan Kitaplar (Eklemeden Hemen Aç & Dinle)',
+      searchLibrary: 'Kitap veya yazar ara…',
+      onlineResultsTitle: '🌐 İnternette Bulunan Kitaplar',
       searchingOnline: '🌐 İnternette kitaplar aranıyor…',
       noOnlineResults: 'İnternette eşleşen ücretsiz tam metin kitap bulunamadı.',
       openAndListenBtn: '▶ Aç & Dinle',
-      searchCatalogPlaceholder: 'Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…',
+      searchCatalogPlaceholder: 'Kitap veya yazar ara…',
       tabMyLibrary: '📚 Kütüphanem',
       tabDiscover: '🧭 Keşfet & Vitrin',
-      discoverShowcaseTitle: '✨ Kitap Vitrini — Kapaklara Dokunup İnceleyin veya Hemen Dinleyin',
+      discoverShowcaseTitle: 'Kitap Vitrini',
       previewHeader: 'Kitap Detayı',
       listenNowBtn: '🎧 Hemen Aç & Dinle',
+      langAll: 'Tümü',
       catAll: '✨ Tümü',
       catCrime: '🕵️ Gizem & Suç',
-      catThriller: '🔪 Gerilim & Psikolojik',
+      catThriller: '🔪 Gerilim',
       catFantasy: '🐉 Fantastik & Bilimkurgu',
       catRomance: '💜 Romantik & Dram',
-      catTr: '🇹🇷 Türkçe Kitaplar',
-      catEn: '🇬🇧 İngilizce Kitaplar',
+      catTr: '🇹🇷 Türkçe',
+      catEn: '🇬🇧 İngilizce',
       catMystery: '🕵️ Gizem & Suç',
       catScifi: '🐉 Fantastik & Bilimkurgu',
       continueReading: 'Dinlemeye devam et',
@@ -1548,24 +1586,25 @@
       emptySub: 'Add an EPUB file or pick from free classics to start listening.',
       addBookBtn: '+ Add book',
       freeClassicsBtn: '🔍 Search Books / Classics',
-      searchLibrary: 'Search books or authors (in library & online)…',
-      onlineResultsTitle: '🌐 Books Found Online (Open & Listen Without Uploading)',
+      searchLibrary: 'Search books or authors…',
+      onlineResultsTitle: '🌐 Books Found Online',
       searchingOnline: '🌐 Searching online books…',
       noOnlineResults: 'No matching free full-text books found online.',
       openAndListenBtn: '▶ Open & Listen',
-      searchCatalogPlaceholder: 'Search book or author (e.g. Sherlock, Omer Seyfettin, Dracula)…',
+      searchCatalogPlaceholder: 'Search book or author…',
       tabMyLibrary: '📚 My Library',
       tabDiscover: '🧭 Discover & Covers',
-      discoverShowcaseTitle: '✨ Book Showcase — Tap Any Cover to Inspect or Listen Instantly',
+      discoverShowcaseTitle: 'Book Showcase',
       previewHeader: 'Book Details',
       listenNowBtn: '🎧 Open & Listen Now',
+      langAll: 'All',
       catAll: '✨ All',
       catCrime: '🕵️ Mystery & Crime',
-      catThriller: '🔪 Thriller & Suspense',
+      catThriller: '🔪 Thriller',
       catFantasy: '🐉 Fantasy & Sci-Fi',
       catRomance: '💜 Romance & Drama',
-      catTr: '🇹🇷 Turkish Books',
-      catEn: '🇬🇧 English Books',
+      catTr: '🇹🇷 Turkish',
+      catEn: '🇬🇧 English',
       catMystery: '🕵️ Mystery & Crime',
       catScifi: '🐉 Fantasy & Sci-Fi',
       continueReading: 'Continue reading',
@@ -1896,9 +1935,26 @@
   let librarySearch = '';
   let libraryOnlineSearchTimer = null;
   let activeHomeTab = 'library'; // 'library' | 'discover'
-  let activeDiscoverCat = 'all';
+  let activeLibraryLang = 'all'; // 'all' | 'tr' | 'en'
+  let activeDiscoverLang = 'all'; // 'all' | 'tr' | 'en'
+  let activeDiscoverCat = 'all'; // 'all' | 'crime' | 'thriller' | 'fantasy' | 'romance'
   let discoverSearchQuery = '';
   let discoverSearchTimer = null;
+
+  function getLibraryBookLang(bk) {
+    if (!bk) return 'en';
+    if (bk.lang === 'tr' || bk.lang === 'en') return bk.lang;
+    const rawLang = String(bk.lang || '').toLowerCase();
+    if (rawLang.startsWith('tr')) return 'tr';
+    if (rawLang.startsWith('en')) return 'en';
+    const combined = `${bk.title || ''} ${bk.author || ''}`;
+    if (/[çğıöşüÇĞİÖŞÜ]/.test(combined) || /\((?:Türkçe|Seçme)/i.test(combined)) return 'tr';
+    const catMatch = typeof FREE_CLASSICS_CATALOG !== 'undefined'
+      ? FREE_CLASSICS_CATALOG.find(c => (c.title || '').toLowerCase() === String(bk.title || '').toLowerCase())
+      : null;
+    if (catMatch && catMatch.lang) return catMatch.lang;
+    return 'en';
+  }
 
   function renderHomeTabsHtml() {
     const libCount = state.library.length ? ` (${state.library.length})` : '';
@@ -1934,7 +1990,6 @@
         ${renderHomeTabsHtml()}
         <div class="lib-controls" style="margin-bottom:14px;">
           <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
-          <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('tabDiscover'))}</button>
         </div>
         <div id="libraryOnlineResults" style="margin-bottom:16px;"></div>
         <div class="empty-state" id="emptyLibraryCard">
@@ -1949,7 +2004,6 @@
       bindHomeTabEvents(container);
       el('emptyAddBtn').addEventListener('click', () => el('fileInput').click());
       el('emptyClassicsBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
-      el('openClassicsTopBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
       const searchInput = el('librarySearch');
       searchInput.addEventListener('input', (e) => {
         librarySearch = e.target.value;
@@ -1972,7 +2026,7 @@
       .sort((a, b) => b.lastPlayedAt - a.lastPlayedAt)[0];
 
     let continueHtml = '';
-    if (continueBook && !librarySearch) {
+    if (continueBook && !librarySearch && activeLibraryLang === 'all') {
       const prog = loadProgress(continueBook.key);
       const progPct = Math.round(getBookProgressRatio(prog) * 100);
       const chapterLabel = prog && prog.chapterIdx >= 0 ? `${t('chapterWord')} ${prog.chapterIdx + 1}` : '';
@@ -1994,13 +2048,17 @@
 
     container.innerHTML = `
       ${renderHomeTabsHtml()}
-      <div class="lib-controls">
+      <div class="lib-controls" style="align-items:center;">
         <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
-        <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('tabDiscover'))}</button>
-        <button class="sort-btn" id="sortBtn">${Icons.sort}<span style="margin-left:6px;">${escapeHtml(sortLabel)}</span></button>
+        <div class="lang-seg" id="libraryLangBar">
+          <button class="lang-seg-btn ${activeLibraryLang === 'all' ? 'active' : ''}" data-llang="all">${escapeHtml(t('langAll'))}</button>
+          <button class="lang-seg-btn ${activeLibraryLang === 'tr' ? 'active' : ''}" data-llang="tr">🇹🇷 TR</button>
+          <button class="lang-seg-btn ${activeLibraryLang === 'en' ? 'active' : ''}" data-llang="en">🇬🇧 EN</button>
+        </div>
+        <button class="sort-btn" id="sortBtn" style="height:36px;">${Icons.sort}<span style="margin-left:5px;">${escapeHtml(sortLabel)}</span></button>
       </div>
       ${continueHtml}
-      <div class="library-title">${escapeHtml(t('allBooks'))}</div>
+      <div class="library-title" id="libraryGridTitle">${escapeHtml(t('allBooks'))}</div>
       <div class="book-grid" id="bookGrid"></div>
       <div id="libraryOnlineResults" style="margin-top:24px;"></div>`;
 
@@ -2011,10 +2069,15 @@
       renderLibraryGrid();
       triggerLibraryOnlineSearch(librarySearch);
     });
+    container.querySelectorAll('#libraryLangBar .lang-seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeLibraryLang = btn.dataset.llang || 'all';
+        renderLibrary();
+      });
+    });
     el('sortBtn').addEventListener('click', cycleSortOrder);
-    el('openClassicsTopBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
 
-    if (continueBook && !librarySearch) {
+    if (continueBook && !librarySearch && activeLibraryLang === 'all') {
       const contCard = el('libraryContent').querySelector('.continue-card');
       if (contCard) {
         contCard.addEventListener('click', (e) => {
@@ -2043,12 +2106,18 @@
 
   function renderLibraryGrid() {
     const grid = el('bookGrid');
+    const titleHdr = el('libraryGridTitle');
     if (!grid) return;
     const filtered = state.library.filter(bk => {
+      if (activeLibraryLang !== 'all' && getLibraryBookLang(bk) !== activeLibraryLang) return false;
       if (!librarySearch) return true;
       const q = librarySearch.toLowerCase();
       return (bk.title || '').toLowerCase().includes(q) || (bk.author || '').toLowerCase().includes(q);
     });
+    if (titleHdr) {
+      const langTag = activeLibraryLang === 'tr' ? '🇹🇷 Türkçe' : activeLibraryLang === 'en' ? '🇬🇧 English' : t('allBooks');
+      titleHdr.textContent = `${langTag} (${filtered.length})`;
+    }
     const sorted = [...filtered].sort((a, b) => {
       switch (settings.librarySort) {
         case 'title': return (a.title || '').localeCompare(b.title || '');
@@ -2074,11 +2143,14 @@
       card.className = 'book-card';
       const prog = loadProgress(bk.key);
       const progPct = Math.round(getBookProgressRatio(prog) * 100);
+      const bkLang = getLibraryBookLang(bk);
+      const langFlag = bkLang === 'tr' ? '🇹🇷' : '🇬🇧';
       const coverHtml = bk.cover ?
         `<img src="${bk.cover}" alt="">` :
         `<div class="book-cover-fallback">${escapeHtml(bk.title)}</div>`;
       card.innerHTML = `
         <div class="book-cover">${coverHtml}
+          <span class="cover-badge-top" style="padding:2px 6px;">${langFlag}</span>
           ${prog ? `<div class="book-progress-ring">${progPct}%</div>` : ''}
           <button class="book-delete" data-key="${bk.key}" aria-label="Delete">${Icons.close}</button>
         </div>
@@ -2111,7 +2183,7 @@
     return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  async function addBook(file) {
+  async function addBook(file, explicitLang = null) {
     try {
       showToast(settings.uiLang === 'en' ? 'Loading book…' : 'Kitap yükleniyor…');
       const arrayBuffer = await file.arrayBuffer();
@@ -2124,6 +2196,10 @@
       const meta = await book.loaded.metadata;
       const title = meta.title || file.name.replace(/\.epub$/i, '');
       const author = meta.creator || '';
+      const metaLang = String(meta.language || '').toLowerCase();
+      const detectedLang = explicitLang
+        || (metaLang.startsWith('tr') ? 'tr' : metaLang.startsWith('en') ? 'en' : null)
+        || (/[çğıöşüÇĞİÖŞÜ]/.test(`${title} ${author}`) ? 'tr' : 'en');
       let coverUrl = null;
       try {
         const coverHref = await book.coverUrl();
@@ -2135,7 +2211,7 @@
       } catch {}
 
       await dbPut(hash, arrayBuffer);
-      state.library.unshift({ key: hash, title, author, cover: coverUrl, addedAt: Date.now() });
+      state.library.unshift({ key: hash, title, author, lang: detectedLang, cover: coverUrl, addedAt: Date.now() });
       saveLibrary();
       renderLibrary();
       showToast(settings.uiLang === 'en' ? 'Book added' : 'Kitap eklendi');
@@ -6896,17 +6972,29 @@
     el('discoverPreviewSheet')?.classList.add('open');
   }
 
+  function getCompactCoverTag(item) {
+    const flag = item.lang === 'tr' ? '🇹🇷' : '🇬🇧';
+    const cats = Array.isArray(item.cat) ? item.cat : [];
+    const isEnUi = settings.uiLang === 'en';
+    if (cats.includes('crime')) return `${flag} ${isEnUi ? 'Crime' : 'Polisiye'}`;
+    if (cats.includes('thriller')) return `${flag} ${isEnUi ? 'Thriller' : 'Gerilim'}`;
+    if (cats.includes('fantasy')) return `${flag} ${isEnUi ? 'Fantasy' : 'Fantastik'}`;
+    if (cats.includes('romance')) return `${flag} ${isEnUi ? 'Romance' : 'Romantik'}`;
+    return `${flag} ${item.lang === 'tr' ? 'TR' : 'EN'}`;
+  }
+
   function createDiscoverCoverCard(item) {
     const card = document.createElement('div');
     card.className = 'book-card discover-card';
     const coverSrc = getBookCoverUrl(item);
     const fallbackSrc = generateArtisticCoverDataUrl(item);
     const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+    const shortTag = getCompactCoverTag(item);
 
     card.innerHTML = `
       <div class="book-cover">
         <img src="${coverSrc}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}';">
-        <span class="cover-badge-top">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
+        <span class="cover-badge-top">${escapeHtml(shortTag)}</span>
         ${alreadyInLib ? `<div class="book-progress-ring" style="right:auto; left:6px; bottom:6px; background:var(--accent);">✓</div>` : ''}
         <button class="cover-play-fab" title="${escapeHtml(t('openAndListenBtn'))}" aria-label="Play">${Icons.play}</button>
       </div>
@@ -6933,9 +7021,7 @@
       { id: 'crime', label: t('catCrime') },
       { id: 'thriller', label: t('catThriller') },
       { id: 'fantasy', label: t('catFantasy') },
-      { id: 'romance', label: t('catRomance') },
-      { id: 'tr', label: t('catTr') },
-      { id: 'en', label: t('catEn') }
+      { id: 'romance', label: t('catRomance') }
     ];
 
     const pillsHtml = cats.map(c =>
@@ -6944,10 +7030,15 @@
 
     container.innerHTML = `
       ${renderHomeTabsHtml()}
-      <div class="lib-controls" style="margin-bottom:12px;">
+      <div class="lib-controls" style="margin-bottom:10px; align-items:center;">
         <input type="text" class="lib-search" id="discoverSearchInput" placeholder="${escapeHtml(t('searchCatalogPlaceholder'))}" value="${escapeHtml(discoverSearchQuery)}">
+        <div class="lang-seg" id="discoverLangBar">
+          <button class="lang-seg-btn ${activeDiscoverLang === 'all' ? 'active' : ''}" data-dlang="all">${escapeHtml(t('langAll'))}</button>
+          <button class="lang-seg-btn ${activeDiscoverLang === 'tr' ? 'active' : ''}" data-dlang="tr">🇹🇷 TR</button>
+          <button class="lang-seg-btn ${activeDiscoverLang === 'en' ? 'active' : ''}" data-dlang="en">🇬🇧 EN</button>
+        </div>
       </div>
-      <div class="voice-filter-bar" id="discoverCatBar" style="margin-bottom:16px;">
+      <div class="voice-filter-bar" id="discoverCatBar" style="margin-bottom:12px;">
         ${pillsHtml}
       </div>
       <div class="library-title" id="discoverGridHeader">${escapeHtml(t('discoverShowcaseTitle'))}</div>
@@ -6955,6 +7046,13 @@
     `;
 
     bindHomeTabEvents(container);
+
+    container.querySelectorAll('#discoverLangBar .lang-seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeDiscoverLang = btn.dataset.dlang || 'all';
+        renderDiscoverShowcaseTab(container);
+      });
+    });
 
     container.querySelectorAll('#discoverCatBar .voice-filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -6982,26 +7080,32 @@
       clearTimeout(discoverSearchTimer);
       grid.innerHTML = `<div style="grid-column:1/-1; padding:32px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('searchingOnline'))}</div>`;
       discoverSearchTimer = setTimeout(async () => {
-        const langFilter = (activeDiscoverCat === 'tr' || activeDiscoverCat === 'en') ? activeDiscoverCat : 'all';
-        const results = await searchBooksOnline(q, langFilter);
+        const results = await searchBooksOnline(q, activeDiscoverLang);
         if ((el('discoverSearchInput')?.value || '').trim() !== q) return;
+        const catFiltered = activeDiscoverCat === 'all'
+          ? results
+          : results.filter(item => !item.cat || item.cat.includes(activeDiscoverCat));
         grid.innerHTML = '';
-        if (hdr) hdr.textContent = `${t('onlineResultsTitle')} (${results.length})`;
-        if (!results.length) {
+        if (hdr) hdr.textContent = `${t('onlineResultsTitle')} (${catFiltered.length})`;
+        if (!catFiltered.length) {
           grid.innerHTML = `<div style="grid-column:1/-1; padding:32px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('noOnlineResults'))}</div>`;
           return;
         }
-        results.forEach(item => grid.appendChild(createDiscoverCoverCard(item)));
+        catFiltered.forEach(item => grid.appendChild(createDiscoverCoverCard(item)));
       }, 380);
       return;
     }
 
-    if (hdr) hdr.textContent = t('discoverShowcaseTitle');
     const filtered = FREE_CLASSICS_CATALOG.filter(item => {
+      if (activeDiscoverLang !== 'all' && item.lang !== activeDiscoverLang) return false;
       if (activeDiscoverCat === 'all') return true;
-      if (activeDiscoverCat === 'tr' || activeDiscoverCat === 'en') return item.lang === activeDiscoverCat;
       return Array.isArray(item.cat) && item.cat.includes(activeDiscoverCat);
     });
+
+    if (hdr) {
+      const langPart = activeDiscoverLang === 'tr' ? '🇹🇷 Türkçe · ' : activeDiscoverLang === 'en' ? '🇬🇧 English · ' : '';
+      hdr.textContent = `${langPart}${t('discoverShowcaseTitle')} (${filtered.length})`;
+    }
 
     grid.innerHTML = '';
     filtered.forEach(item => {
@@ -7043,13 +7147,19 @@
       }
       closeClassicsSheet();
       closeDiscoverPreview();
-      await addBook(file);
+      await addBook(file, item.lang || null);
       const added = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase()) || state.library[state.library.length - 1];
       if (added) {
+        let changed = false;
+        if (item.lang && added.lang !== item.lang) {
+          added.lang = item.lang;
+          changed = true;
+        }
         if (!added.cover) {
           added.cover = getBookCoverUrl(item);
-          saveLibrary();
+          changed = true;
         }
+        if (changed) saveLibrary();
         openBook(added.key);
       }
     } catch (err) {
@@ -7255,6 +7365,8 @@
     }, 420);
   }
 
+  let activeClassicsLang = 'all';
+
   function openClassicsSheet() {
     renderClassicsList();
     el('classicsBackdrop').classList.add('open');
@@ -7268,6 +7380,10 @@
   function renderClassicsList() {
     const container = el('classicsListContainer');
     if (!container) return;
+    document.querySelectorAll('#classicsLangBar .lang-seg-btn').forEach(btn => {
+      if (btn.dataset.clang === 'all') btn.textContent = t('langAll');
+      btn.classList.toggle('active', btn.dataset.clang === activeClassicsLang);
+    });
     document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.cfilter === activeClassicsFilter);
     });
@@ -7276,21 +7392,23 @@
       container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('searchingOnline'))}</div>`;
       clearTimeout(catalogSearchTimer);
       catalogSearchTimer = setTimeout(async () => {
-        const langFilter = (activeClassicsFilter === 'tr' || activeClassicsFilter === 'en') ? activeClassicsFilter : 'all';
-        const results = await searchBooksOnline(q, langFilter);
+        const results = await searchBooksOnline(q, activeClassicsLang);
         if ((el('onlineCatalogSearchInput')?.value || '').trim() !== q) return;
+        const catFiltered = activeClassicsFilter === 'all'
+          ? results
+          : results.filter(item => !item.cat || item.cat.includes(activeClassicsFilter));
         container.innerHTML = '';
-        if (!results.length) {
+        if (!catFiltered.length) {
           container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('noOnlineResults'))}</div>`;
           return;
         }
-        results.forEach(item => container.appendChild(createOnlineBookRow(item)));
+        catFiltered.forEach(item => container.appendChild(createOnlineBookRow(item)));
       }, 380);
       return;
     }
     const filtered = FREE_CLASSICS_CATALOG.filter(c => {
+      if (activeClassicsLang !== 'all' && c.lang !== activeClassicsLang) return false;
       if (activeClassicsFilter === 'all') return true;
-      if (activeClassicsFilter === 'tr' || activeClassicsFilter === 'en') return c.lang === activeClassicsFilter;
       return Array.isArray(c.cat) && c.cat.includes(activeClassicsFilter);
     });
     container.innerHTML = '';
@@ -7299,6 +7417,12 @@
     });
   }
   el('onlineCatalogSearchInput')?.addEventListener('input', () => renderClassicsList());
+  document.querySelectorAll('#classicsLangBar .lang-seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeClassicsLang = btn.dataset.clang || 'all';
+      renderClassicsList();
+    });
+  });
   document.querySelectorAll('#classicsFilterBar .voice-filter-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       activeClassicsFilter = btn.dataset.cfilter || 'all';
