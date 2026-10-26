@@ -289,6 +289,45 @@
   .reader-view .current-sentence {
     background: var(--accent-dim);
     box-shadow: 0 0 0 3px var(--accent-dim);
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+  }
+  .reader-view .current-sentence[data-emotion="excited"] {
+    background: rgba(245, 158, 11, 0.22);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
+  }
+  .reader-view .current-sentence[data-emotion="sad"] {
+    background: rgba(59, 130, 246, 0.22);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+  }
+  .reader-view .current-sentence[data-emotion="angry"] {
+    background: rgba(239, 68, 68, 0.22);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22);
+  }
+  .reader-view .current-sentence[data-emotion="whisper"] {
+    background: rgba(168, 85, 247, 0.24);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.24);
+  }
+  .reader-view .current-sentence[data-emotion="warm"] {
+    background: rgba(236, 72, 153, 0.20);
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.20);
+  }
+  .reader-view .current-sentence[data-emotion="contemplative"] {
+    background: rgba(20, 184, 166, 0.20);
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.20);
+  }
+  .emotion-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent-dim);
+    color: var(--accent);
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    white-space: nowrap;
   }
 
   /* Mini player */
@@ -823,7 +862,10 @@
       <button class="icon-btn" id="backToBook" aria-label="Back" data-icon="arrowLeft"></button>
       <div style="flex:1; text-align:center; min-width:0;">
         <div class="page-title" id="readerChTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
-        <div style="font-size:12px; color:var(--text-dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="readerBookTitle"></div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-top:2px;">
+          <span style="font-size:12px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="readerBookTitle"></span>
+          <span id="readerEmotionBadge" class="emotion-pill hidden"></span>
+        </div>
       </div>
       <button class="icon-btn" id="readerSearchBtn" title="Kitapta Ara / Search" aria-label="Search" data-icon="search"></button>
       <button class="icon-btn" id="fontSizeBtn" title="Text size" style="font-weight:700; font-size:15px;">Aa</button>
@@ -857,6 +899,7 @@
       <div style="flex:1; text-align:center; min-width:0;">
         <h2 id="fpBookTitle" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Book</h2>
         <div class="subtitle" id="fpChapterInfo">Chapter 1 of 10</div>
+        <div id="fpEmotionBadge" class="emotion-pill hidden" style="margin-top:5px;"></div>
       </div>
       <button class="icon-btn" id="sleepBtn" title="Sleep timer" aria-label="Sleep timer"></button>
       <button class="icon-btn" id="fpBookmarksBtn" title="Bookmarks" aria-label="Bookmarks" data-icon="list"></button>
@@ -937,6 +980,14 @@
       <div class="slider-row">
         <input type="range" id="pitchSlider" min="0.5" max="2" step="0.05" value="1">
         <span class="slider-value" id="pitchValue">1.00</span>
+      </div>
+    </div>
+    <div style="margin-top:24px;">
+      <div class="label" id="lblEmotionMode" style="font-size:13px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">🎭 Duygusal Okuma &amp; Tonlama</div>
+      <div class="voice-filter-bar" id="emotionModeBar" style="margin-bottom:0;">
+        <button class="voice-filter-pill" data-emode="high" id="emodeHighBtn">🔥 Yüksek (Canlı)</button>
+        <button class="voice-filter-pill" data-emode="balanced" id="emodeBalancedBtn">✨ Dengeli</button>
+        <button class="voice-filter-pill" data-emode="off" id="emodeOffBtn">Kapalı</button>
       </div>
     </div>
   </div>
@@ -1269,7 +1320,8 @@
       engine: 'cloud', cloudVoice: 'en-US-AvaMultilingualNeural',
       fontSize: 'medium', librarySort: 'recent',
       autoSummary: false, summaryLang: 'Turkish',
-      uiLang: 'tr'
+      uiLang: 'tr',
+      emotionMode: 'high'
     };
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -1529,12 +1581,14 @@
 
   // Cloud voices (41 Fast, Reliable Neural & Studio Voices — No Queue Delays)
   const BUILTIN_CLOUD_VOICES = [
-    // 🇹🇷 Türkçe & Çok Dilli Doğal Sesler (Hem Türkçe hem İngilizce kitapları doğal okur)
-    { id: 'en-US-AvaMultilingualNeural', name: 'Ava (TR & EN Doğal Kadın)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Sıcak, duygusal ve akıcı hikâye anlatıcısı (TR & EN)', badge: '🇹🇷/🇺🇸 Çok Dilli · Favori', category: 'tr' },
-    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew (TR & EN Doğal Erkek)', lang: 'tr-TR / en-US', gender: 'Male', style: 'Sıcak, sinematik roman anlatıcısı (TR & EN)', badge: '🇹🇷/🇺🇸 Çok Dilli · Favori', category: 'tr' },
-    { id: 'tr-TR-EmelNeural', name: 'Emel (Türkçe Kadın)', lang: 'tr-TR', gender: 'Female', style: 'Duygusal, sıcak ve akıcı Türkçe anlatım', badge: '🇹🇷 Türkçe', category: 'tr' },
-    { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Türkçe Erkek)', lang: 'tr-TR', gender: 'Male', style: 'Derin, etkileyici ve doğal Türkçe roman anlatımı', badge: '🇹🇷 Türkçe', category: 'tr' },
-    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma (TR & EN Yumuşak Kadın)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Yumuşak, empatik ve samimi anlatım (TR & EN)', badge: '🇹🇷/🇺🇸 Çok Dilli', category: 'tr' },
+    // 🇹🇷 Türkçe & Çok Dilli Doğal Sesler (Hem Türkçe hem İngilizce kitapları doğal ve duygusal okur)
+    { id: 'en-US-AvaMultilingualNeural', name: 'Ava (TR & EN Duygusal Kadın)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Yüksek duygusal tonlama, sıcak hikâye anlatıcısı (TR & EN)', badge: '🎭 Duygusal · Favori', category: 'tr' },
+    { id: 'en-US-AndrewMultilingualNeural', name: 'Andrew (TR & EN Duygusal Erkek)', lang: 'tr-TR / en-US', gender: 'Male', style: 'Sinematik, derin ve duygusal roman anlatıcısı (TR & EN)', badge: '🎭 Duygusal · Favori', category: 'tr' },
+    { id: 'tr-TR-EmelNeural', name: 'Emel (Türkçe Duygusal Kadın)', lang: 'tr-TR', gender: 'Female', style: 'Duygusal, sıcak ve akıcı Türkçe anlatım', badge: '🇹🇷 Türkçe · Duygusal', category: 'tr' },
+    { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Türkçe Duygusal Erkek)', lang: 'tr-TR', gender: 'Male', style: 'Derin, etkileyici ve doğal Türkçe roman anlatımı', badge: '🇹🇷 Türkçe · Duygusal', category: 'tr' },
+    { id: 'tr-emotional:female_1', name: 'Elif (Türkçe 6 Duygu Modlu AI)', lang: 'tr-TR', gender: 'Female', style: 'Cümleye göre mutlu, üzgün, kızgın, şaşkın, sakin tonlama', badge: '🎭 6 Duygu AI', category: 'tr' },
+    { id: 'tr-emotional:male_1', name: 'Kerem (Türkçe 6 Duygu Modlu AI)', lang: 'tr-TR', gender: 'Male', style: 'Cümleye göre mutlu, üzgün, kızgın, şaşkın, sakin tonlama', badge: '🎭 6 Duygu AI', category: 'tr' },
+    { id: 'en-US-EmmaMultilingualNeural', name: 'Emma (TR & EN Empatik Kadın)', lang: 'tr-TR / en-US', gender: 'Female', style: 'Yumuşak, empatik ve samimi anlatım (TR & EN)', badge: '🇹🇷/🇺🇸 Duygusal', category: 'tr' },
     { id: 'en-US-BrianMultilingualNeural', name: 'Brian (TR & EN Sakin Erkek)', lang: 'tr-TR / en-US', gender: 'Male', style: 'Sakin, akıcı ve doğal anlatım (TR & EN)', badge: '🇹🇷/🇺🇸 Çok Dilli', category: 'tr' },
     { id: 'fr-FR-VivienneMultilingualNeural', name: 'Vivienne (TR/EN/FR Zarif Kadın)', lang: 'Çok Dilli', gender: 'Female', style: 'Zarif, melodik ve duygusal anlatıcı', badge: 'Çok Dilli', category: 'tr' },
     { id: 'de-DE-SeraphinaMultilingualNeural', name: 'Seraphina (TR/EN/DE Berrak Kadın)', lang: 'Çok Dilli', gender: 'Female', style: 'Berrak, şiirsel çok dilli anlatıcı', badge: 'Çok Dilli', category: 'tr' },
@@ -2251,12 +2305,337 @@
     updateVoiceLabel();
   }
 
+  // ============================================================================
+  // 🎭 EMOTIONAL READING ENGINE (Cümle Duygu Analizi, Prosodi & Akustik Motoru)
+  // ============================================================================
+  const EMOTION_PROFILES = {
+    excited: {
+      id: 'excited',
+      icon: '🔥',
+      labelTr: 'Heyecanlı / Coşkulu',
+      labelEn: 'Excited / Vivid',
+      speedPct: 8,
+      pocketEmotion: 'şaşkın',
+      rateMult: 1.05,
+      pitchMult: 1.04,
+      preservePitch: false,
+      volume: 1.06,
+      eq: { low: 1.0, mid: 2.5, high: 3.2 },
+      pauseAfterMs: 280
+    },
+    sad: {
+      id: 'sad',
+      icon: '😢',
+      labelTr: 'Hüzünlü / Duygusal',
+      labelEn: 'Melancholic / Sad',
+      speedPct: -10,
+      pocketEmotion: 'üzgün',
+      rateMult: 0.94,
+      pitchMult: 0.96,
+      preservePitch: false,
+      volume: 0.89,
+      eq: { low: 2.8, mid: -1.2, high: -2.8 },
+      pauseAfterMs: 520
+    },
+    angry: {
+      id: 'angry',
+      icon: '😠',
+      labelTr: 'Öfkeli / Gergin',
+      labelEn: 'Tense / Fierce',
+      speedPct: 6,
+      pocketEmotion: 'kızgın',
+      rateMult: 1.04,
+      pitchMult: 0.98,
+      preservePitch: true,
+      volume: 1.08,
+      eq: { low: 2.4, mid: 3.6, high: 1.5 },
+      pauseAfterMs: 340
+    },
+    whisper: {
+      id: 'whisper',
+      icon: '🤫',
+      labelTr: 'Fısıltı / Gerilim',
+      labelEn: 'Whisper / Suspense',
+      speedPct: -10,
+      pocketEmotion: 'sakin',
+      rateMult: 0.93,
+      pitchMult: 0.98,
+      preservePitch: true,
+      volume: 0.83,
+      eq: { low: -3.5, mid: 0.5, high: 4.2 },
+      pauseAfterMs: 480
+    },
+    contemplative: {
+      id: 'contemplative',
+      icon: '💭',
+      labelTr: 'Düşünceli / İç Ses',
+      labelEn: 'Reflective / Deep',
+      speedPct: -7,
+      pocketEmotion: 'sakin',
+      rateMult: 0.95,
+      pitchMult: 0.98,
+      preservePitch: true,
+      volume: 0.93,
+      eq: { low: 2.0, mid: -0.5, high: -1.5 },
+      pauseAfterMs: 450
+    },
+    warm: {
+      id: 'warm',
+      icon: '❤️',
+      labelTr: 'Sıcak / Samimi',
+      labelEn: 'Warm / Tender',
+      speedPct: -3,
+      pocketEmotion: 'mutlu',
+      rateMult: 0.98,
+      pitchMult: 1.02,
+      preservePitch: true,
+      volume: 0.98,
+      eq: { low: 2.2, mid: 0.8, high: 1.5 },
+      pauseAfterMs: 260
+    },
+    questioning: {
+      id: 'questioning',
+      icon: '❓',
+      labelTr: 'Meraklı / Soru',
+      labelEn: 'Curious / Question',
+      speedPct: -2,
+      pocketEmotion: 'şaşkın',
+      rateMult: 0.99,
+      pitchMult: 1.03,
+      preservePitch: false,
+      volume: 1.0,
+      eq: { low: 0.5, mid: 1.8, high: 2.0 },
+      pauseAfterMs: 360
+    },
+    dialogue: {
+      id: 'dialogue',
+      icon: '💬',
+      labelTr: 'Canlı Diyalog',
+      labelEn: 'Live Dialogue',
+      speedPct: 2,
+      pocketEmotion: 'neutral',
+      rateMult: 1.01,
+      pitchMult: 1.01,
+      preservePitch: true,
+      volume: 1.02,
+      eq: { low: 0.8, mid: 1.8, high: 1.6 },
+      pauseAfterMs: 220
+    },
+    narrative: {
+      id: 'narrative',
+      icon: '📖',
+      labelTr: 'Akıcı Anlatım',
+      labelEn: 'Narration',
+      speedPct: 0,
+      pocketEmotion: 'neutral',
+      rateMult: 1.0,
+      pitchMult: 1.0,
+      preservePitch: true,
+      volume: 1.0,
+      eq: { low: 1.2, mid: 0.4, high: 0.8 },
+      pauseAfterMs: 180
+    }
+  };
+
+  function analyzeSentenceEmotion(text, sentenceIdx = -1) {
+    if (!text || settings.emotionMode === 'off') {
+      return EMOTION_PROFILES.narrative;
+    }
+    const raw = text.trim();
+    const lower = raw.toLowerCase();
+
+    const isParagraphEnd = sentenceIdx >= 0 && state.paragraphBreaks && state.paragraphBreaks.has(sentenceIdx + 1);
+    const hasQuotes = /["“”«»]|^—|^–/.test(raw);
+    const endsExclam = /!\s*["”’»)\]]*$/.test(raw) || /!/.test(raw);
+    const endsQuestion = /\?\s*["”’»)\]]*$/.test(raw);
+    const hasEllipsis = /(\.\.\.|…)/.test(raw);
+
+    // 1. Whisper / Mystery / Suspense / Fear
+    const whisperRe = /\b(fısılda\w*|fısıltı\w*|usulca|sessizce|ürper\w*|titre\w*|karanlık\w*|gölge\w*|korku\w*|dehşet\w*|ürkütücü|nefesini tut\w*|ayak ses\w*|gizlice|sır\b|saklan\w*|soğuk bir ter|mırıldan\w*|whisper\w*|murmur\w*|softly|quietly|trembl\w*|shiver\w*|shadow\w*|darkness|terror|horror|afraid|crept|footsteps|held (?:her|his|their) breath|eerie)\b/i;
+    if (whisperRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.whisper, isParagraphEnd);
+    }
+
+    // 2. Sad / Melancholic / Grief
+    const sadRe = /\b(ağla\w*|gözyaş\w*|hıçkır\w*|hüzün\w*|keder\w*|yalnız\w*|veda\b|elveda|iç çek\w*|içini çek\w*|kalbi kırıl\w*|solgun|üzgün\w*|matem\w*|ölüm\w*|öldü\b|kaybet\w*|özlem\w*|hasret\w*|çaresiz\w*|buruk|yüreği|acıy\w*|kederle|wept|cried|tears|sob\w*|sigh\w*|grief|sorrow\w*|sad\w*|lonel\w*|heartbreak|farewell|goodbye|mourn\w*|died|aching|hopeless|despair|longing)\b/i;
+    if (sadRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.sad, isParagraphEnd);
+    }
+
+    // 3. Angry / Fierce / Tense
+    const angryRe = /\b(öfke\w*|kızgın\w*|nefret\w*|kükre\w*|gürle\w*|yumruğ\w*|dişlerini sık\w*|sertçe|hiddet\w*|lanet\w*|defol\w*|yeter\b|sinir\w*|tehdit\w*|intikam\w*|kavga\w*|vurdu|çarptı|furious\w*|angr\w*|roar\w*|snap\w*|snarl\w*|growl\w*|clench\w*|hatred|rage|fury|curse\w*|damn|shut up|glare\w*|threaten\w*|slam\w*|fierce\w*)\b/i;
+    if (angryRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.angry, isParagraphEnd);
+    }
+
+    // 4. Excited / Surprised / Joyful
+    const excitedRe = /\b(bağır\w*|haykır\w*|çığlık\w*|müthiş|harika|inanılmaz|olamaz|koş\w*|çabuk|birdenbire|aniden|şaşkın\w*|heyecan\w*|sevinç\w*|kahkaha\w*|coşku\w*|fırla\w*|gözleri parla\w*|neşeyle|shout\w*|scream\w*|gasp\w*|exclaim\w*|incredible|amazing|wonderful|suddenly|hurry|impossible|shock\w*|thrill\w*|laugh\w*|burst|leap\w*|excited\w*|joy\w*)\b/i;
+    if (endsExclam || excitedRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.excited, isParagraphEnd);
+    }
+
+    // 5. Warm / Tender / Romantic
+    const warmRe = /\b(gülümse\w*|tebessüm\w*|sevgi\w*|aşk\w*|şefkat\w*|sarıl\w*|kucakla\w*|öptü|kalbi ısın\w*|sıcak\w*|tatlı\w*|nazikçe|dost\w*|huzur\w*|mutlu\w*|smil\w*|lov\w*|gentl\w*|tender\w*|embrac\w*|hug\w*|kiss\w*|warm\w*|sweet\w*|peace\w*|happ\w*|fond\w*)\b/i;
+    if (warmRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.warm, isParagraphEnd);
+    }
+
+    // 6. Contemplative / Reflective / Ellipsis
+    const contemplativeRe = /\b(düşün\w*|acaba|belki|hatırla\w*|anımsa\w*|geçmiş\w*|ruh\w*|sanki|dalgın\w*|kendi kendine|merak et\w*|sessizlik\w*|hayal\w*|uzaklara|wonder\w*|perhaps|maybe|remember\w*|recall\w*|memor\w*|soul|seem\w*|ponder\w*|reflect\w*|to (?:himself|herself)|dream\w*)\b/i;
+    if (hasEllipsis || contemplativeRe.test(lower)) {
+      return scaleEmotionProfile(EMOTION_PROFILES.contemplative, isParagraphEnd);
+    }
+
+    // 7. Questioning
+    if (endsQuestion) {
+      return scaleEmotionProfile(EMOTION_PROFILES.questioning, isParagraphEnd);
+    }
+
+    // 8. Dialogue vs Narrative
+    if (hasQuotes) {
+      return scaleEmotionProfile(EMOTION_PROFILES.dialogue, isParagraphEnd);
+    }
+
+    return scaleEmotionProfile(EMOTION_PROFILES.narrative, isParagraphEnd);
+  }
+
+  function scaleEmotionProfile(profile, isParagraphEnd = false) {
+    const mode = settings.emotionMode || 'high';
+    const scale = mode === 'balanced' ? 0.55 : (mode === 'off' ? 0 : 1.0);
+    const extraParaPause = isParagraphEnd ? 180 : 0;
+    return {
+      ...profile,
+      speedPct: Math.round(profile.speedPct * scale),
+      rateMult: 1 + (profile.rateMult - 1) * scale,
+      pitchMult: 1 + (profile.pitchMult - 1) * scale,
+      volume: 1 + (profile.volume - 1) * scale,
+      eq: {
+        low: profile.eq.low * scale,
+        mid: profile.eq.mid * scale,
+        high: profile.eq.high * scale
+      },
+      pauseAfterMs: Math.round(profile.pauseAfterMs * (0.4 + 0.6 * scale)) + extraParaPause
+    };
+  }
+
+  function enhanceTextForEmotionalTTS(text, emotion) {
+    let s = (text || '').replace(/\s+/g, ' ').trim();
+    if (!s || settings.emotionMode === 'off') return s;
+    // Normalize triple dots into true ellipsis with breathing space
+    s = s.replace(/\.{3,}/g, '… ');
+    // Add a natural micro-pause between quoted speech and Turkish/English attribution verbs
+    s = s.replace(/([!?”"»])\s+(diye\s+|dedi\b|sordu\b|fısıldadı\b|bağırdı\b|haykırdı\b|mırıldandı\b|iç çekti\b|ekledi\b|said\b|whispered\b|shouted\b|asked\b|cried\b|murmured\b|sighed\b)/gi, '$1 … $2');
+    // Add micro-pause after emotional interjections at sentence start
+    s = s.replace(/^(Ah|Oh|Eyvah|Aman|Tanrım|Allah'ım|Hayır|Evet|Dur|Bekle|Wait|Alas|Oh God)\s+([A-ZÇĞİÖŞÜa-zçğıöşü])/i, '$1, $2');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  // Web Audio API 3-Band Emotional Acoustic Processor
+  let emoAudioCtx = null;
+  let emoLowFilter = null;
+  let emoMidFilter = null;
+  let emoHighFilter = null;
+  let emoGainNode = null;
+  let emoGraphConnected = false;
+
+  function ensureEmotionalAudioGraph() {
+    if (emoGraphConnected) {
+      if (emoAudioCtx && emoAudioCtx.state === 'suspended') {
+        emoAudioCtx.resume().catch(() => {});
+      }
+      return;
+    }
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      emoAudioCtx = new AudioCtx();
+      const source = emoAudioCtx.createMediaElementSource(cloudAudio);
+
+      emoLowFilter = emoAudioCtx.createBiquadFilter();
+      emoLowFilter.type = 'lowshelf';
+      emoLowFilter.frequency.value = 220;
+      emoLowFilter.gain.value = 0;
+
+      emoMidFilter = emoAudioCtx.createBiquadFilter();
+      emoMidFilter.type = 'peaking';
+      emoMidFilter.frequency.value = 2400;
+      emoMidFilter.Q.value = 1.0;
+      emoMidFilter.gain.value = 0;
+
+      emoHighFilter = emoAudioCtx.createBiquadFilter();
+      emoHighFilter.type = 'highshelf';
+      emoHighFilter.frequency.value = 3900;
+      emoHighFilter.gain.value = 0;
+
+      emoGainNode = emoAudioCtx.createGain();
+      emoGainNode.gain.value = 1.0;
+
+      source.connect(emoLowFilter);
+      emoLowFilter.connect(emoMidFilter);
+      emoMidFilter.connect(emoHighFilter);
+      emoHighFilter.connect(emoGainNode);
+      emoGainNode.connect(emoAudioCtx.destination);
+      emoGraphConnected = true;
+    } catch (e) {
+      console.warn('Web Audio emotional EQ fallback to standard element:', e);
+    }
+  }
+
+  function applyEmotionalAcoustics(emotion) {
+    if (!emotion) return;
+    ensureEmotionalAudioGraph();
+    if (emoGraphConnected && emoAudioCtx) {
+      try {
+        const now = emoAudioCtx.currentTime;
+        emoLowFilter.gain.setTargetAtTime(emotion.eq?.low || 0, now, 0.04);
+        emoMidFilter.gain.setTargetAtTime(emotion.eq?.mid || 0, now, 0.04);
+        emoHighFilter.gain.setTargetAtTime(emotion.eq?.high || 0, now, 0.04);
+        emoGainNode.gain.setTargetAtTime(Math.max(0.6, Math.min(1.25, emotion.volume || 1)), now, 0.04);
+      } catch {}
+    } else {
+      try {
+        cloudAudio.volume = Math.max(0.5, Math.min(1.0, emotion.volume || 1));
+      } catch {}
+    }
+  }
+
+  function updateEmotionBadges(emotion) {
+    const rBadge = el('readerEmotionBadge');
+    const fpBadge = el('fpEmotionBadge');
+    if (!emotion || settings.emotionMode === 'off') {
+      rBadge?.classList.add('hidden');
+      fpBadge?.classList.add('hidden');
+      return;
+    }
+    const isEn = settings.uiLang === 'en';
+    const text = `${emotion.icon} ${isEn ? emotion.labelEn : emotion.labelTr}`;
+    if (rBadge) {
+      rBadge.textContent = text;
+      rBadge.classList.remove('hidden');
+    }
+    if (fpBadge) {
+      fpBadge.textContent = text;
+      fpBadge.classList.remove('hidden');
+    }
+  }
+
   function highlightSentence(i) {
     const view = el('readerView');
     const prev = view.querySelector('.current-sentence');
-    if (prev) prev.classList.remove('current-sentence');
+    if (prev) {
+      prev.classList.remove('current-sentence');
+      prev.removeAttribute('data-emotion');
+    }
     const cur = view.querySelector(`[data-sentence="${i}"]`);
-    if (cur) { cur.classList.add('current-sentence'); scrollToCurrent(); }
+    const emotion = analyzeSentenceEmotion(state.sentences[i] || '', i);
+    if (cur) {
+      cur.classList.add('current-sentence');
+      if (emotion && settings.emotionMode !== 'off') {
+        cur.setAttribute('data-emotion', emotion.id);
+      }
+      scrollToCurrent();
+    }
+    updateEmotionBadges(emotion);
     updateProgress();
     updateBookmarkButtonState();
   }
@@ -2334,14 +2713,16 @@
   let playbackToken = 0;
   let consecutiveErrors = 0;
   let speechKeepAliveTimer = null;
+  let emotionPauseTimer = null;
   let audioUnlocked = false;
   const SILENT_WAV = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
   const cloudAudio = el('cloudAudio');
-  const prefetchCache = new Map(); // cacheKey -> Promise<{ blob, empty }>
+  const prefetchCache = new Map(); // cacheKey -> Promise<{ blob, empty, emotion }>
 
   function unlockCloudAudio() {
     if (audioUnlocked) return;
     try {
+      ensureEmotionalAudioGraph();
       cloudAudio.src = SILENT_WAV;
       const p = cloudAudio.play();
       if (p && typeof p.then === 'function') {
@@ -2354,10 +2735,62 @@
   }
 
   function getCacheKey(sentenceIdx) {
-    return `${settings.cloudVoice}:${sentenceIdx}`;
+    return `${settings.cloudVoice}:${settings.emotionMode || 'high'}:${sentenceIdx}`;
   }
 
-  async function callFlaevoNeuralEdge(cleanText, neuralVoice, signal) {
+  async function callAheedNeuralEdge(cleanText, neuralVoice, speedPct = 0, signal) {
+    const host = 'https://aheedsajid-edge-tts.hf.space';
+    const clampedSpeed = Math.max(-45, Math.min(45, Math.round((speedPct || 0) / 5) * 5));
+    const r1 = await fetch(`${host}/gradio_api/call/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [cleanText, neuralVoice, clampedSpeed] }),
+      signal
+    });
+    if (!r1.ok) throw new Error(`Aheed Edge POST HTTP ${r1.status}`);
+    const { event_id } = await r1.json();
+    if (!event_id) throw new Error('Aheed Edge missing event_id');
+    const r2 = await fetch(`${host}/gradio_api/call/predict/${event_id}`, { signal });
+    if (!r2.ok) throw new Error(`Aheed Edge SSE HTTP ${r2.status}`);
+    const sse = await r2.text();
+    const m = sse.match(/event:\s*complete\s*\r?\ndata:\s*([^\r\n]+)/);
+    if (!m) throw new Error('Aheed Edge incomplete SSE');
+    const payload = JSON.parse(m[1]);
+    const filePath = payload?.[1]?.path;
+    if (!filePath) throw new Error('Aheed Edge missing audio path');
+    const rAudio = await fetch(`${host}/gradio_api/file=${filePath}`, { signal });
+    if (!rAudio.ok) throw new Error(`Aheed Edge audio HTTP ${rAudio.status}`);
+    const blob = await rAudio.blob();
+    if (blob && blob.size >= 800) return { blob, empty: false };
+    throw new Error('Aheed Edge empty audio');
+  }
+
+  async function callPocketTurkishEmotionalTTS(cleanText, speakerId = 'female_1', pocketEmotion = 'neutral', signal) {
+    const host = 'https://wite-tech-pocket-tts-turkish.hf.space';
+    const r1 = await fetch(`${host}/gradio_api/call/synthesize`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [cleanText, speakerId, pocketEmotion || 'neutral'] }),
+      signal
+    });
+    if (!r1.ok) throw new Error(`Pocket-TTS POST HTTP ${r1.status}`);
+    const { event_id } = await r1.json();
+    const r2 = await fetch(`${host}/gradio_api/call/synthesize/${event_id}`, { signal });
+    const sse = await r2.text();
+    const m = sse.match(/event:\s*complete\s*\r?\ndata:\s*([^\r\n]+)/);
+    if (!m) throw new Error('Pocket-TTS SSE failed');
+    const payload = JSON.parse(m[1]);
+    const fileObj = payload?.[0];
+    const audioUrl = fileObj?.path ? `${host}/gradio_api/file=${fileObj.path}` : fileObj?.url;
+    if (!audioUrl) throw new Error('Pocket-TTS missing audio URL');
+    const rAudio = await fetch(audioUrl, { signal });
+    const blob = await rAudio.blob();
+    if (blob && blob.size >= 800) return { blob, empty: false };
+    throw new Error('Pocket-TTS empty audio');
+  }
+
+  async function callFlaevoNeuralEdge(cleanText, neuralVoice, speedPct = 0, signal) {
+    const speedFloat = Math.max(0.6, Math.min(1.5, Number((1 + (speedPct || 0) / 100).toFixed(2))));
     try {
       const resp = await fetch('https://braindesmond-flaevo-tts-edge.hf.space/tts', {
         method: 'POST',
@@ -2368,55 +2801,77 @@
         body: JSON.stringify({
           text: cleanText,
           voice: neuralVoice,
-          speed: 1.0
+          speed: speedFloat
         }),
         signal
       });
       if (!resp.ok) throw new Error(`Flaevo Edge POST HTTP ${resp.status}`);
       const blob = await resp.blob();
-      if (blob && blob.size >= 400) return { blob, empty: false };
+      if (blob && blob.size >= 800) return { blob, empty: false };
     } catch (postErr) {
       if (signal && signal.aborted) throw postErr;
-      const getUrl = `https://braindesmond-flaevo-tts-edge.hf.space/say?text=${encodeURIComponent(cleanText)}&voice=${encodeURIComponent(neuralVoice)}&speed=1.0&k=flaevo-tts-secure-token-99`;
+      const getUrl = `https://braindesmond-flaevo-tts-edge.hf.space/say?text=${encodeURIComponent(cleanText)}&voice=${encodeURIComponent(neuralVoice)}&speed=${speedFloat}&k=flaevo-tts-secure-token-99`;
       const resp2 = await fetch(getUrl, { signal });
       if (!resp2.ok) throw new Error(`Flaevo Edge GET HTTP ${resp2.status}`);
       const blob2 = await resp2.blob();
-      if (blob2 && blob2.size >= 400) return { blob: blob2, empty: false };
+      if (blob2 && blob2.size >= 800) return { blob: blob2, empty: false };
     }
-    return { blob: null, empty: true };
+    throw new Error('Flaevo returned empty audio');
   }
 
-  async function fetchCloudAudioWithRetry(text, voice) {
+  async function fetchCloudAudioWithRetry(text, voice, sentenceIdx = -1) {
     if (!cloudVoicesLoaded) {
       try { await loadCloudVoices(); } catch {}
     }
 
-    const cleanText = text.replace(/\s+/g, ' ').trim();
-    if (!cleanText) return { blob: null, empty: true };
+    const emotion = analyzeSentenceEmotion(text, sentenceIdx);
+    const shapedText = enhanceTextForEmotionalTTS(text, emotion);
+    if (!shapedText) return { blob: null, empty: true, emotion };
 
-    // Always keep the user's selected voice strictly consistent (only map deprecated IDs if any)
+    // Always keep the user's selected voice strictly consistent
     const effectiveVoice = LEGACY_VOICE_MIGRATION[voice] || voice || 'en-US-AvaMultilingualNeural';
 
-    // 1. Microsoft Edge Neural v2 Voices (Turkish, Multilingual, and Expressive English)
+    // 1. Dedicated 6-Emotion Turkish AI Voices (Elif & Kerem via Pocket-TTS Turkish)
+    if (effectiveVoice.startsWith('tr-emotional:')) {
+      const speakerId = effectiveVoice.split(':')[1] || 'female_1';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 14000);
+      try {
+        const res = await callPocketTurkishEmotionalTTS(shapedText, speakerId, emotion.pocketEmotion, controller.signal);
+        clearTimeout(timeoutId);
+        return { ...res, emotion };
+      } catch (err) {
+        clearTimeout(timeoutId);
+        // Fallback to Emel/Ahmet Neural with emotional prosody if Pocket-TTS is busy
+        const fallbackNeural = speakerId.startsWith('male') ? 'tr-TR-AhmetNeural' : 'tr-TR-EmelNeural';
+        const res2 = await callAheedNeuralEdge(shapedText, fallbackNeural, emotion.speedPct);
+        return { ...res2, emotion };
+      }
+    }
+
+    // 2. Microsoft Edge Neural v2 Voices (Turkish, Multilingual, and Expressive English)
     if (effectiveVoice.endsWith('Neural')) {
       let lastErr = null;
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 2; attempt++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
         try {
-          const res = await callFlaevoNeuralEdge(cleanText, effectiveVoice, controller.signal);
+          const res = await callAheedNeuralEdge(shapedText, effectiveVoice, emotion.speedPct, controller.signal);
           clearTimeout(timeoutId);
-          return res;
+          return { ...res, emotion };
         } catch (err) {
           clearTimeout(timeoutId);
           lastErr = err;
-          if (attempt < 2) await new Promise(r => setTimeout(r, 250 * (attempt + 1)));
+          try {
+            const resFlaevo = await callFlaevoNeuralEdge(shapedText, effectiveVoice, emotion.speedPct);
+            return { ...resFlaevo, emotion };
+          } catch {}
         }
       }
       throw lastErr || new Error('Neural TTS failed');
     }
 
-    // 2. Studio / Cloudflare Worker TTS (Deepgram Aura-1 voices e.g. asteria-en, luna-en)
+    // 3. Studio / Cloudflare Worker TTS (Deepgram Aura-1 voices e.g. asteria-en, luna-en)
     let lastErr = null;
     for (let attempt = 0; attempt < 2; attempt++) {
       const controller = new AbortController();
@@ -2426,10 +2881,10 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: cleanText,
+            text: shapedText,
             voice: effectiveVoice,
-            rate: 1,
-            pitch: settings.pitch
+            rate: emotion.rateMult || 1,
+            pitch: settings.pitch * (emotion.pitchMult || 1)
           }),
           signal: controller.signal
         });
@@ -2437,9 +2892,9 @@
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const blob = await resp.blob();
         if (!blob || blob.size <= 1000) {
-          return { blob: null, empty: true };
+          return { blob: null, empty: true, emotion };
         }
-        return { blob, empty: false };
+        return { blob, empty: false, emotion };
       } catch (err) {
         clearTimeout(timeoutId);
         lastErr = err.name === 'AbortError' ? new Error('Request timed out') : err;
@@ -2455,7 +2910,7 @@
     const key = getCacheKey(sentenceIdx);
     if (prefetchCache.has(key)) return prefetchCache.get(key);
 
-    const promise = fetchCloudAudioWithRetry(text, settings.cloudVoice).catch(err => {
+    const promise = fetchCloudAudioWithRetry(text, settings.cloudVoice, sentenceIdx).catch(err => {
       // Never keep rejected promises in cache so retrying Play always works
       prefetchCache.delete(key);
       throw err;
@@ -2525,12 +2980,18 @@
         URL.revokeObjectURL(cloudAudio._lastUrl);
         cloudAudio._lastUrl = null;
       }
+      const emotion = res.emotion || analyzeSentenceEmotion(text, idx);
       const url = URL.createObjectURL(res.blob);
       cloudAudio._activeToken = token;
+      cloudAudio._activeEmotion = emotion;
       cloudAudio.src = url;
       cloudAudio._lastUrl = url;
-      cloudAudio.playbackRate = Math.max(0.5, Math.min(2.5, settings.rate));
-      cloudAudio.preservesPitch = true;
+
+      // Apply emotional acoustics (3-band EQ, warmth/breathiness, gain & subtle pitch-rate contour)
+      applyEmotionalAcoustics(emotion);
+      const pitchRateAdjust = (settings.emotionMode !== 'off' && emotion.preservePitch === false) ? (emotion.pitchMult || 1) : 1;
+      cloudAudio.preservesPitch = emotion.preservePitch !== false;
+      cloudAudio.playbackRate = Math.max(0.5, Math.min(2.5, settings.rate * pitchRateAdjust));
 
       try {
         await cloudAudio.play();
@@ -2564,8 +3025,22 @@
 
   cloudAudio.addEventListener('ended', () => {
     if (cloudAudio._activeToken !== playbackToken) return;
+    const endedToken = playbackToken;
+    const emotion = cloudAudio._activeEmotion;
     if (cloudAudio._lastUrl) { URL.revokeObjectURL(cloudAudio._lastUrl); cloudAudio._lastUrl = null; }
-    if (settings.engine === 'cloud' && state.playing) advance();
+    if (settings.engine === 'cloud' && state.playing) {
+      const pauseMs = emotion && settings.emotionMode !== 'off'
+        ? Math.round((emotion.pauseAfterMs || 180) / Math.max(0.75, settings.rate || 1))
+        : 0;
+      if (pauseMs > 40) {
+        clearTimeout(emotionPauseTimer);
+        emotionPauseTimer = setTimeout(() => {
+          if (endedToken === playbackToken && state.playing) advance();
+        }, pauseMs);
+      } else {
+        advance();
+      }
+    }
   });
 
   cloudAudio.addEventListener('error', () => {
@@ -2622,16 +3097,28 @@
     const text = state.sentences[idx];
     if (!text || !isSpeakable(text)) { advance(); return; }
     highlightSentence(idx);
+    const emotion = analyzeSentenceEmotion(text, idx);
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(enhanceTextForEmotionalTTS(text, emotion));
     const voice = voices.find(v => v.voiceURI === settings.voiceURI);
     if (voice) { u.voice = voice; u.lang = voice.lang; }
-    u.rate = settings.rate;
-    u.pitch = settings.pitch;
+    u.rate = Math.max(0.5, Math.min(2.5, settings.rate * (emotion.rateMult || 1)));
+    u.pitch = Math.max(0.5, Math.min(2.0, settings.pitch * (emotion.pitchMult || 1)));
+    u.volume = Math.max(0.5, Math.min(1.0, emotion.volume || 1));
     u.onend = () => {
       if (token === playbackToken && u === currentUtterance && state.playing) {
         consecutiveErrors = 0;
-        advance();
+        const pauseMs = emotion && settings.emotionMode !== 'off'
+          ? Math.round((emotion.pauseAfterMs || 180) / Math.max(0.75, settings.rate || 1))
+          : 0;
+        if (pauseMs > 40) {
+          clearTimeout(emotionPauseTimer);
+          emotionPauseTimer = setTimeout(() => {
+            if (token === playbackToken && state.playing) advance();
+          }, pauseMs);
+        } else {
+          advance();
+        }
       }
     };
     u.onerror = (e) => {
@@ -2666,6 +3153,7 @@
   function haltActiveAudio() {
     playbackToken++;
     clearSpeechKeepAlive();
+    clearTimeout(emotionPauseTimer);
     try { window.speechSynthesis.cancel(); } catch {}
     try { cloudAudio.pause(); } catch {}
   }
@@ -3081,8 +3569,27 @@
   }
 
   // Speed sheet
+  function updateEmotionModePills() {
+    const mode = settings.emotionMode || 'high';
+    document.querySelectorAll('#emotionModeBar .voice-filter-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.emode === mode);
+    });
+  }
+  document.querySelectorAll('#emotionModeBar .voice-filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      settings.emotionMode = btn.dataset.emode || 'high';
+      saveSettings();
+      invalidatePrefetch();
+      updateEmotionModePills();
+      if (state.sentences.length && state.currentSentence >= 0) {
+        highlightSentence(state.currentSentence);
+      }
+    });
+  });
+
   function openSpeedSheet() {
     renderSpeedOptions();
+    updateEmotionModePills();
     el('rateSlider').value = settings.rate;
     el('rateValue').textContent = settings.rate.toFixed(2) + '×';
     el('pitchSlider').value = settings.pitch;

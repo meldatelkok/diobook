@@ -1,5 +1,5 @@
 // DioBook Service Worker
-const CACHE_VERSION = 'diobook-v12';
+const CACHE_VERSION = 'diobook-v13';
 const APP_SHELL = [
   './',
   './index.html',
