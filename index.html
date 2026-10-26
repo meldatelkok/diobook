@@ -993,7 +993,7 @@
   <div id="libraryPage">
     <div class="topbar">
       <button id="brandIconBtn" title="Uygulama Simgesini Değiştir / Change App Icon" style="background:none; border:none; padding:0; margin-right:4px; cursor:pointer; display:flex; align-items:center; flex-shrink:0;">
-        <img id="appBrandIcon" src="icon-4-minimal-ivory.svg" alt="DioBook" style="width:30px; height:30px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.35);">
+        <img id="appBrandIcon" src="icon-12-fanned-wave-pages.svg" alt="DioBook" style="width:30px; height:30px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.35);">
       </button>
       <h1 id="libraryHeaderTitle">Kütüphane</h1>
       <button class="icon-btn" id="langToggleBtn" title="Dil / Language" style="font-size:12px; font-weight:700; width:auto; padding:0 10px; border-radius:16px;">🇹🇷 TR</button>
@@ -1596,6 +1596,8 @@
       autoSummary: false, summaryLang: 'Turkish',
       uiLang: 'tr',
       emotionMode: 'high',
+      appIcon: 'icon-12-fanned-wave-pages.svg',
+      iconMigratedV2: true,
       neuralMigratedV3: true
     };
     try {
@@ -1606,6 +1608,10 @@
       if (!saved.neuralMigratedV3) {
         saved.engine = 'cloud';
         saved.neuralMigratedV3 = true;
+      }
+      if (!saved.iconMigratedV2) {
+        saved.appIcon = 'icon-12-fanned-wave-pages.svg';
+        saved.iconMigratedV2 = true;
       }
       return Object.assign({}, defaults, saved);
     } catch { return defaults; }
@@ -8202,23 +8208,30 @@
   // === 7. App Icon Designs & Interactive Switcher (9 Curated Minimalist Black & White Icons) ===
   const APP_ICONS = [
     {
+      id: 'icon-12-fanned-wave-pages.svg',
+      titleTr: '★ Yeni 6 · Yelpaze Sayfalar (Beyaz)',
+      titleEn: '★ New 6 · Fanned Wave Pages (White)',
+      subTr: 'Ses dalgası gibi katmanlı açılan minimalist sayfalar',
+      subEn: 'Layered book pages fanning upward like sound waves'
+    },
+    {
       id: 'icon-4-minimal-ivory.svg',
-      titleTr: '★ Akustik Sayfalar (Siyah)',
-      titleEn: '★ Acoustic Page Arcs (Black)',
+      titleTr: 'Akustik Sayfalar (Siyah)',
+      titleEn: 'Acoustic Page Arcs (Black)',
       subTr: 'Sayfalardan yükselen eşmerkezli ses halkaları (#4)',
       subEn: 'Concentric sound arcs rising from curved pages (#4)'
     },
     {
       id: 'icon-2-golden-classic.svg',
-      titleTr: '★ Kulaklık & Kitap (Beyaz)',
-      titleEn: '★ Headphone & Book (White)',
+      titleTr: 'Kulaklık & Kitap (Beyaz)',
+      titleEn: 'Headphone & Book (White)',
       subTr: 'Beyaz zemin üzerinde çizgisel kitap ve kulaklık (#2)',
       subEn: 'Clean black line-art book & headphones on white (#2)'
     },
     {
       id: 'icon-5-cosmic-moon.svg',
-      titleTr: '★ Bauhaus Plak & Kitap (Beyaz)',
-      titleEn: '★ Bauhaus Disc & Book (White)',
+      titleTr: 'Bauhaus Plak & Kitap (Beyaz)',
+      titleEn: 'Bauhaus Disc & Book (White)',
       subTr: 'Geometrik siyah kitap ve ses plağı (#5)',
       subEn: 'Geometric black book & audio disc on white (#5)'
     },
@@ -8256,18 +8269,11 @@
       titleEn: 'New 5 · Zen Sound Halo & Book',
       subTr: 'Tam daire ses halkası içinde yükselen açık sayfalar',
       subEn: 'Full circular acoustic halo cradling open book pages'
-    },
-    {
-      id: 'icon-12-fanned-wave-pages.svg',
-      titleTr: 'Yeni 6 · Yelpaze Sayfalar (Beyaz)',
-      titleEn: 'New 6 · Fanned Wave Pages (White)',
-      subTr: 'Ses dalgası gibi katmanlı açılan minimalist sayfalar',
-      subEn: 'Layered book pages fanning upward like sound waves'
     }
   ];
 
   function applySelectedAppIcon() {
-    const chosenId = settings.appIcon || 'icon-4-minimal-ivory.svg';
+    const chosenId = settings.appIcon || 'icon-12-fanned-wave-pages.svg';
     const iconObj = APP_ICONS.find(i => i.id === chosenId) || APP_ICONS[0];
     const brandImg = el('appBrandIcon');
     if (brandImg) brandImg.src = iconObj.id;
@@ -8289,7 +8295,7 @@
     const grid = el('iconPickerGrid');
     if (!grid) return;
     const isEn = settings.uiLang === 'en';
-    const currentId = settings.appIcon || 'icon-4-minimal-ivory.svg';
+    const currentId = settings.appIcon || 'icon-12-fanned-wave-pages.svg';
     if (el('iconPickerHeader')) {
       el('iconPickerHeader').textContent = isEn ? '🎨 Choose App Icon' : '🎨 Uygulama Simgesi Seç';
     }
