@@ -329,6 +329,81 @@
     transition: all 0.2s ease;
     white-space: nowrap;
   }
+  .home-tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    padding: 5px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+  }
+  .home-tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.18s ease;
+  }
+  .home-tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.35);
+  }
+  .discover-card .book-cover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .discover-card:hover .book-cover {
+    transform: translateY(-3px);
+  }
+  .cover-badge-top {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(15, 15, 22, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+    max-width: calc(100% - 16px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cover-play-fab {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    border-radius: 17px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .cover-play-fab:hover {
+    transform: scale(1.08);
+    background: var(--accent-hover);
+  }
 
   /* Mini player */
   .mini-player {
@@ -1132,6 +1207,18 @@
   </div>
 </div>
 
+<!-- Book Cover & Synopsis Preview Sheet (Keşfet Vitrini) -->
+<div class="sheet-backdrop" id="discoverPreviewBackdrop"></div>
+<div class="sheet" id="discoverPreviewSheet" style="max-height: 90vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="discoverPreviewHeader">Kitap İncele</h3>
+    <button class="close" id="discoverPreviewClose">Tamam</button>
+  </div>
+  <div class="sheet-body" id="discoverPreviewBody" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:12px;">
+  </div>
+</div>
+
 <!-- Chat sheet -->
 <div class="sheet-backdrop" id="chatBackdrop"></div>
 <div class="sheet" id="chatSheet" style="max-height: 92vh;">
@@ -1351,6 +1438,17 @@
       noOnlineResults: 'İnternette eşleşen ücretsiz tam metin kitap bulunamadı.',
       openAndListenBtn: '▶ Aç & Dinle',
       searchCatalogPlaceholder: 'Kitap veya yazar ara (örn: Sherlock, Ömer Seyfettin, Dracula)…',
+      tabMyLibrary: '📚 Kütüphanem',
+      tabDiscover: '🧭 Keşfet & Vitrin',
+      discoverShowcaseTitle: '✨ Kitap Vitrini — Kapaklara Dokunup İnceleyin veya Hemen Dinleyin',
+      previewHeader: 'Kitap Detayı',
+      listenNowBtn: '🎧 Hemen Aç & Dinle',
+      catAll: '✨ Tümü',
+      catTr: '🇹🇷 Türkçe Eserler',
+      catEn: '🇬🇧 İngilizce Klasikler',
+      catMystery: '🕵️ Gizem & Macera',
+      catRomance: '💜 Romantik & Dram',
+      catScifi: '🏰 Gotik & Bilimkurgu',
       continueReading: 'Dinlemeye devam et',
       allBooks: 'Tüm kitaplar',
       noMatches: 'Eşleşen kitap bulunamadı',
@@ -1415,6 +1513,17 @@
       noOnlineResults: 'No matching free full-text books found online.',
       openAndListenBtn: '▶ Open & Listen',
       searchCatalogPlaceholder: 'Search book or author (e.g. Sherlock, Omer Seyfettin, Dracula)…',
+      tabMyLibrary: '📚 My Library',
+      tabDiscover: '🧭 Discover & Covers',
+      discoverShowcaseTitle: '✨ Book Showcase — Tap Any Cover to Inspect or Listen Instantly',
+      previewHeader: 'Book Details',
+      listenNowBtn: '🎧 Open & Listen Now',
+      catAll: '✨ All',
+      catTr: '🇹🇷 Turkish Works',
+      catEn: '🇬🇧 English Classics',
+      catMystery: '🕵️ Mystery & Adventure',
+      catRomance: '💜 Romance & Drama',
+      catScifi: '🏰 Gothic & Sci-Fi',
       continueReading: 'Continue reading',
       allBooks: 'All books',
       noMatches: 'No matches',
@@ -1739,16 +1848,49 @@
     e.target.value = '';
   });
 
-  // Library rendering
+  // Library & Discover Showcase Tab Rendering
   let librarySearch = '';
   let libraryOnlineSearchTimer = null;
+  let activeHomeTab = 'library'; // 'library' | 'discover'
+  let activeDiscoverCat = 'all';
+  let discoverSearchQuery = '';
+  let discoverSearchTimer = null;
+
+  function renderHomeTabsHtml() {
+    const libCount = state.library.length ? ` (${state.library.length})` : '';
+    return `
+      <div class="home-tabs" id="homeTabBar">
+        <button class="home-tab-btn ${activeHomeTab === 'library' ? 'active' : ''}" data-htab="library">
+          ${escapeHtml(t('tabMyLibrary'))}${escapeHtml(libCount)}
+        </button>
+        <button class="home-tab-btn ${activeHomeTab === 'discover' ? 'active' : ''}" data-htab="discover">
+          ${escapeHtml(t('tabDiscover'))}
+        </button>
+      </div>`;
+  }
+
+  function bindHomeTabEvents(container) {
+    container.querySelectorAll('#homeTabBar .home-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeHomeTab = btn.dataset.htab || 'library';
+        renderLibrary();
+      });
+    });
+  }
+
   function renderLibrary() {
     const container = el('libraryContent');
+    if (activeHomeTab === 'discover') {
+      renderDiscoverShowcaseTab(container);
+      return;
+    }
+
     if (!state.library.length) {
       container.innerHTML = `
+        ${renderHomeTabsHtml()}
         <div class="lib-controls" style="margin-bottom:14px;">
           <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
-          <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('freeClassicsBtn'))}</button>
+          <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('tabDiscover'))}</button>
         </div>
         <div id="libraryOnlineResults" style="margin-bottom:16px;"></div>
         <div class="empty-state" id="emptyLibraryCard">
@@ -1757,12 +1899,13 @@
           <p>${escapeHtml(t('emptySub'))}</p>
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
             <button class="primary-btn" id="emptyAddBtn">${escapeHtml(t('addBookBtn'))}</button>
-            <button class="secondary-btn" id="emptyClassicsBtn">${escapeHtml(t('freeClassicsBtn'))}</button>
+            <button class="secondary-btn" id="emptyClassicsBtn">${escapeHtml(t('tabDiscover'))}</button>
           </div>
         </div>`;
+      bindHomeTabEvents(container);
       el('emptyAddBtn').addEventListener('click', () => el('fileInput').click());
-      el('emptyClassicsBtn').addEventListener('click', () => openClassicsSheet());
-      el('openClassicsTopBtn').addEventListener('click', () => openClassicsSheet());
+      el('emptyClassicsBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
+      el('openClassicsTopBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
       const searchInput = el('librarySearch');
       searchInput.addEventListener('input', (e) => {
         librarySearch = e.target.value;
@@ -1806,16 +1949,18 @@
     }
 
     container.innerHTML = `
+      ${renderHomeTabsHtml()}
       <div class="lib-controls">
         <input type="text" class="lib-search" id="librarySearch" placeholder="${escapeHtml(t('searchLibrary'))}" value="${escapeHtml(librarySearch)}">
-        <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('freeClassicsBtn'))}</button>
+        <button class="sort-btn" id="openClassicsTopBtn" style="color:var(--accent); font-weight:600;">${escapeHtml(t('tabDiscover'))}</button>
         <button class="sort-btn" id="sortBtn">${Icons.sort}<span style="margin-left:6px;">${escapeHtml(sortLabel)}</span></button>
       </div>
       ${continueHtml}
       <div class="library-title">${escapeHtml(t('allBooks'))}</div>
       <div class="book-grid" id="bookGrid"></div>
-      <div id="libraryOnlineResults" style="margin-top:20px;"></div>`;
+      <div id="libraryOnlineResults" style="margin-top:24px;"></div>`;
 
+    bindHomeTabEvents(container);
     const searchInput = el('librarySearch');
     searchInput.addEventListener('input', (e) => {
       librarySearch = e.target.value;
@@ -1823,7 +1968,7 @@
       triggerLibraryOnlineSearch(librarySearch);
     });
     el('sortBtn').addEventListener('click', cycleSortOrder);
-    el('openClassicsTopBtn').addEventListener('click', openClassicsSheet);
+    el('openClassicsTopBtn').addEventListener('click', () => { activeHomeTab = 'discover'; renderLibrary(); });
 
     if (continueBook && !librarySearch) {
       const contCard = el('libraryContent').querySelector('.continue-card');
@@ -5059,15 +5204,18 @@
   el('bookSearchInput')?.addEventListener('input', () => runBookSearch(false));
   el('searchAllChBtn')?.addEventListener('click', () => runBookSearch(true));
 
-  // === 6. Free Classics Catalog (Turkish & English) ===
+  // === 6. Free Classics & Visual Book Showcase Catalog (Turkish & English) ===
   const FREE_CLASSICS_CATALOG = [
     {
       id: 'tr-omer-seyfettin',
       lang: 'tr',
+      cat: ['tr'],
+      palette: ['#7C2D12', '#B45309', '#FDE68A'],
+      emblem: 'quill',
       badge: '🇹🇷 Türkçe Klasik',
       title: 'Seçme Hikâyeler (Kaşağı, Falaka, Yüksek Ökçeler)',
       author: 'Ömer Seyfettin',
-      desc: 'Türk edebiyatının en sevilen klasik öykülerinden seçmeler.',
+      desc: 'Türk edebiyatının en sevilen klasik öykülerinden seçmeler: Kaşağı, Falaka ve Yüksek Ökçeler bir arada.',
       chapters: [
         {
           title: 'Bölüm 1: Kaşağı',
@@ -5101,10 +5249,13 @@
     {
       id: 'tr-kucuk-prens',
       lang: 'tr',
+      cat: ['tr', 'romance'],
+      palette: ['#1E3A8A', '#3B82F6', '#FDE047'],
+      emblem: 'stars',
       badge: '🇹🇷 Türkçe Klasik',
       title: 'Küçük Prens (Seçme Bölümler)',
       author: 'Antoine de Saint-Exupéry',
-      desc: 'Çölde başlayan dostluğun, B-612 asteroidinin ve Tilki’nin unutulmaz hikâyesi.',
+      desc: 'Çölde başlayan dostluğun, B-612 asteroidinin, eşsiz Gül’ün ve Tilki’nin unutulmaz hikâyesi.',
       chapters: [
         {
           title: 'Bölüm 1: Çölde Karşılaşma ve Koyun Resmi',
@@ -5136,6 +5287,9 @@
     {
       id: 'tr-kafka-donusum',
       lang: 'tr',
+      cat: ['tr', 'scifi'],
+      palette: ['#1F2937', '#374151', '#A7F3D0'],
+      emblem: 'moon',
       badge: '🇹🇷 Türkçe Klasik',
       title: 'Dönüşüm (Seçme Bölümler)',
       author: 'Franz Kafka',
@@ -5168,60 +5322,272 @@
       ]
     },
     {
+      id: 'tr-yunus-emre',
+      lang: 'tr',
+      cat: ['tr', 'romance'],
+      palette: ['#064E3B', '#059669', '#FDE68A'],
+      emblem: 'rose',
+      badge: '🇹🇷 Tasavvuf & Şiir',
+      title: 'Yunus Emre Seçme Şiirler & İlahiler',
+      author: 'Yunus Emre',
+      desc: 'Anadolu tasavvuf edebiyatının öncüsü Yunus Emre’den gönüllere dokunan seçme şiirler.',
+      chapters: [
+        {
+          title: 'Bölüm 1: İlim İlim Bilmektir & Bana Seni Gerek Seni',
+          paragraphs: [
+            'İlim ilim bilmektir, ilim kendin bilmektir. Sen kendini bilmezsin, ya nice okumaktır! Okumaktan murat ne, kişi Hakk’ı bilmektir. Çün okudun bilmezsin, ha bir kuru emektir.',
+            'Dört kitabın mânâsı bellidir bir elifte. Sen elifi bilmezsin, bu nice okumaktır! Yunus Emre der hoca, gerekse bin var hacca, hepsinden iyice, bir gönüle girmektir.',
+            'Aşkın aldı benden beni, bana seni gerek seni. Ben yanarım dün ü günü, bana seni gerek seni! Ne varlığa sevinirim, ne yokluğa yerinirim, aşkın ile avunurum, bana seni gerek seni!',
+            'Cennet cennet dedikleri, birkaç köşkle birkaç huri; isteyene ver anları, bana seni gerek seni! Yunus’dürür benim adım, gün geçtikçe artar odum, iki cihanda maksudum, bana seni gerek seni!'
+          ]
+        },
+        {
+          title: 'Bölüm 2: Gel Gör Beni Aşk Neyledi & Ben Yürürüm Yane Yane',
+          paragraphs: [
+            'Ben yürürüm yane yane, aşk boyadı beni kane, ne akilem ne divane, gel gör beni aşk neyledi! Gâh eserim yeller gibi, gâh tozarım yollar gibi, gâh akarım seller gibi, gel gör beni aşk neyledi!',
+            'Akarsular gibi çağlarım, dertli ciğerim dağlarım, şeyhim anuban ağlarım, gel gör beni aşk neyledi! Ya elim al kaldır beni, ya vaslına erdir beni, çok ağlattın güldür beni, gel gör beni aşk neyledi!',
+            'Gelin tanış olalım, işi kolay kılalım, sevelim sevilelim, dünya kimseye kalmaz. Yunus sözün anlayana, mânâsını dinleyene, bir sıcak selam verene, dünya kimseye kalmaz.'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'tr-kesik-biyik',
+      lang: 'tr',
+      cat: ['tr'],
+      palette: ['#581C87', '#7E22CE', '#FBCFE8'],
+      emblem: 'quill',
+      badge: '🇹🇷 Türkçe Hikâye',
+      title: 'Kesik Bıyık & Pembe İncili Kaftan',
+      author: 'Ömer Seyfettin',
+      desc: 'Ömer Seyfettin’in mizahi ve tarihi başyapıtlarından Kesik Bıyık ve Pembe İncili Kaftan.',
+      wikisourceTitle: 'Kesik Bıyık'
+    },
+    {
+      id: 'tr-safahat-secme',
+      lang: 'tr',
+      cat: ['tr', 'romance'],
+      palette: ['#7F1D1D', '#B91C1C', '#FEF08A'],
+      emblem: 'moon',
+      badge: '🇹🇷 Klasik Eser',
+      title: 'İstiklâl Marşı ve Safahat’tan Seçmeler',
+      author: 'Mehmet Âkif Ersoy',
+      desc: 'Mehmet Âkif Ersoy’un kaleminden İstiklâl Marşı, Çanakkale Şehitlerine ve Küfe.',
+      chapters: [
+        {
+          title: 'Bölüm 1: İstiklâl Marşı & Zulmü Alkışlayamam',
+          paragraphs: [
+            'Korkma, sönmez bu şafaklarda yüzen al sancak; sönmeden yurdumun üstünde tüten en son ocak. O benim milletimin yıldızıdır, parlayacak; o benimdir, o benim milletimindir ancak!',
+            'Çatma, kurban olayım, çehreni ey nazlı hilâl! Kahraman ırkıma bir gül… Ne bu şiddet, bu celâl? Sana olmaz dökülen kanlarımız sonra helâl; Hakkıdır, Hakk’a tapan milletimin istiklâl!',
+            'Zulmü alkışlayamam, zalimi asla sevemem; gelenin keyfi için geçmişe kalkıp sövemem. Biri ecdadıma saldırdı mı, hatta boğarım! Boğamazsam hiç olmazsa yanımdan kovarım.',
+            'Üçbuçuk soysuzun ardında zağarlık yapamam; hele hak namına haksızlığa ölsem tapamam. Yumuşak başlı isem, kim dedi uysal koyunum? Kesilir belki, fakat çekmeye gelmez boyunum!'
+          ]
+        }
+      ]
+    },
+    {
       id: 'en-pride-prejudice',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
+      cat: ['en', 'romance'],
+      badge: '🇬🇧 Romance Classic',
       title: 'Pride and Prejudice',
       author: 'Jane Austen',
-      desc: 'Full classic novel of Elizabeth Bennet and Mr. Darcy.',
+      desc: 'The timeless romantic novel of Elizabeth Bennet and the proud Mr. Fitzwilliam Darcy.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1342/pg1342.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/1342.epub.noimages'
     },
     {
       id: 'en-sherlock-holmes',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
+      cat: ['en', 'mystery'],
+      badge: '🕵️ Detective & Mystery',
       title: 'The Adventures of Sherlock Holmes',
       author: 'Arthur Conan Doyle',
-      desc: 'Twelve famous detective stories featuring Sherlock Holmes & Dr. Watson.',
+      desc: 'Twelve famous detective mysteries featuring Sherlock Holmes and Dr. Watson at 221B Baker Street.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1661/pg1661.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/1661.epub.noimages'
+    },
+    {
+      id: 'en-dracula',
+      lang: 'en',
+      cat: ['en', 'scifi', 'mystery'],
+      badge: '🏰 Gothic Thriller',
+      title: 'Dracula',
+      author: 'Bram Stoker',
+      desc: 'Jonathan Harker’s chilling journey to Castle Dracula in Transylvania and the battle against Count Dracula.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/345/pg345.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/345.epub.noimages'
+    },
+    {
+      id: 'en-jane-eyre',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '💜 Gothic Romance',
+      title: 'Jane Eyre',
+      author: 'Charlotte Brontë',
+      desc: 'The passionate and dramatic story of orphan Jane Eyre and the brooding master of Thornfield Hall, Mr. Rochester.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1260/pg1260.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1260.epub.noimages'
     },
     {
       id: 'en-alice-wonderland',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
+      cat: ['en', 'scifi'],
+      badge: '✨ Fantasy Classic',
       title: "Alice's Adventures in Wonderland",
       author: 'Lewis Carroll',
-      desc: 'The beloved classic journey down the rabbit-hole.',
+      desc: 'Alice’s magical and whimsical journey down the rabbit-hole into Wonderland.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/11/pg11.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/11.epub.noimages'
     },
     {
       id: 'en-dorian-gray',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
+      cat: ['en', 'scifi', 'mystery'],
+      badge: '🏰 Philosophical Gothic',
       title: 'The Picture of Dorian Gray',
       author: 'Oscar Wilde',
-      desc: 'Oscar Wilde’s philosophical gothic masterpiece.',
+      desc: 'Oscar Wilde’s haunting masterpiece of youth, beauty, and a portrait that bears every sin.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/174/pg174.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/174.epub.noimages'
     },
     {
       id: 'en-frankenstein',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
-      title: 'Frankenstein',
+      cat: ['en', 'scifi'],
+      badge: '⚡ Sci-Fi & Gothic',
+      title: 'Frankenstein; Or, The Modern Prometheus',
       author: 'Mary Wollstonecraft Shelley',
-      desc: 'The original gothic science-fiction classic.',
+      desc: 'Victor Frankenstein’s tragic creation of sentient life in the original science-fiction masterpiece.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/84/pg84.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/84.epub.noimages'
+    },
+    {
+      id: 'en-wuthering-heights',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '💜 Classic Drama',
+      title: 'Wuthering Heights',
+      author: 'Emily Brontë',
+      desc: 'The fierce, unforgettable passion of Heathcliff and Catherine Earnshaw on the Yorkshire moors.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/768/pg768.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/768.epub.noimages'
     },
     {
       id: 'en-romeo-juliet',
       lang: 'en',
-      badge: '🇬🇧 English Classic',
+      cat: ['en', 'romance'],
+      badge: '🎭 Tragedy & Romance',
       title: 'Romeo and Juliet',
       author: 'William Shakespeare',
-      desc: 'Shakespeare’s timeless tragedy of two star-crossed lovers.',
+      desc: 'Shakespeare’s immortal tragedy of two young star-crossed lovers in Verona.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1513/pg1513.cover.medium.jpg',
       epubUrl: 'https://www.gutenberg.org/ebooks/1513.epub.noimages'
+    },
+    {
+      id: 'en-jekyll-hyde',
+      lang: 'en',
+      cat: ['en', 'mystery', 'scifi'],
+      badge: '🕵️ Psychological Mystery',
+      title: 'The Strange Case of Dr. Jekyll and Mr. Hyde',
+      author: 'Robert Louis Stevenson',
+      desc: 'A gripping London mystery exploring the duality of human nature, good and evil.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/43/pg43.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/43.epub.noimages'
+    },
+    {
+      id: 'en-great-expectations',
+      lang: 'en',
+      cat: ['en', 'romance'],
+      badge: '🇬🇧 Literary Classic',
+      title: 'Great Expectations',
+      author: 'Charles Dickens',
+      desc: 'The coming-of-age story of the orphan Pip, Miss Havisham, and Estella.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/1400/pg1400.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/1400.epub.noimages'
+    },
+    {
+      id: 'en-moby-dick',
+      lang: 'en',
+      cat: ['en', 'mystery'],
+      badge: '🌊 Epic Adventure',
+      title: 'Moby Dick; Or, The Whale',
+      author: 'Herman Melville',
+      desc: 'Captain Ahab’s legendary voyage aboard the Pequod in pursuit of the great white whale.',
+      coverUrl: 'https://www.gutenberg.org/cache/epub/2701/pg2701.cover.medium.jpg',
+      epubUrl: 'https://www.gutenberg.org/ebooks/2701.epub.noimages'
     }
   ];
+
+  // Generate ornate, bespoke hardcover SVG data URL for books without external cover photos
+  const COVER_PALETTES = [
+    ['#4C1D95', '#7C3AED', '#DDD6FE'],
+    ['#7C2D12', '#C2410C', '#FDE68A'],
+    ['#1E3A8A', '#2563EB', '#FEF08A'],
+    ['#064E3B', '#059669', '#A7F3D0'],
+    ['#831843', '#DB2777', '#FBCFE8'],
+    ['#1F2937', '#4B5563', '#E5E7EB']
+  ];
+
+  function wrapSvgLines(str, maxChars = 18, maxLines = 4) {
+    const words = String(str || '').split(/\s+/);
+    const lines = [];
+    let cur = '';
+    for (const w of words) {
+      if ((cur + ' ' + w).trim().length <= maxChars) {
+        cur = (cur + ' ' + w).trim();
+      } else {
+        if (cur) lines.push(cur);
+        cur = w;
+        if (lines.length >= maxLines - 1) break;
+      }
+    }
+    if (cur && lines.length < maxLines) lines.push(cur);
+    return lines;
+  }
+
+  function generateArtisticCoverDataUrl(item) {
+    const hash = Array.from(String(item.title || 'Book')).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const [c1, c2, accent] = item.palette || COVER_PALETTES[hash % COVER_PALETTES.length];
+    const titleLines = wrapSvgLines(item.title || 'Kitap', 17, 4);
+    const authorLine = String(item.author || 'DioBook Klasik').slice(0, 26);
+
+    let emblemSvg = `<circle cx="150" cy="120" r="28" fill="none" stroke="${accent}" stroke-width="1.8" opacity="0.85"/><path d="M138 128 C145 105, 160 100, 168 108 C158 116, 150 124, 138 128 Z" fill="${accent}" opacity="0.9"/>`;
+    if (item.emblem === 'stars') {
+      emblemSvg = `<circle cx="150" cy="122" r="24" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="132" cy="96" r="3" fill="${accent}"/><circle cx="174" cy="102" r="2.5" fill="${accent}"/><path d="M150 84 L153 92 L161 92 L155 97 L157 105 L150 100 L143 105 L145 97 L139 92 L147 92 Z" fill="${accent}"/>`;
+    } else if (item.emblem === 'moon') {
+      emblemSvg = `<path d="M160 96 A24 24 0 1 0 160 144 A18 18 0 1 1 160 96 Z" fill="${accent}" opacity="0.9"/>`;
+    } else if (item.emblem === 'rose') {
+      emblemSvg = `<circle cx="150" cy="116" r="18" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="150" cy="116" r="9" fill="${accent}" opacity="0.8"/><path d="M150 134 L150 154 M142 144 L150 140" stroke="${accent}" stroke-width="2"/>`;
+    }
+
+    const titleTspans = titleLines.map((ln, idx) =>
+      `<tspan x="150" dy="${idx === 0 ? 0 : 28}">${escapeHtml(ln)}</tspan>`
+    ).join('');
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 450" width="300" height="450">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${c1}"/>
+          <stop offset="100%" stop-color="${c2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="300" height="450" fill="url(#bg)"/>
+      <rect x="12" y="0" width="6" height="450" fill="rgba(0,0,0,0.28)"/>
+      <rect x="28" y="22" width="250" height="406" rx="8" fill="none" stroke="${accent}" stroke-width="1.5" opacity="0.55"/>
+      <rect x="34" y="28" width="238" height="394" rx="5" fill="none" stroke="${accent}" stroke-width="0.7" opacity="0.35"/>
+      ${emblemSvg}
+      <text x="150" y="205" text-anchor="middle" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold">${titleTspans}</text>
+      <line x1="95" y1="345" x2="205" y2="345" stroke="${accent}" stroke-width="1.2" opacity="0.6"/>
+      <text x="150" y="375" text-anchor="middle" fill="${accent}" font-family="sans-serif" font-size="14" font-weight="600" letter-spacing="1">${escapeHtml(authorLine.toUpperCase())}</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  function getBookCoverUrl(item) {
+    if (item.coverUrl) return item.coverUrl;
+    return generateArtisticCoverDataUrl(item);
+  }
 
   async function buildEpubFileFromChapters(item) {
     const zip = new JSZip();
@@ -5323,14 +5689,167 @@
     return chapters;
   }
 
+  function closeDiscoverPreview() {
+    el('discoverPreviewBackdrop')?.classList.remove('open');
+    el('discoverPreviewSheet')?.classList.remove('open');
+  }
+  el('discoverPreviewClose')?.addEventListener('click', closeDiscoverPreview);
+  el('discoverPreviewBackdrop')?.addEventListener('click', closeDiscoverPreview);
+
+  function openDiscoverPreview(item) {
+    const body = el('discoverPreviewBody');
+    const hdr = el('discoverPreviewHeader');
+    if (!body) return;
+    if (hdr) hdr.textContent = t('previewHeader');
+    const coverSrc = getBookCoverUrl(item);
+    const fallbackSrc = generateArtisticCoverDataUrl(item);
+    const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+
+    body.innerHTML = `
+      <div style="width:165px; aspect-ratio:2/3; border-radius:12px; overflow:hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.45); margin-bottom:16px; background:var(--surface-2);">
+        <img src="${coverSrc}" alt="${escapeHtml(item.title)}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;this.src='${fallbackSrc}';">
+      </div>
+      <span class="voice-badge" style="margin-bottom:8px;">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
+      <h2 style="font-size:20px; font-weight:700; line-height:1.3; margin-bottom:4px; color:var(--text);">${escapeHtml(item.title)}</h2>
+      <div style="font-size:14px; color:var(--text-dim); margin-bottom:14px; font-weight:500;">${escapeHtml(item.author || '')}</div>
+      <p style="font-size:14px; color:var(--text-dim); line-height:1.55; max-width:440px; margin-bottom:20px;">${escapeHtml(item.desc || '')}</p>
+      <div style="display:flex; gap:10px; width:100%; max-width:360px; justify-content:center;">
+        <button class="primary-btn wide" id="previewListenNowBtn" style="padding:13px 20px; font-size:15px;">
+          ${escapeHtml(alreadyInLib ? t('inLibraryBadge') + ' — ' + t('openAndListenBtn') : t('listenNowBtn'))}
+        </button>
+      </div>
+    `;
+
+    const listenBtn = body.querySelector('#previewListenNowBtn');
+    listenBtn?.addEventListener('click', () => {
+      openOnlineBookItem(item, listenBtn);
+    });
+
+    el('discoverPreviewBackdrop')?.classList.add('open');
+    el('discoverPreviewSheet')?.classList.add('open');
+  }
+
+  function createDiscoverCoverCard(item) {
+    const card = document.createElement('div');
+    card.className = 'book-card discover-card';
+    const coverSrc = getBookCoverUrl(item);
+    const fallbackSrc = generateArtisticCoverDataUrl(item);
+    const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+
+    card.innerHTML = `
+      <div class="book-cover">
+        <img src="${coverSrc}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSrc}';">
+        <span class="cover-badge-top">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
+        ${alreadyInLib ? `<div class="book-progress-ring" style="right:auto; left:6px; bottom:6px; background:var(--accent);">✓</div>` : ''}
+        <button class="cover-play-fab" title="${escapeHtml(t('openAndListenBtn'))}" aria-label="Play">${Icons.play}</button>
+      </div>
+      <div class="book-title">${escapeHtml(item.title)}</div>
+      <div class="book-author">${escapeHtml(item.author || '')}</div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      const fab = e.target.closest('.cover-play-fab');
+      if (fab) {
+        e.stopPropagation();
+        openOnlineBookItem(item, fab);
+        return;
+      }
+      openDiscoverPreview(item);
+    });
+    return card;
+  }
+
+  function renderDiscoverShowcaseTab(container) {
+    if (!container) return;
+    const cats = [
+      { id: 'all', label: t('catAll') },
+      { id: 'tr', label: t('catTr') },
+      { id: 'en', label: t('catEn') },
+      { id: 'mystery', label: t('catMystery') },
+      { id: 'romance', label: t('catRomance') },
+      { id: 'scifi', label: t('catScifi') }
+    ];
+
+    const pillsHtml = cats.map(c =>
+      `<button class="voice-filter-pill ${activeDiscoverCat === c.id ? 'active' : ''}" data-dcat="${c.id}">${escapeHtml(c.label)}</button>`
+    ).join('');
+
+    container.innerHTML = `
+      ${renderHomeTabsHtml()}
+      <div class="lib-controls" style="margin-bottom:12px;">
+        <input type="text" class="lib-search" id="discoverSearchInput" placeholder="${escapeHtml(t('searchCatalogPlaceholder'))}" value="${escapeHtml(discoverSearchQuery)}">
+      </div>
+      <div class="voice-filter-bar" id="discoverCatBar" style="margin-bottom:16px;">
+        ${pillsHtml}
+      </div>
+      <div class="library-title" id="discoverGridHeader">${escapeHtml(t('discoverShowcaseTitle'))}</div>
+      <div class="book-grid" id="discoverCoverGrid"></div>
+    `;
+
+    bindHomeTabEvents(container);
+
+    container.querySelectorAll('#discoverCatBar .voice-filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeDiscoverCat = btn.dataset.dcat || 'all';
+        renderDiscoverShowcaseTab(container);
+      });
+    });
+
+    const dInput = el('discoverSearchInput');
+    dInput?.addEventListener('input', (e) => {
+      discoverSearchQuery = e.target.value;
+      populateDiscoverCoverGrid();
+    });
+
+    populateDiscoverCoverGrid();
+  }
+
+  function populateDiscoverCoverGrid() {
+    const grid = el('discoverCoverGrid');
+    const hdr = el('discoverGridHeader');
+    if (!grid) return;
+
+    const q = (discoverSearchQuery || '').trim();
+    if (q.length >= 2) {
+      clearTimeout(discoverSearchTimer);
+      grid.innerHTML = `<div style="grid-column:1/-1; padding:32px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('searchingOnline'))}</div>`;
+      discoverSearchTimer = setTimeout(async () => {
+        const langFilter = (activeDiscoverCat === 'tr' || activeDiscoverCat === 'en') ? activeDiscoverCat : 'all';
+        const results = await searchBooksOnline(q, langFilter);
+        if ((el('discoverSearchInput')?.value || '').trim() !== q) return;
+        grid.innerHTML = '';
+        if (hdr) hdr.textContent = `${t('onlineResultsTitle')} (${results.length})`;
+        if (!results.length) {
+          grid.innerHTML = `<div style="grid-column:1/-1; padding:32px; text-align:center; color:var(--text-dim); font-size:14px;">${escapeHtml(t('noOnlineResults'))}</div>`;
+          return;
+        }
+        results.forEach(item => grid.appendChild(createDiscoverCoverCard(item)));
+      }, 380);
+      return;
+    }
+
+    if (hdr) hdr.textContent = t('discoverShowcaseTitle');
+    const filtered = FREE_CLASSICS_CATALOG.filter(item => {
+      if (activeDiscoverCat === 'all') return true;
+      if (activeDiscoverCat === 'tr' || activeDiscoverCat === 'en') return item.lang === activeDiscoverCat;
+      return Array.isArray(item.cat) && item.cat.includes(activeDiscoverCat);
+    });
+
+    grid.innerHTML = '';
+    filtered.forEach(item => {
+      grid.appendChild(createDiscoverCoverCard(item));
+    });
+  }
+
   async function openOnlineBookItem(item, btn) {
     const existing = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
     if (existing) {
       closeClassicsSheet();
+      closeDiscoverPreview();
       openBook(existing.key);
       return;
     }
-    const origText = btn ? btn.textContent : '';
+    const origHtml = btn ? btn.innerHTML : '';
     if (btn) {
       btn.disabled = true;
       btn.textContent = '⏳…';
@@ -5355,15 +5874,20 @@
         file = new File([blob], `${item.id || ('book-' + Date.now())}.epub`, { type: 'application/epub+zip' });
       }
       closeClassicsSheet();
+      closeDiscoverPreview();
       await addBook(file);
       const added = state.library.find(b => (b.title || '').toLowerCase() === item.title.toLowerCase()) || state.library[state.library.length - 1];
       if (added) {
+        if (!added.cover) {
+          added.cover = getBookCoverUrl(item);
+          saveLibrary();
+        }
         openBook(added.key);
       }
     } catch (err) {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = origText;
+        btn.innerHTML = origHtml;
       }
       showToast('Hata: ' + err.message);
     }
@@ -5371,9 +5895,12 @@
 
   function createOnlineBookRow(item) {
     const alreadyInLib = state.library.some(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+    const coverSrc = getBookCoverUrl(item);
+    const fallbackSrc = generateArtisticCoverDataUrl(item);
     const row = document.createElement('div');
-    row.style.cssText = 'padding:14px; background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;';
+    row.style.cssText = 'padding:12px; background:var(--surface-2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; cursor:pointer;';
     row.innerHTML = `
+      <img src="${coverSrc}" alt="" style="width:48px; height:72px; object-fit:cover; border-radius:6px; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.3);" onerror="this.onerror=null;this.src='${fallbackSrc}';">
       <div style="min-width:0; flex:1;">
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px;">
           <span class="voice-badge">${escapeHtml(item.badge || (item.lang === 'tr' ? '🇹🇷 Türkçe' : '🇬🇧 English'))}</span>
@@ -5385,7 +5912,11 @@
       <button class="primary-btn classic-add-btn" style="padding:8px 14px; font-size:13px; white-space:nowrap;">${escapeHtml(alreadyInLib ? t('inLibraryBadge') : t('openAndListenBtn'))}</button>
     `;
     const btn = row.querySelector('.classic-add-btn');
-    btn.addEventListener('click', () => openOnlineBookItem(item, btn));
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openOnlineBookItem(item, btn);
+    });
+    row.addEventListener('click', () => openDiscoverPreview(item));
     return row;
   }
 
@@ -5464,6 +5995,7 @@
               title,
               author,
               desc: 'Full book from Project Gutenberg (instant EPUB).',
+              coverUrl: `https://www.gutenberg.org/cache/epub/${pgId}/pg${pgId}.cover.medium.jpg`,
               epubUrl: `https://www.gutenberg.org/ebooks/${pgId}.epub.noimages`
             });
           }
@@ -5479,7 +6011,7 @@
         const ctrl = new AbortController();
         const tid = setTimeout(() => ctrl.abort(), 5500);
         try {
-          const olUrl = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(q) + '&fields=key,title,author_name,id_project_gutenberg,first_publish_year&limit=12';
+          const olUrl = 'https://openlibrary.org/search.json?q=' + encodeURIComponent(q) + '&fields=key,title,author_name,cover_i,id_project_gutenberg,first_publish_year&limit=12';
           const resp = await fetch(olUrl, { signal: ctrl.signal });
           if (!resp.ok) return [];
           const data = await resp.json();
@@ -5493,6 +6025,9 @@
               title: d.title || 'Untitled',
               author: (d.author_name && d.author_name[0]) || 'Unknown Author',
               desc: d.first_publish_year ? `First published in ${d.first_publish_year}. Instant full EPUB.` : 'Instant full EPUB book.',
+              coverUrl: d.cover_i
+                ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`
+                : `https://www.gutenberg.org/cache/epub/${pgId}/pg${pgId}.cover.medium.jpg`,
               epubUrl: `https://www.gutenberg.org/ebooks/${pgId}.epub.noimages`
             };
           });
@@ -5535,7 +6070,7 @@
       box.innerHTML = '';
       const header = document.createElement('div');
       header.className = 'library-title';
-      header.style.marginBottom = '10px';
+      header.style.marginBottom = '12px';
       header.textContent = t('onlineResultsTitle');
       box.appendChild(header);
       if (!results.length) {
@@ -5545,7 +6080,10 @@
         box.appendChild(emptyMsg);
         return;
       }
-      results.forEach(item => box.appendChild(createOnlineBookRow(item)));
+      const coverGrid = document.createElement('div');
+      coverGrid.className = 'book-grid';
+      results.forEach(item => coverGrid.appendChild(createDiscoverCoverCard(item)));
+      box.appendChild(coverGrid);
     }, 420);
   }
 
