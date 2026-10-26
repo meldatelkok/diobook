@@ -296,10 +296,49 @@
 
   /* Reader */
   .reader-view {
-    font-size: var(--reader-font-size, 18px); line-height: 1.75;
+    font-size: var(--reader-font-size, 18px); line-height: var(--reader-line-height, 1.75);
+    letter-spacing: var(--reader-letter-spacing, 0em);
     padding: 8px 20px 40px;
-    font-family: "New York", Georgia, "Times New Roman", serif;
+    font-family: var(--reader-font-family, "New York", Georgia, "Times New Roman", serif);
+    transition: background 0.2s ease, color 0.2s ease;
   }
+  /* Reader Custom Themes (#4) */
+  #readerPage[data-reader-theme="sepia"] {
+    background: #F4ECD8;
+    color: #3E2C1C;
+  }
+  #readerPage[data-reader-theme="sepia"] .topbar {
+    background: #EFE4CA;
+    color: #3E2C1C;
+    border-bottom: 1px solid rgba(62, 44, 28, 0.1);
+  }
+  #readerPage[data-reader-theme="sepia"] .icon-btn { color: #5C432B; }
+  #readerPage[data-reader-theme="oled"] {
+    background: #000000;
+    color: #E5E5EA;
+  }
+  #readerPage[data-reader-theme="oled"] .topbar {
+    background: #000000;
+    color: #E5E5EA;
+  }
+  #readerPage[data-reader-theme="charcoal"] {
+    background: #1B1D21;
+    color: #D8DEE9;
+  }
+  #readerPage[data-reader-theme="charcoal"] .topbar {
+    background: #16181C;
+    color: #D8DEE9;
+  }
+  #readerPage[data-reader-theme="ivory"] {
+    background: #FAF8F5;
+    color: #1C1917;
+  }
+  #readerPage[data-reader-theme="ivory"] .topbar {
+    background: #F3EFEA;
+    color: #1C1917;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  }
+  #readerPage[data-reader-theme="ivory"] .icon-btn { color: #44403C; }
   .reader-view .reader-para {
     margin-bottom: 0.95em;
   }
@@ -1006,7 +1045,8 @@
         </div>
       </div>
       <button class="icon-btn" id="readerSearchBtn" title="Kitapta Ara / Search" aria-label="Search" data-icon="search"></button>
-      <button class="icon-btn" id="fontSizeBtn" title="Text size" style="font-weight:700; font-size:15px;">Aa</button>
+      <button class="icon-btn" id="fontSizeBtn" title="Görünüm &amp; Yazı Ayarları" style="font-weight:700; font-size:15px;">Aa</button>
+      <button class="icon-btn" id="readerQuoteBtn" title="Paylaşılabilir Alıntı Kartı / Quote Card" aria-label="Quote Card" style="font-size:15px;">📸</button>
       <button class="icon-btn bookmark-btn" id="addBookmarkBtn" title="Bookmark"></button>
       <button class="icon-btn open-menu-btn" title="More / AI" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <button class="icon-btn" id="openPlayerBtn" aria-label="Open player" data-icon="headphones"></button>
@@ -1162,15 +1202,22 @@
   </div>
 </div>
 
-<!-- Font size sheet -->
+<!-- Font & Reading Appearance sheet (#4) -->
 <div class="sheet-backdrop" id="fontBackdrop"></div>
-<div class="sheet" id="fontSheet">
+<div class="sheet" id="fontSheet" style="max-height: 85vh;">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <h3>Text size</h3>
-    <button class="close" id="fontSheetClose">Done</button>
+    <h3 id="fontSheetTitle">🎨 Görünüm &amp; Yazı Ayarları</h3>
+    <button class="close" id="fontSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
+    <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; font-weight:600;" id="lblReaderThemeSec">Okuma Teması (Arka Plan)</div>
+    <div id="readerThemeOptions" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:18px;"></div>
+
+    <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; font-weight:600;" id="lblReaderFontSec">Yazı Tipi (Font)</div>
+    <div class="sleep-options" id="readerFontOptions" style="margin-bottom:18px;"></div>
+
+    <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; font-weight:600;" id="lblReaderSizeSec">Yazı Boyutu</div>
     <div class="sleep-options" id="fontOptions"></div>
   </div>
 </div>
@@ -1187,6 +1234,8 @@
     <div class="sleep-options">
       <button class="sleep-option" id="toggleUiLangBtn"><span id="lblUiLang">🌐 Uygulama dili</span><span id="uiLangState" style="color:var(--accent); font-weight:600; font-size:12px;">🇹🇷 Türkçe</span></button>
       <button class="sleep-option" id="appIconMenuBtn"><span id="lblAppIconMenu">🎨 Uygulama simgesi</span><span id="appIconState" style="color:var(--accent); font-weight:600; font-size:12px;">Mor Ses Dalgalı</span></button>
+      <button class="sleep-option" id="quoteCardMenuBtn"><span id="lblQuoteCardMenu">📸 Paylaşılabilir alıntı kartı</span><span style="color:var(--accent); font-weight:600; font-size:12px;">Story / PNG →</span></button>
+      <button class="sleep-option" id="charactersMenuBtn"><span id="lblCharactersMenu">👥 Kim kimdir? (Karakter rehberi)</span><span style="color:var(--accent); font-weight:600; font-size:12px;">Spoiler'sız →</span></button>
       <button class="sleep-option" id="vocabBtn"><span id="lblVocabMenu">⭐ Kelime defterim</span><span id="vocabCountState" style="color:var(--text-dim); font-size:12px;">0</span></button>
       <button class="sleep-option" id="classicsMenuBtn"><span id="lblClassicsMenu">📚 Ücretsiz klasikler</span><span style="color:var(--text-dim); font-size:12px;">→</span></button>
       <button class="sleep-option" id="chatBtn"><span id="lblChatMenu">Kitap hakkında soru sor</span><span style="color:var(--text-dim); font-size:12px;">AI</span></button>
@@ -1198,7 +1247,7 @@
       <button class="sleep-option" id="toggleSummaryLang"><span id="lblSummaryLangMenu">Özet / sohbet dili</span><span id="summaryLangState" style="color:var(--text-dim); font-size:12px;">Turkish</span></button>
       <button class="sleep-option" id="exportBtn"><span id="lblExportMenu">Kütüphaneyi yedekle</span><span id="lblExportSub" style="color:var(--text-dim); font-size:12px;">Dosyaya kaydet</span></button>
       <button class="sleep-option" id="importBtn"><span id="lblImportMenu">Yedekten geri yükle</span><span id="lblImportSub" style="color:var(--text-dim); font-size:12px;">JSON yükle</span></button>
-      <button class="sleep-option" id="statsBtn"><span id="lblStatsMenu">Okuma istatistikleri</span><span id="statsSummary" style="color:var(--text-dim); font-size:12px;">—</span></button>
+      <button class="sleep-option" id="statsBtn"><span id="lblStatsMenu">🎯 Günlük hedef &amp; istatistikler</span><span id="statsSummary" style="color:var(--text-dim); font-size:12px;">—</span></button>
       <div id="streakDisplay" style="text-align:center; font-size:13px; color:var(--text-dim); padding:10px;"></div>
     </div>
   </div>
@@ -1211,6 +1260,7 @@
   <div class="sheet-handle"></div>
   <div class="sheet-header" style="gap:8px;">
     <h3 id="defineWord" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Word</h3>
+    <button class="icon-btn" id="defineQuoteBtn" title="Alıntı Kartı Oluştur / Quote Card" aria-label="Quote Card" style="width:36px; height:36px; font-size:16px; line-height:1;">📸</button>
     <button class="icon-btn" id="defineSpeakBtn" title="Sesli Dinle / Listen" aria-label="Listen" data-icon="volume" style="width:36px; height:36px;"></button>
     <button class="icon-btn" id="defineSaveWordBtn" title="Kelime Defterine Kaydet / Save" aria-label="Save word" style="width:36px; height:36px; font-size:18px; line-height:1;">☆</button>
     <button class="close" id="defineSheetClose">Tamam</button>
@@ -1352,23 +1402,70 @@
   </div>
 </div>
 
-<!-- Ambient sheet -->
+<!-- Ambient sheet (#6) -->
 <div class="sheet-backdrop" id="ambientBackdrop"></div>
-<div class="sheet" id="ambientSheet" style="max-height: 70vh;">
+<div class="sheet" id="ambientSheet" style="max-height: 78vh;">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
-    <h3>Ambient sounds</h3>
-    <button class="close" id="ambientSheetClose">Done</button>
+    <h3 id="ambientSheetTitle">🌧️ Arka Plan &amp; Akıllı Atmosfer</h3>
+    <button class="close" id="ambientSheetClose">Tamam</button>
   </div>
   <div class="sheet-body">
+    <button id="smartAmbientMatchBtn" class="primary-btn wide" style="margin-bottom:12px; padding:12px 16px; border-radius:14px; font-size:14px; gap:8px;">
+      <span>🎭</span>
+      <span id="lblSmartAmbientBtn">Kitap Türüne Göre Otomatik Atmosfer Başlat</span>
+    </button>
     <div class="sleep-options" id="ambientOptions"></div>
     <div style="margin-top:16px;">
-      <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Volume</div>
+      <div style="font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Ses Seviyesi</div>
       <div class="slider-row">
         <input type="range" id="ambientVolume" min="0" max="1" step="0.05" value="0.3">
         <span class="slider-value" id="ambientVolumeValue">30%</span>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Quote Card Studio Sheet (#3) -->
+<div class="sheet-backdrop" id="quoteCardBackdrop"></div>
+<div class="sheet" id="quoteCardSheet" style="max-height: 92vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="quoteCardHeader">📸 Paylaşılabilir Alıntı Kartı</h3>
+    <button class="close" id="quoteCardClose">Tamam</button>
+  </div>
+  <div class="sheet-body" style="display:flex; flex-direction:column; gap:12px;">
+    <div class="voice-filter-bar" id="quoteStyleBar" style="margin-bottom:2px;">
+      <button class="voice-filter-pill active" data-qstyle="noir">🖤 Minimal Siyah</button>
+      <button class="voice-filter-pill" data-qstyle="ivory">🤍 Minimal Beyaz</button>
+      <button class="voice-filter-pill" data-qstyle="sepia">📜 Klasik Kâğıt</button>
+      <button class="voice-filter-pill" data-qstyle="velvet">💜 Gece Kadifesi</button>
+    </div>
+    <div style="display:flex; justify-content:center; background:var(--surface-2); padding:12px; border-radius:16px;">
+      <canvas id="quoteCardCanvas" width="1080" height="1350" style="width:100%; max-width:260px; height:auto; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.45);"></canvas>
+    </div>
+    <div>
+      <div style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:5px; font-weight:600;" id="lblQuoteTextEdit">Alıntı Metni (Düzenlenebilir)</div>
+      <textarea id="quoteCardTextInput" rows="3" style="width:100%; padding:10px 12px; background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:10px; font-size:13.5px; line-height:1.45; resize:vertical; font-family:inherit;"></textarea>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="primary-btn" id="downloadQuotePngBtn" style="flex:1; justify-content:center; padding:13px 16px; font-size:14px;">📥 Görseli İndir (PNG)</button>
+      <button class="secondary-btn" id="shareQuoteCardBtn" style="flex:1; padding:13px 16px; font-size:14px; width:auto;">📤 Paylaş</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spoiler-Free Character Guide Sheet (#5) -->
+<div class="sheet-backdrop" id="charactersBackdrop"></div>
+<div class="sheet" id="charactersSheet" style="max-height: 86vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 id="charactersSheetTitle">👥 Kim Kimdir? (Spoiler'sız)</h3>
+    <button class="close" id="charactersSheetClose">Tamam</button>
+  </div>
+  <div class="sheet-body">
+    <div id="charactersScopeBadge" style="font-size:12px; color:var(--accent); background:var(--accent-dim); padding:8px 12px; border-radius:10px; margin-bottom:12px; font-weight:600;"></div>
+    <div id="charactersContent" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
 </div>
 
@@ -1681,11 +1778,31 @@
     return I18N[lang][key] !== undefined ? I18N[lang][key] : I18N.tr[key];
   }
 
-  // Font size
+  // Font size, font family & reader theme (#4)
   function applyFontSize() {
     const map = { small: '15px', medium: '18px', large: '22px', xlarge: '26px' };
     const size = map[settings.fontSize] || '18px';
     document.documentElement.style.setProperty('--reader-font-size', size);
+
+    const fontMap = {
+      serif: '"New York", Georgia, "Times New Roman", serif',
+      sans: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif',
+      comfort: '"Trebuchet MS", "Verdana", "Segoe UI", system-ui, sans-serif'
+    };
+    const fType = settings.readerFont || 'serif';
+    document.documentElement.style.setProperty('--reader-font-family', fontMap[fType] || fontMap.serif);
+    document.documentElement.style.setProperty('--reader-line-height', fType === 'comfort' ? '1.95' : '1.75');
+    document.documentElement.style.setProperty('--reader-letter-spacing', fType === 'comfort' ? '0.03em' : '0em');
+
+    const rPage = el('readerPage');
+    if (rPage) {
+      const rTheme = settings.readerTheme || 'auto';
+      if (rTheme === 'auto') {
+        rPage.removeAttribute('data-reader-theme');
+      } else {
+        rPage.setAttribute('data-reader-theme', rTheme);
+      }
+    }
   }
 
   function resolvedTheme() {
@@ -3453,6 +3570,7 @@
   }
 
   function advance() {
+    try { recordListeningSeconds(6); } catch {}
     state.currentSentence++;
     saveProgress();
     if (state.playing) speakCurrent();
@@ -4152,28 +4270,105 @@
   el('bookmarksSheetClose').addEventListener('click', closeBookmarksSheet);
   el('bookmarksBackdrop').addEventListener('click', closeBookmarksSheet);
 
-  // === Font size ===
-  function openFontSheet() {
+  // === Font size, Font Family & Reading Themes (#4) ===
+  function renderFontSheetControls() {
+    const isEn = settings.uiLang === 'en';
+    if (el('fontSheetTitle')) {
+      el('fontSheetTitle').textContent = isEn ? '🎨 Reading Theme & Typography' : '🎨 Görünüm & Yazı Ayarları';
+    }
+    if (el('lblReaderThemeSec')) {
+      el('lblReaderThemeSec').textContent = isEn ? 'Reading Theme (Background)' : 'Okuma Teması (Arka Plan)';
+    }
+    if (el('lblReaderFontSec')) {
+      el('lblReaderFontSec').textContent = isEn ? 'Font Family' : 'Yazı Tipi (Font)';
+    }
+    if (el('lblReaderSizeSec')) {
+      el('lblReaderSizeSec').textContent = isEn ? 'Text Size' : 'Yazı Boyutu';
+    }
+
+    const themes = [
+      { value: 'auto', label: isEn ? '🌓 Default' : '🌓 Varsayılan', bg: 'var(--surface-2)', fg: 'var(--text)' },
+      { value: 'sepia', label: isEn ? '📜 Sepia' : '📜 Sepya', bg: '#F4ECD8', fg: '#3E2C1C' },
+      { value: 'oled', label: isEn ? '🌑 OLED Black' : '🌑 OLED Siyah', bg: '#000000', fg: '#FFFFFF' },
+      { value: 'charcoal', label: isEn ? '🌫️ Soft Dark' : '🌫️ Yumuşak Koyu', bg: '#1B1D21', fg: '#D8DEE9' },
+      { value: 'ivory', label: isEn ? '☀️ Warm Ivory' : '☀️ Fildişi Gündüz', bg: '#FAF8F5', fg: '#1C1917' }
+    ];
+    const curTheme = settings.readerTheme || 'auto';
+    const themeGrid = el('readerThemeOptions');
+    if (themeGrid) {
+      themeGrid.innerHTML = '';
+      themes.forEach(th => {
+        const isSel = curTheme === th.value;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.cssText = `
+          padding:11px 8px; border-radius:11px; cursor:pointer; font-size:12.5px; font-weight:600;
+          background:${th.bg}; color:${th.fg};
+          border:2px solid ${isSel ? 'var(--accent)' : 'rgba(128,128,128,0.22)'};
+          box-shadow:${isSel ? '0 0 0 2px var(--accent-dim)' : 'none'};
+          display:flex; align-items:center; justify-content:center; gap:4px;
+        `;
+        btn.textContent = (isSel ? '✓ ' : '') + th.label;
+        btn.addEventListener('click', () => {
+          settings.readerTheme = th.value;
+          saveSettings();
+          applyFontSize();
+          renderFontSheetControls();
+        });
+        themeGrid.appendChild(btn);
+      });
+    }
+
+    const fonts = [
+      { value: 'serif', label: isEn ? '📖 Classic Novel (Serif)' : '📖 Klasik Roman (Serif)', sample: 'Georgia, serif' },
+      { value: 'sans', label: isEn ? '✨ Modern Clean (Sans-Serif)' : '✨ Modern & Net (Sans-Serif)', sample: 'system-ui, sans-serif' },
+      { value: 'comfort', label: isEn ? '🌿 Comfort / Wide Spacing (Dyslexia-friendly)' : '🌿 Rahat Okuma (Geniş Aralıklı)', sample: '"Trebuchet MS", Verdana, sans-serif' }
+    ];
+    const curFont = settings.readerFont || 'serif';
+    const fontBox = el('readerFontOptions');
+    if (fontBox) {
+      fontBox.innerHTML = '';
+      fonts.forEach(f => {
+        const btn = document.createElement('button');
+        btn.className = 'sleep-option' + (curFont === f.value ? ' active' : '');
+        btn.style.fontFamily = f.sample;
+        btn.innerHTML = `<span>${f.label}</span>${curFont === f.value ? '<span class="check">✓</span>' : ''}`;
+        btn.addEventListener('click', () => {
+          settings.readerFont = f.value;
+          saveSettings();
+          applyFontSize();
+          renderFontSheetControls();
+        });
+        fontBox.appendChild(btn);
+      });
+    }
+
     const options = [
-      { label: 'Small', value: 'small' },
-      { label: 'Medium', value: 'medium' },
-      { label: 'Large', value: 'large' },
-      { label: 'Extra large', value: 'xlarge' }
+      { label: isEn ? 'Small (15px)' : 'Küçük (15px)', value: 'small' },
+      { label: isEn ? 'Medium (18px)' : 'Orta (18px)', value: 'medium' },
+      { label: isEn ? 'Large (22px)' : 'Büyük (22px)', value: 'large' },
+      { label: isEn ? 'Extra Large (26px)' : 'Çok Büyük (26px)', value: 'xlarge' }
     ];
     const container = el('fontOptions');
-    container.innerHTML = '';
-    options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'sleep-option' + (settings.fontSize === opt.value ? ' active' : '');
-      btn.innerHTML = `<span>${opt.label}</span>${settings.fontSize === opt.value ? '<span class="check">✓</span>' : ''}`;
-      btn.addEventListener('click', () => {
-        settings.fontSize = opt.value;
-        saveSettings();
-        applyFontSize();
-        closeFontSheet();
+    if (container) {
+      container.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'sleep-option' + (settings.fontSize === opt.value ? ' active' : '');
+        btn.innerHTML = `<span>${opt.label}</span>${settings.fontSize === opt.value ? '<span class="check">✓</span>' : ''}`;
+        btn.addEventListener('click', () => {
+          settings.fontSize = opt.value;
+          saveSettings();
+          applyFontSize();
+          renderFontSheetControls();
+        });
+        container.appendChild(btn);
       });
-      container.appendChild(btn);
-    });
+    }
+  }
+
+  function openFontSheet() {
+    renderFontSheetControls();
     el('fontBackdrop').classList.add('open');
     el('fontSheet').classList.add('open');
   }
@@ -4339,7 +4534,8 @@
     }
   });
 
-  el('statsBtn').addEventListener('click', () => {
+  function renderStatsSheet() {
+    const isEn = settings.uiLang === 'en';
     const progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     const total = state.library.length;
     const finished = state.library.filter(b => isBookFinished(progress[b.key])).length;
@@ -4347,36 +4543,128 @@
       const p = progress[b.key];
       return p && p.total && !isBookFinished(p) && (p.sentence > 0 || (p.chapterIdx || 0) > 0);
     }).length;
-    // Estimated listening time based on sentences read × avg
+
     let totalSentencesRead = 0;
     Object.values(progress).forEach(p => {
       if (p && p.sentence) totalSentencesRead += p.sentence;
     });
-    const estMins = Math.round((totalSentencesRead * 140) / (14 * 60));
+    const d = loadStreak();
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dailySeconds = d.dailySeconds || {};
+    const todaySecs = dailySeconds[todayKey] || 0;
+    const todayMins = Math.max(0, Math.round(todaySecs / 60));
+    const goalMins = settings.dailyGoalMins || 20;
+    const goalPct = Math.min(100, Math.round((todayMins / goalMins) * 100));
+
+    const recordedTotalMins = Math.round(Object.values(dailySeconds).reduce((a, b) => a + (b || 0), 0) / 60);
+    const estMins = Math.max(recordedTotalMins, Math.round((totalSentencesRead * 140) / (14 * 60)));
     const hours = Math.floor(estMins / 60);
     const mins = estMins % 60;
-    closeMenuSheet();
-    el('recTitle').textContent = 'Reading stats';
+
+    // Build last 7 days array
+    const days = [];
+    const dayNamesTr = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+    const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let maxDayMins = goalMins;
+    for (let i = 6; i >= 0; i--) {
+      const dt = new Date(Date.now() - i * 86400000);
+      const k = dt.toISOString().slice(0, 10);
+      const m = Math.round((dailySeconds[k] || 0) / 60);
+      if (m > maxDayMins) maxDayMins = m;
+      const label = i === 0
+        ? (isEn ? 'Today' : 'Bugün')
+        : (isEn ? dayNamesEn[dt.getDay()] : dayNamesTr[dt.getDay()]);
+      days.push({ key: k, mins: m, label, isToday: i === 0 });
+    }
+
+    const goalOptions = [10, 20, 30, 45];
+
+    el('recTitle').textContent = isEn ? '🎯 Daily Goal & Reading Stats' : '🎯 Günlük Hedef & İstatistikler';
     el('recContent').innerHTML = `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
-        <div style="padding:16px; background:var(--surface-2); border-radius:12px; text-align:center;">
-          <div style="font-size:24px; font-weight:700; color:var(--accent);">${total}</div>
-          <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">Books in library</div>
+      <div style="padding:16px; background:var(--surface-2); border-radius:16px; margin-bottom:14px; border:1px solid var(--border);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div>
+            <div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em;">
+              ${isEn ? '🎯 Today\'s Listening Goal' : '🎯 Bugünkü Dinleme Hedefi'}
+            </div>
+            <div style="font-size:22px; font-weight:800; margin-top:2px;">
+              ${todayMins} <span style="font-size:14px; font-weight:600; color:var(--text-dim);">/ ${goalMins} ${isEn ? 'min' : 'dk'} (%${goalPct})</span>
+            </div>
+          </div>
+          <div style="font-size:28px;">${goalPct >= 100 ? '🏆' : '🎧'}</div>
         </div>
-        <div style="padding:16px; background:var(--surface-2); border-radius:12px; text-align:center;">
-          <div style="font-size:24px; font-weight:700; color:var(--accent);">${finished}</div>
-          <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">Finished</div>
+        <div style="height:10px; background:var(--surface-3); border-radius:999px; overflow:hidden; margin-bottom:12px;">
+          <div style="height:100%; width:${goalPct}%; background:linear-gradient(90deg, var(--accent), #EC4899); border-radius:999px; transition:width 0.3s ease;"></div>
         </div>
-        <div style="padding:16px; background:var(--surface-2); border-radius:12px; text-align:center;">
-          <div style="font-size:24px; font-weight:700;">${inProgress}</div>
-          <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">In progress</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+          <span style="font-size:12px; color:var(--text-dim); font-weight:600;">${isEn ? 'Daily target:' : 'Günlük hedef:'}</span>
+          <div style="display:flex; gap:6px;">
+            ${goalOptions.map(g => `
+              <button type="button" class="goal-opt-btn" data-goal="${g}" style="padding:5px 10px; border-radius:8px; border:1px solid ${g === goalMins ? 'var(--accent)' : 'var(--border)'}; background:${g === goalMins ? 'var(--accent)' : 'var(--surface)'}; color:${g === goalMins ? '#fff' : 'var(--text)'}; font-size:12px; font-weight:700; cursor:pointer;">
+                ${g} ${isEn ? 'm' : 'dk'}
+              </button>
+            `).join('')}
+          </div>
         </div>
-        <div style="padding:16px; background:var(--surface-2); border-radius:12px; text-align:center;">
-          <div style="font-size:24px; font-weight:700;">${hours}h ${mins}m</div>
-          <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">Est. listened</div>
+      </div>
+
+      <div style="padding:16px; background:var(--surface-2); border-radius:16px; margin-bottom:14px; border:1px solid var(--border);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <span style="font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.04em;">
+            ${isEn ? '📊 Last 7 Days Activity' : '📊 Son 7 Gün Dinleme Grafiği'}
+          </span>
+          <span style="font-size:12px; font-weight:700; color:var(--accent);">
+            🔥 ${d.streak || 0} ${isEn ? 'day streak' : 'gün seri'}
+          </span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; align-items:end; height:110px; padding-top:16px;">
+          ${days.map(day => {
+            const barH = Math.max(8, Math.round((day.mins / Math.max(1, maxDayMins)) * 75));
+            const hitGoal = day.mins >= goalMins;
+            return `
+              <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                <div style="font-size:10px; font-weight:700; color:${day.isToday ? 'var(--accent)' : 'var(--text-dim)'};">${day.mins > 0 ? day.mins + 'd' : ''}</div>
+                <div style="width:100%; max-width:26px; height:${barH}px; border-radius:6px; background:${hitGoal ? 'linear-gradient(180deg, #10B981, #059669)' : (day.isToday ? 'var(--accent)' : 'var(--surface-3)')};"></div>
+                <div style="font-size:11px; font-weight:${day.isToday ? '700' : '500'}; color:${day.isToday ? 'var(--text)' : 'var(--text-dim)'};">${day.label}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px;">
+        <div style="padding:14px; background:var(--surface-2); border-radius:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:700; color:var(--accent);">${total}</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">${isEn ? 'Books in library' : 'Kütüphanedeki kitap'}</div>
+        </div>
+        <div style="padding:14px; background:var(--surface-2); border-radius:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:700; color:var(--accent);">${finished}</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">${isEn ? 'Finished' : 'Bitirilen kitap'}</div>
+        </div>
+        <div style="padding:14px; background:var(--surface-2); border-radius:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:700;">${inProgress}</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">${isEn ? 'In progress' : 'Devam eden'}</div>
+        </div>
+        <div style="padding:14px; background:var(--surface-2); border-radius:12px; text-align:center;">
+          <div style="font-size:22px; font-weight:700;">${hours}${isEn ? 'h' : 's'} ${mins}${isEn ? 'm' : 'dk'}</div>
+          <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">${isEn ? 'Total listened' : 'Toplam dinleme'}</div>
         </div>
       </div>
     `;
+
+    el('recContent').querySelectorAll('.goal-opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.dailyGoalMins = parseInt(btn.dataset.goal, 10) || 20;
+        saveSettings();
+        updateStreakDisplay();
+        renderStatsSheet();
+      });
+    });
+  }
+
+  el('statsBtn').addEventListener('click', () => {
+    closeMenuSheet();
+    renderStatsSheet();
     el('recBackdrop').classList.add('open');
     el('recSheet').classList.add('open');
   });
@@ -4573,7 +4861,7 @@
     updateMenuStates();
   });
 
-  // === Reading streak ===
+  // === Reading streak & Daily Goal Tracker (#7) ===
   const STREAK_KEY = 'bookvoice.streak.v1';
   function loadStreak() {
     try { return JSON.parse(localStorage.getItem(STREAK_KEY) || '{}'); } catch { return {}; }
@@ -4582,20 +4870,47 @@
   function markListened() {
     const d = loadStreak();
     const today = new Date().toISOString().slice(0, 10);
-    if (d.lastDate === today) return;
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    d.streak = (d.lastDate === yesterday) ? (d.streak || 0) + 1 : 1;
-    d.lastDate = today;
-    d.totalDays = (d.totalDays || 0) + 1;
+    if (!d.dailySeconds) d.dailySeconds = {};
+    if (d.dailySeconds[today] === undefined) d.dailySeconds[today] = 15;
+    if (d.lastDate !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      d.streak = (d.lastDate === yesterday) ? (d.streak || 0) + 1 : 1;
+      d.lastDate = today;
+      d.totalDays = (d.totalDays || 0) + 1;
+    }
     saveStreakData(d);
     updateStreakDisplay();
+  }
+  function recordListeningSeconds(sec = 6) {
+    const d = loadStreak();
+    const today = new Date().toISOString().slice(0, 10);
+    if (!d.dailySeconds) d.dailySeconds = {};
+    d.dailySeconds[today] = (d.dailySeconds[today] || 0) + sec;
+    if (d.lastDate !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      d.streak = (d.lastDate === yesterday) ? (d.streak || 0) + 1 : 1;
+      d.lastDate = today;
+      d.totalDays = (d.totalDays || 0) + 1;
+    }
+    saveStreakData(d);
   }
   function updateStreakDisplay() {
     const d = loadStreak();
     const disp = el('streakDisplay');
     if (!disp) return;
-    if (d.streak) disp.textContent = `🔥 ${d.streak} day streak · ${d.totalDays} days total`;
-    else disp.textContent = '';
+    const isEn = settings.uiLang === 'en';
+    const today = new Date().toISOString().slice(0, 10);
+    const todayMins = Math.round(((d.dailySeconds && d.dailySeconds[today]) || 0) / 60);
+    const goalMins = settings.dailyGoalMins || 20;
+    if (d.streak) {
+      disp.textContent = isEn
+        ? `🔥 ${d.streak} day streak · 🎯 Today: ${todayMins}/${goalMins} min`
+        : `🔥 ${d.streak} gün seri · 🎯 Bugün: ${todayMins}/${goalMins} dk`;
+    } else {
+      disp.textContent = isEn
+        ? `🎯 Daily goal: ${todayMins}/${goalMins} min`
+        : `🎯 Günlük hedef: ${todayMins}/${goalMins} dk`;
+    }
   }
 
   // === Chat ===
@@ -5161,27 +5476,63 @@
     }
   });
 
-  // === Ambient sounds ===
+  // === Ambient sounds & Smart Book-Genre Atmosphere (#6) ===
   const ambientAudio = el('ambientAudio');
   const AMBIENT_OPTIONS = [
-    { id: 'off', label: 'Off', url: null },
-    { id: 'rain', label: 'Rain', url: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg' },
-    { id: 'fire', label: 'Fireplace', url: 'https://actions.google.com/sounds/v1/ambiences/crackling_fireplace_loop.ogg' },
-    { id: 'cafe', label: 'Coffee shop', url: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg' },
-    { id: 'ocean', label: 'Ocean waves', url: 'https://actions.google.com/sounds/v1/water/waves_crashing.ogg' },
-    { id: 'forest', label: 'Forest', url: 'https://actions.google.com/sounds/v1/ambiences/forest_with_birds.ogg' },
-    { id: 'wind', label: 'Wind', url: 'https://actions.google.com/sounds/v1/weather/wind_ambient.ogg' },
-    { id: 'whitenoise', label: 'White noise', url: 'https://actions.google.com/sounds/v1/ambiences/white_noise.ogg' }
+    { id: 'off', labelTr: '🔇 Kapalı', labelEn: '🔇 Off', url: null },
+    { id: 'rain', labelTr: '🌧️ Gece Yağmuru (Gizem & Polisiye)', labelEn: '🌧️ Night Rain (Mystery & Crime)', url: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg' },
+    { id: 'fire', labelTr: '🔥 Şömine Ateşi (Fantastik & Klasik)', labelEn: '🔥 Fireplace (Fantasy & Classic)', url: 'https://actions.google.com/sounds/v1/ambiences/crackling_fireplace_loop.ogg' },
+    { id: 'cafe', labelTr: '☕ Sakin Kafe (Roman & Öykü)', labelEn: '☕ Cozy Cafe (Fiction & Drama)', url: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg' },
+    { id: 'forest', labelTr: '🌲 Orman & Kuşlar (Romantik & Doğa)', labelEn: '🌲 Forest & Birds (Romance & Nature)', url: 'https://actions.google.com/sounds/v1/ambiences/forest_with_birds.ogg' },
+    { id: 'wind', labelTr: '🍃 Gece Rüzgârı (Gerilim & Psikolojik)', labelEn: '🍃 Night Wind (Thriller & Suspense)', url: 'https://actions.google.com/sounds/v1/weather/wind_ambient.ogg' },
+    { id: 'ocean', labelTr: '🌊 Okyanus Dalgaları (Derin Odak)', labelEn: '🌊 Ocean Waves (Deep Focus)', url: 'https://actions.google.com/sounds/v1/water/waves_crashing.ogg' },
+    { id: 'whitenoise', labelTr: '〰️ Beyaz Gürültü (İzolasyon)', labelEn: '〰️ White Noise (Isolation)', url: 'https://actions.google.com/sounds/v1/ambiences/white_noise.ogg' }
   ];
   let currentAmbient = 'off';
 
+  function detectSmartAmbientForCurrentBook() {
+    const bk = state.currentBook;
+    if (bk) {
+      const catItem = (typeof FREE_CLASSICS_CATALOG !== 'undefined')
+        ? FREE_CLASSICS_CATALOG.find(c => c.title.toLowerCase() === (bk.title || '').toLowerCase())
+        : null;
+      const cats = catItem?.cat || [];
+      const combined = `${bk.title || ''} ${bk.author || ''} ${cats.join(' ')}`.toLowerCase();
+      if (cats.includes('crime') || /sherlock|cinayet|dedektif|polisiye|suç|arsen|lupin|holmes|morgue|soruşturma|kanıt/.test(combined)) {
+        return AMBIENT_OPTIONS.find(o => o.id === 'rain');
+      }
+      if (cats.includes('thriller') || /gerilim|korku|psikolojik|gölge|karanlık|kâbus|Jekyll|dorian|frankenstein|dracula/.test(combined)) {
+        return AMBIENT_OPTIONS.find(o => o.id === 'wind');
+      }
+      if (cats.includes('fantasy') || /fantastik|büyü|ejderha|zaman|efsane|masal|alice|oz|uzay|yıldız|odyssey/.test(combined)) {
+        return AMBIENT_OPTIONS.find(o => o.id === 'fire');
+      }
+      if (cats.includes('romance') || /aşk|romantik|sevgi|kalp|eylül|gurur|jane|eyre|mevsim/.test(combined)) {
+        return AMBIENT_OPTIONS.find(o => o.id === 'forest');
+      }
+    }
+    return AMBIENT_OPTIONS.find(o => o.id === 'rain');
+  }
+
   function openAmbientSheet() {
+    const isEn = settings.uiLang === 'en';
+    if (el('ambientSheetTitle')) {
+      el('ambientSheetTitle').textContent = isEn ? '🌧️ Ambient & Smart Atmosphere' : '🌧️ Arka Plan & Akıllı Atmosfer';
+    }
+    const smartRec = detectSmartAmbientForCurrentBook();
+    if (el('lblSmartAmbientBtn')) {
+      const recName = isEn ? smartRec.labelEn : smartRec.labelTr;
+      el('lblSmartAmbientBtn').textContent = isEn
+        ? `Auto-Match Book Genre (${recName})`
+        : `Kitap Türüne Göre Otomatik Eşleştir (${recName})`;
+    }
     const container = el('ambientOptions');
     container.innerHTML = '';
     AMBIENT_OPTIONS.forEach(opt => {
+      const lbl = isEn ? opt.labelEn : opt.labelTr;
       const btn = document.createElement('button');
       btn.className = 'sleep-option' + (currentAmbient === opt.id ? ' active' : '');
-      btn.innerHTML = `<span>${opt.label}</span>${currentAmbient === opt.id ? '<span class="check">✓</span>' : ''}`;
+      btn.innerHTML = `<span>${lbl}</span>${currentAmbient === opt.id ? '<span class="check">✓</span>' : ''}`;
       btn.addEventListener('click', () => {
         playAmbient(opt);
       });
@@ -5197,23 +5548,33 @@
     el('ambientSheet').classList.remove('open');
   }
   function playAmbient(opt) {
+    const isEn = settings.uiLang === 'en';
     currentAmbient = opt.id;
+    const lbl = isEn ? opt.labelEn : opt.labelTr;
     if (!opt.url) {
       ambientAudio.pause();
       ambientAudio.src = '';
-      el('ambientState').textContent = 'Off';
+      el('ambientState').textContent = isEn ? 'Off' : 'Kapalı';
       openAmbientSheet();
       return;
     }
     ambientAudio.src = opt.url;
     ambientAudio.loop = true;
     ambientAudio.play().then(() => {
-      el('ambientState').textContent = opt.label;
+      el('ambientState').textContent = lbl;
       openAmbientSheet();
     }).catch(e => {
       showToast('Ambient failed: ' + e.message);
     });
   }
+  el('smartAmbientMatchBtn')?.addEventListener('click', () => {
+    const smartOpt = detectSmartAmbientForCurrentBook();
+    if (smartOpt) {
+      playAmbient(smartOpt);
+      const isEn = settings.uiLang === 'en';
+      showToast(isEn ? `🎭 Smart Atmosphere: ${smartOpt.labelEn}` : `🎭 Akıllı Atmosfer aktif: ${smartOpt.labelTr}`, 1800);
+    }
+  });
   el('ambientVolume').addEventListener('input', e => {
     const v = parseFloat(e.target.value);
     ambientAudio.volume = v;
@@ -7801,7 +8162,9 @@
     if (el('lblExportSub')) el('lblExportSub').textContent = t('exportSubLabel');
     if (el('lblImportMenu')) el('lblImportMenu').textContent = t('importMenuLabel');
     if (el('lblImportSub')) el('lblImportSub').textContent = t('importSubLabel');
-    if (el('lblStatsMenu')) el('lblStatsMenu').textContent = t('statsMenuLabel');
+    if (el('lblStatsMenu')) el('lblStatsMenu').textContent = isEn ? '🎯 Daily goal & stats' : '🎯 Günlük hedef & istatistikler';
+    if (el('lblQuoteCardMenu')) el('lblQuoteCardMenu').textContent = isEn ? '📸 Shareable quote card' : '📸 Paylaşılabilir alıntı kartı';
+    if (el('lblCharactersMenu')) el('lblCharactersMenu').textContent = isEn ? '👥 Who\'s Who? (Characters)' : '👥 Kim kimdir? (Karakter rehberi)';
     if (el('backToCurrentBtn')) el('backToCurrentBtn').textContent = t('backToPlaying');
     if (el('searchSheetTitle')) el('searchSheetTitle').textContent = t('searchInBookTitle');
     if (el('bookSearchInput')) el('bookSearchInput').placeholder = t('searchInBookPlaceholder');
@@ -7981,6 +8344,385 @@
   el('iconPickerClose')?.addEventListener('click', closeIconPickerSheet);
   el('iconPickerBackdrop')?.addEventListener('click', closeIconPickerSheet);
   applySelectedAppIcon();
+
+  // === 8. Shareable Quote Card Studio (#3) ===
+  let activeQuoteStyle = 'noir';
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+    const words = String(text || '').split(/\s+/);
+    const lines = [];
+    let cur = '';
+    for (const w of words) {
+      const test = cur ? (cur + ' ' + w) : w;
+      if (ctx.measureText(test).width > maxWidth && cur) {
+        lines.push(cur);
+        cur = w;
+      } else {
+        cur = test;
+      }
+    }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function drawQuoteCardCanvas() {
+    const canvas = el('quoteCardCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const quoteRaw = (el('quoteCardTextInput')?.value || '').trim() || '“Kitaplar, sessizliğin içindeki en güçlü seslerdir.”';
+    const bookTitle = state.currentBook?.title || 'DioBook';
+    const bookAuthor = state.currentBook?.author || '';
+    const chLabel = (state.chapters && state.chapters[state.currentChapterIdx]?.label) || '';
+
+    const palettes = {
+      noir: { bg1: '#09090B', bg2: '#141418', fg: '#FAFAFA', dim: '#A1A1AA', accent: '#FFFFFF', border: 'rgba(255,255,255,0.14)' },
+      ivory: { bg1: '#FAF8F5', bg2: '#F0ECE1', fg: '#18181B', dim: '#52525B', accent: '#18181B', border: 'rgba(24,24,27,0.14)' },
+      sepia: { bg1: '#F4ECD8', bg2: '#E6D7B9', fg: '#3E2C1C', dim: '#6E533B', accent: '#5C3A21', border: 'rgba(62,44,28,0.18)' },
+      velvet: { bg1: '#130D26', bg2: '#241744', fg: '#F5F3FF', dim: '#C4B5FD', accent: '#A78BFA', border: 'rgba(167,139,250,0.25)' }
+    };
+    const pal = palettes[activeQuoteStyle] || palettes.noir;
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, pal.bg1);
+    grad.addColorStop(1, pal.bg2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Minimalist inner frame
+    ctx.strokeStyle = pal.border;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(64, 64, W - 128, H - 128);
+
+    // Decorative quotation mark at top-left
+    ctx.fillStyle = pal.accent;
+    ctx.globalAlpha = 0.16;
+    ctx.font = '700 220px Georgia, "Times New Roman", serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('“', 105, 290);
+    ctx.globalAlpha = 1;
+
+    // Dynamic font sizing based on quote length
+    let fontSize = 52;
+    if (quoteRaw.length > 260) fontSize = 36;
+    else if (quoteRaw.length > 180) fontSize = 42;
+    else if (quoteRaw.length > 110) fontSize = 46;
+
+    ctx.font = `500 ${fontSize}px Georgia, "Times New Roman", serif`;
+    ctx.fillStyle = pal.fg;
+    ctx.textAlign = 'left';
+
+    const maxTextWidth = W - 240;
+    const lines = wrapCanvasText(ctx, `“${quoteRaw.replace(/^[“"]+|[”"]+$/g, '')}”`, maxTextWidth).slice(0, 14);
+    const lineHeight = Math.round(fontSize * 1.48);
+    const totalTextH = lines.length * lineHeight;
+    let startY = Math.max(280, Math.round((H - totalTextH) / 2) - 40);
+
+    lines.forEach((ln, idx) => {
+      ctx.fillText(ln, 120, startY + idx * lineHeight);
+    });
+
+    // Divider line above book metadata
+    const metaY = H - 245;
+    ctx.strokeStyle = pal.border;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(120, metaY - 45);
+    ctx.lineTo(W - 120, metaY - 45);
+    ctx.stroke();
+
+    // Book Title & Author
+    ctx.fillStyle = pal.fg;
+    ctx.font = '700 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillText(bookTitle.slice(0, 48), 120, metaY + 8);
+
+    if (bookAuthor) {
+      ctx.fillStyle = pal.dim;
+      ctx.font = '500 26px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillText(bookAuthor.slice(0, 52), 120, metaY + 52);
+    }
+    if (chLabel) {
+      ctx.fillStyle = pal.dim;
+      ctx.font = '400 22px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillText(chLabel.slice(0, 60), 120, metaY + 90);
+    }
+
+    // Minimalist DioBook acoustic badge on bottom-right
+    ctx.textAlign = 'right';
+    ctx.fillStyle = pal.dim;
+    ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillText('🎧 DioBook', W - 120, metaY + 52);
+  }
+
+  function openQuoteCardSheet(customQuoteText) {
+    const isEn = settings.uiLang === 'en';
+    if (el('quoteCardHeader')) {
+      el('quoteCardHeader').textContent = isEn ? '📸 Shareable Quote Card' : '📸 Paylaşılabilir Alıntı Kartı';
+    }
+    if (el('lblQuoteTextEdit')) {
+      el('lblQuoteTextEdit').textContent = isEn ? 'Quote Text (Editable)' : 'Alıntı Metni (Düzenlenebilir)';
+    }
+    if (el('downloadQuotePngBtn')) {
+      el('downloadQuotePngBtn').textContent = isEn ? '📥 Download PNG' : '📥 Görseli İndir (PNG)';
+    }
+    if (el('shareQuoteCardBtn')) {
+      el('shareQuoteCardBtn').textContent = isEn ? '📤 Share' : '📤 Paylaş';
+    }
+
+    let initialText = customQuoteText;
+    if (!initialText) {
+      if (state.sentences && state.sentences.length && state.currentSentence >= 0) {
+        initialText = state.sentences[state.currentSentence] || '';
+      } else if (state.currentBook?.title) {
+        initialText = state.currentBook.title;
+      } else {
+        initialText = isEn
+          ? 'Books are a uniquely portable magic.'
+          : 'Kitaplar, sessizliğin içindeki en güçlü seslerdir.';
+      }
+    }
+
+    const input = el('quoteCardTextInput');
+    if (input) input.value = initialText.trim();
+
+    document.querySelectorAll('#quoteStyleBar .voice-filter-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.qstyle === activeQuoteStyle);
+    });
+
+    drawQuoteCardCanvas();
+    el('quoteCardBackdrop')?.classList.add('open');
+    el('quoteCardSheet')?.classList.add('open');
+  }
+
+  function closeQuoteCardSheet() {
+    el('quoteCardBackdrop')?.classList.remove('open');
+    el('quoteCardSheet')?.classList.remove('open');
+  }
+
+  document.querySelectorAll('#quoteStyleBar .voice-filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeQuoteStyle = btn.dataset.qstyle || 'noir';
+      document.querySelectorAll('#quoteStyleBar .voice-filter-pill').forEach(b => {
+        b.classList.toggle('active', b.dataset.qstyle === activeQuoteStyle);
+      });
+      drawQuoteCardCanvas();
+    });
+  });
+
+  el('quoteCardTextInput')?.addEventListener('input', drawQuoteCardCanvas);
+  el('readerQuoteBtn')?.addEventListener('click', () => openQuoteCardSheet());
+  el('quoteCardMenuBtn')?.addEventListener('click', () => { closeMenuSheet(); openQuoteCardSheet(); });
+  el('defineQuoteBtn')?.addEventListener('click', () => {
+    const sent = currentDefinedWordObj?.sentence || currentDefinedWordObj?.word || '';
+    closeDefineSheet();
+    openQuoteCardSheet(sent);
+  });
+  el('quoteCardClose')?.addEventListener('click', closeQuoteCardSheet);
+  el('quoteCardBackdrop')?.addEventListener('click', closeQuoteCardSheet);
+
+  el('downloadQuotePngBtn')?.addEventListener('click', () => {
+    const canvas = el('quoteCardCanvas');
+    if (!canvas) return;
+    drawQuoteCardCanvas();
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const slug = (state.currentBook?.title || 'diobook').toLowerCase().replace(/[^a-z0-9çğıöşü]+/gi, '-').slice(0, 28);
+      a.download = `${slug}-alinti.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      showToast(settings.uiLang === 'en' ? '📸 Quote card downloaded!' : '📸 Alıntı kartı indirildi!');
+    }, 'image/png');
+  });
+
+  el('shareQuoteCardBtn')?.addEventListener('click', async () => {
+    const canvas = el('quoteCardCanvas');
+    if (!canvas) return;
+    drawQuoteCardCanvas();
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'diobook-quote.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: state.currentBook?.title || 'DioBook',
+            text: `"${(el('quoteCardTextInput')?.value || '').trim()}" — ${state.currentBook?.title || 'DioBook'}`
+          });
+          return;
+        } catch {}
+      }
+      // Fallback to download if Web Share with files isn't supported
+      el('downloadQuotePngBtn')?.click();
+    }, 'image/png');
+  });
+
+  // === 9. Spoiler-Free Character Guide ("Kim Kimdir?") (#5) ===
+  const characterGuideCache = new Map();
+
+  function extractLocalCharactersSpoilerFree(textUpToNow, isEn) {
+    const stopWords = new Set([
+      'Bölüm', 'Bolum', 'Chapter', 'Kısım', 'Part', 'Ama', 'Fakat', 'Lakin', 'Ancak', 'Çünkü', 'Cunku',
+      'Sonra', 'Önce', 'Once', 'Şimdi', 'Simdi', 'Belki', 'Sanki', 'Böylece', 'Boylece', 'Orada', 'Burada',
+      'Neden', 'Nasıl', 'Nasil', 'Zaman', 'Gece', 'Sabah', 'Akşam', 'Aksam', 'Güneş', 'Gunes', 'Yağmur',
+      'Yagmur', 'İstanbul', 'Istanbul', 'Londra', 'London', 'Paris', 'Berlin', 'Roma', 'Anadolu', 'Sokak',
+      'Cadde', 'Köşk', 'Kosk', 'Konak', 'Saray', 'Ev', 'Oda', 'Kapı', 'Kapi', 'Pencere', 'Masa', 'Mektup',
+      'Kitap', 'Defter', 'Ses', 'Göz', 'Goz', 'Kalp', 'Yüz', 'Yuz', 'Bir', 'İki', 'Üç', 'Bu', 'Şu', 'O',
+      'Ben', 'Sen', 'Biz', 'Siz', 'Onlar', 'Dedektif', 'Komiser', 'Doktor', 'Profesör', 'Kaptan', 'Kont',
+      'The', 'And', 'But', 'For', 'Nor', 'Yet', 'When', 'Where', 'While', 'After', 'Before', 'Because',
+      'Although', 'Though', 'Since', 'Until', 'Unless', 'There', 'Here', 'They', 'Them', 'Their', 'This',
+      'That', 'These', 'Those', 'What', 'Which', 'Who', 'Whom', 'Whose', 'Why', 'How', 'Some', 'Many',
+      'Every', 'Each', 'Other', 'Another', 'Such', 'No', 'Not', 'Only', 'Own', 'Same', 'So', 'Than', 'Too',
+      'Very', 'Can', 'Will', 'Just', 'Should', 'Now', 'Then', 'Once', 'Upon', 'Time', 'Night', 'Morning',
+      'Evening', 'House', 'Room', 'Door', 'Window', 'Street', 'City', 'Lord', 'Lady', 'Mister', 'Miss'
+    ]);
+
+    const sents = String(textUpToNow || '')
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 20);
+
+    const counts = new Map();
+    const firstContext = new Map();
+
+    sents.forEach(sent => {
+      // Look for capitalized words inside the sentence (skip index 0 to avoid sentence-initial common words)
+      const tokens = sent.split(/\s+/);
+      for (let i = 1; i < tokens.length; i++) {
+        const raw = tokens[i].replace(/^['"“”‘’«»(,;:.!?]+|['"“”‘’«».,!?;:)]+$/g, '');
+        // Strip Turkish possessive/case suffixes after apostrophe: e.g., "Kerem'in" -> "Kerem"
+        const base = raw.split(/['’]/)[0];
+        if (base.length >= 3 && base.length <= 18 && /^[A-ZÇĞİÖŞÜ][a-zçğıöşü]+$/.test(base)) {
+          if (!stopWords.has(base)) {
+            counts.set(base, (counts.get(base) || 0) + 1);
+            if (!firstContext.has(base)) {
+              firstContext.set(base, sent.slice(0, 170));
+            }
+          }
+        }
+      }
+    });
+
+    const sorted = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+
+    if (!sorted.length) {
+      return [{
+        name: state.currentBook?.title || (isEn ? 'Narrator / Protagonist' : 'Anlatıcı / Başkarakter'),
+        role: isEn ? 'Main Perspective' : 'Ana Anlatıcı / Odak',
+        desc: sents[0] ? sents[0].slice(0, 160) : (isEn ? 'Central figure in the chapters read so far.' : 'Şu ana kadar okunan bölümlerin merkezindeki karakter.')
+      }];
+    }
+
+    return sorted.map(([name, cnt]) => ({
+      name,
+      role: isEn ? `Mentioned ${cnt}× so far` : `Şu ana dek ${cnt} kez geçti`,
+      desc: firstContext.get(name) || ''
+    }));
+  }
+
+  async function openCharactersSheet() {
+    const isEn = settings.uiLang === 'en';
+    if (!state.currentBook) {
+      showToast(isEn ? 'Open a book first' : 'Önce bir kitap açın');
+      return;
+    }
+    el('charactersSheetTitle').textContent = isEn ? '👥 Who\'s Who? (Spoiler-Free)' : '👥 Kim Kimdir? (Spoiler\'sız)';
+    const maxChIdx = Math.max(0, state.currentChapterIdx >= 0 ? state.currentChapterIdx : 0);
+    const scopeText = isEn
+      ? `🛡️ Spoiler-Free Protection: Analyzes only Chapters 1 to ${maxChIdx + 1} (your current position). Future chapters are hidden.`
+      : `🛡️ Spoiler Koruması Aktif: Yalnızca Bölüm 1 – ${maxChIdx + 1} arası (şu anki konumunuza kadar) incelendi. İleriki bölümler gizlendi.`;
+    if (el('charactersScopeBadge')) el('charactersScopeBadge').textContent = scopeText;
+
+    const container = el('charactersContent');
+    container.innerHTML = `<div style="text-align:center; padding:28px 16px; color:var(--text-dim); font-size:14px;">${isEn ? '🔍 Analyzing characters up to your current chapter…' : '🔍 Bulunduğunuz bölüme kadarki karakterler analiz ediliyor…'}</div>`;
+    el('charactersBackdrop')?.classList.add('open');
+    el('charactersSheet')?.classList.add('open');
+
+    const cacheKey = `${state.currentBookKey}:${maxChIdx}:${isEn ? 'en' : 'tr'}`;
+    if (characterGuideCache.has(cacheKey)) {
+      renderCharacterCards(characterGuideCache.get(cacheKey));
+      return;
+    }
+
+    try {
+      let combinedText = '';
+      const maxScan = Math.min(state.chapters.length - 1, maxChIdx);
+      for (let i = 0; i <= maxScan; i++) {
+        try {
+          const tCh = await loadChapterText(i);
+          combinedText += '\n' + (tCh || '');
+          if (combinedText.length > 7500) break;
+        } catch {}
+      }
+      if (!combinedText.trim() && state.sentences.length) {
+        combinedText = state.sentences.join(' ');
+      }
+
+      // Instant local extraction first so the user never waits on empty screen
+      const localChars = extractLocalCharactersSpoilerFree(combinedText, isEn);
+      renderCharacterCards(localChars);
+
+      // Attempt AI enrichment (spoiler-free) on top
+      try {
+        const targetLang = isEn ? 'English' : 'Turkish';
+        const raw = await callBrowserLLM([
+          {
+            role: 'system',
+            content: 'You are a literary character guide. Based ONLY on the provided excerpt, return a JSON array of up to 5 characters with keys "name", "role", and "desc" (spoiler-free description based only on the excerpt). Output ONLY valid JSON array.'
+          },
+          {
+            role: 'user',
+            content: `Book: "${state.currentBook.title}" by ${state.currentBook.author || 'Unknown'}. List the main characters appearing in this excerpt in ${targetLang} (JSON array with "name", "role", "desc"):\n\n${combinedText.slice(0, 4800)}`
+          }
+        ], targetLang);
+        const match = raw.match(/\[[\s\S]*\]/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].name) {
+            characterGuideCache.set(cacheKey, parsed);
+            renderCharacterCards(parsed);
+            return;
+          }
+        }
+      } catch {}
+
+      characterGuideCache.set(cacheKey, localChars);
+    } catch (e) {
+      container.innerHTML = `<div style="padding:20px; color:var(--text-dim); text-align:center;">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderCharacterCards(list) {
+    const container = el('charactersContent');
+    if (!container) return;
+    container.innerHTML = list.map(ch => `
+      <div style="padding:14px 16px; background:var(--surface-2); border-radius:14px; border:1px solid var(--border); display:flex; flex-direction:column; gap:5px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <span style="font-size:16px; font-weight:700; color:var(--text);">👤 ${escapeHtml(ch.name || '')}</span>
+          ${ch.role ? `<span class="voice-badge">${escapeHtml(ch.role)}</span>` : ''}
+        </div>
+        <div style="font-size:13.5px; color:var(--text-dim); line-height:1.45;">${escapeHtml(ch.desc || '')}</div>
+      </div>
+    `).join('');
+  }
+
+  function closeCharactersSheet() {
+    el('charactersBackdrop')?.classList.remove('open');
+    el('charactersSheet')?.classList.remove('open');
+  }
+  el('charactersMenuBtn')?.addEventListener('click', () => { closeMenuSheet(); openCharactersSheet(); });
+  el('charactersSheetClose')?.addEventListener('click', closeCharactersSheet);
+  el('charactersBackdrop')?.addEventListener('click', closeCharactersSheet);
 
   // === Keyboard shortcuts (desktop) ===
   document.addEventListener('keydown', (e) => {
